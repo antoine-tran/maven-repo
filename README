@@ -6,8 +6,8 @@ not have an official Maven repository:
    License: GNU GPL v2.0
    Last updated version: 3.6.6
    
-2. Stanford NLP - A set of free natural language processing tools provided by 
-the Stanford NLP group
+2. Stanford NLP - A set of free natural language processing tools written in
+Java, provided by the Stanford NLP group
    (http://nlp.stanford.edu/software)
    License: GNU GPL v2.0
    Last updated version: 
@@ -16,7 +16,7 @@ the Stanford NLP group
    - Stanford POS Tagger: 3.0.4
    - Stanford Topic Modelling Toolbox: 0.4.0
 
-3. Trove4J - A very high-performance tools for Java collections processing
+3. Trove4J - A very high-performance tool for Java collections processing
    (http://trove.starlight-systems.com)
    License: GNU Lesser GPL v2.1
    Last updated version: 3.0.2 
