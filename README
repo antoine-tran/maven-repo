@@ -1,5 +1,8 @@
-The shared Maven repository of several open-source software libraries that do 
-not have an official Maven repository:
+This maven repository hosts three kinds of artifacts:
+- Popular open-source Java software libraries that do not have official maven
+repositories (up to 11.12.2011)
+- OSGi wrappers for those popular open-source tools
+- Personally developed tools
 
 1. Weka - Open-source Data Mining software in Java
    (http://www.cs.waikato.ac.nz/ml/weka)
