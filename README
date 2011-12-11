@@ -16,6 +16,11 @@ the Stanford NLP group
    - Stanford POS Tagger: 3.0.4
    - Stanford Topic Modelling Toolbox: 0.4.0
 
+3. Trove4J - A very high-performance tools for Java collections processing
+   (http://trove.starlight-systems.com)
+   License: GNU Lesser GPL v2.1
+   Last updated version: 3.0.2 
+
 All licenses terms and conditions are listed below.
 
 
