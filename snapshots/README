@@ -1,0 +1,14 @@
+1. Tuan4J - A small software tool that provides utility methods for frequent
+   Java basic operations (I/O executions, logging)
+   
+   License: GNU Lesser GPL v2.1
+   Current snapshot: 0.1.1
+
+2. Javatools2 - An extended version of Max-Planck Institute for Informatics's
+   Javatools with many new features:
+   - OSGi wrapper methods
+   - Optimized database interactions of primitive data
+   - Flexible logging methods
+
+   License: GNU Lesser GPL v2.1
+   Current snapshot: 0.2.0 
