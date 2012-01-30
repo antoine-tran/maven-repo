@@ -47,6 +47,7 @@ public class OracleDatabase extends Database {
 
 	
 	/** Prepares the query internally for a call (deletes trailing semicolon)*/
+	@Override
 	protected String prepareQuery(String sql) {
 		if (sql.endsWith(";")) return (sql.substring(0, sql.length() - 1));
 		else return (sql);
@@ -120,6 +121,7 @@ public class OracleDatabase extends Database {
 	}
 
 	/** Makes an SQL query limited to n results */
+	@Override
 	public String limit(String sql, int n) {
 		n++;
 		Matcher m = Pattern.compile(" where", Pattern.CASE_INSENSITIVE).matcher(sql);
@@ -172,7 +174,7 @@ public class OracleDatabase extends Database {
 	      for (int i = 0; i < columnTypes.length; i++) {
 	        columnTypes[i] = meta.getColumnType(i + 1);
 	      }
-	      Database.close(r);
+	      javatools.database.Database.close(r);
 	      return columnTypes;
 	}
 	
@@ -194,10 +196,12 @@ public class OracleDatabase extends Database {
 			super();
 		}
 
+		@Override
 		public String toString() {
 			return ("VARCHAR2(" + scale + ")");
 		}
 
+		@Override
 		public String format(Object o) {
 			String s = o.toString().replace("'", "''");
 			if (s.length() > scale) s = s.substring(0, scale);
@@ -214,11 +218,13 @@ public class OracleDatabase extends Database {
 			typeCode = java.sql.Types.INTEGER;
 		}
 
+		@Override
 		public String format(Object o) {
 			if (super.format(o).equals("true")) return ("1");
 			else return ("0");
 		}
 
+		@Override
 		public String toString() {
 			return ("NUMBER(1)");
 		}
@@ -228,6 +234,7 @@ public class OracleDatabase extends Database {
 
 	public static class Bigint extends SQLType.ANSIBigint {
 
+		@Override
 		public String toString() {
 			return ("NUMBER(22)");
 		}

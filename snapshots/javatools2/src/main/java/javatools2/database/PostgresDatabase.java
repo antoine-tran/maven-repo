@@ -98,10 +98,12 @@ public class PostgresDatabase extends Database {
 	    public Varchar() {
 	      super();
 	    } 
-	    public String toString() {
+	    @Override
+		public String toString() {
 	      return("VARCHAR("+scale+")");
 	    }
-	    public String format(Object o) {
+	    @Override
+		public String format(Object o) {
 	      String s=o.toString().replace("'", "''").replace("\\", "\\\\");
 	      if(s.length()>scale) s=s.substring(0,scale);
 	      return("'"+s+"'");

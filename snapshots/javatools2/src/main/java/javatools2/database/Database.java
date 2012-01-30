@@ -33,7 +33,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 
 import javatools.database.ResultIterator;
 
@@ -846,7 +845,7 @@ public class Database extends javatools.database.Database {
 		for (int i = 0; i < columnTypes.length; i++) {
 			columnTypes[i] = meta.getColumnType(i + 1);
 		}
-		Database.close(r);
+		javatools.database.Database.close(r);
 		return columnTypes;
 	}
 

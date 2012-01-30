@@ -24,9 +24,6 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
-import javatools.administrative.D;
-
 /**
  * This class replaces Fabian's MySQLDatabase by implementing a newer version of Database class
  * @author tuan
