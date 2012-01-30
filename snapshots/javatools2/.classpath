@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="var" path="M2_REPO/de/mpii/ag5/javatools/2.0.0/javatools-2.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/net/sf/trove4j/trove4j/3.0.2/trove4j-3.0.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
