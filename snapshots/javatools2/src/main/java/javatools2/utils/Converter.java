@@ -32,7 +32,6 @@ public class Converter {
 	/**
 	 * convert an object into a byte array
 	 * @param obj
-	 * @return
 	 */
 	public static byte[] toBytes(Object obj) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

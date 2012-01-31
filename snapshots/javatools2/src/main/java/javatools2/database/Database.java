@@ -835,7 +835,6 @@ public class Database extends javatools.database.Database {
 	/**
 	 * Return the Ansi SQL colum types of a table
 	 * @param table
-	 * @return
 	 * @throws SQLException
 	 */
 	public int[] getColumnTypes(String table) throws SQLException {
