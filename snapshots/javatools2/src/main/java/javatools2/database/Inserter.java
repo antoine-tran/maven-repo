@@ -45,7 +45,7 @@ public class Inserter extends Database.Inserter {
 
 	// Because of the lack of polymorphism in Fabian's Inserter, I had to create a static method
 	// for construction of new Inserter object with partial insert capacity
-	public static Inserter newInserter(Database database, String table, Column... columns) throws SQLException {
+	public static Inserter newInstance(Database database, String table, Column... columns) throws SQLException {
 		int[] columnTypes = new int[columns.length];
 		StringBuilder sb = new StringBuilder(table);
 		sb.append("(");

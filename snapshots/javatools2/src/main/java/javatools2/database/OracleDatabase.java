@@ -55,7 +55,6 @@ public class OracleDatabase extends Database {
 
 	/** Constructs a non-functional OracleDatabase for use of getSQLType*/
 	public OracleDatabase() {
-
 		java2SQL.put(Boolean.class, bool);
 		java2SQL.put(boolean.class, bool);
 		java2SQL.put(String.class, varchar);
@@ -77,18 +76,19 @@ public class OracleDatabase extends Database {
 		this(user, password, host, null, null, null);
 	}
 
-	/** Constructs a new OracleDatabase from a user, a password and a host
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws SQLException */
+	/** Constructs a new OracleDatabase from a user, a password and a host*/
 	public OracleDatabase(String user, String password, String host, String port, String inst, Properties extraProps) throws SQLException {
+		this(user, password, host, port, inst, extraProps, 8);
+	}
+	
+	/** Constructs a new OracleDatabase from a user, a password and a host*/
+	public OracleDatabase(String user, String password, String host, String port, String inst, Properties extraProps, int maxActive) throws SQLException {
 		this();
 		if (password == null) password = "";
 		if (host == null) host = "localhost";
 		if (port == null) port = "1521";
 		if (inst == null) inst = "oracle";
-		connectionString = "jdbc:oracle:thin:" + user + "/" + password + "@" + host + ":" + port + ":" + inst;
+		connectionString = "jdbc:oracle:thin:/@" + host + ":" + port + ":" + inst;
 		Driver driver;
 		try {
 			driver = (Driver) Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
@@ -100,24 +100,14 @@ public class OracleDatabase extends Database {
 			throw new SQLException(e);
 		}
 		DriverManager.registerDriver(driver);
-		resetConnection(extraProps);
+		dataSource = setupDataSource(connectionString, user, password, maxActive);		
+		fetchConnection(user, password, extraProps);
 		description = "ORACLE database " + user + "/" + password + " at " + host + ":" + port + " instance " + inst;
 	}
 
 	/** Constructs a new OracleDatabase from a user and a password on the localhost*/
 	public OracleDatabase(String user, String password) throws Exception {
 		this(user, password, "localhost");
-	}
-
-	/** Holds the String by which the connection can be reset*/
-	protected String connectionString;
-
-	/** Resets the connection. */
-	public void resetConnection(Properties props) throws SQLException {
-		close(connection);
-		if (props == null) connection = DriverManager.getConnection(connectionString);
-		else connection = DriverManager.getConnection(connectionString, props);
-		connection.setAutoCommit(true);
 	}
 
 	/** Makes an SQL query limited to n results */

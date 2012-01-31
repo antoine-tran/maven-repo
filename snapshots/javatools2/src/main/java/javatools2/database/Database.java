@@ -28,11 +28,24 @@ import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.list.array.TShortArrayList;
 
 import java.sql.CallableStatement;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.ConnectionFactory;
+import org.apache.commons.dbcp.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp.PoolableConnectionFactory;
+import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.pool.KeyedObjectPoolFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
 
 import javatools.database.ResultIterator;
 
@@ -49,6 +62,77 @@ public class Database extends javatools.database.Database {
 
 	/** The timeout for connection valid */
 	private static final int TIME_OUT = 3;
+	
+	/** Connection pool manager. Current version (0.0.1) makes use of the Apache Commons DBCP library */
+	protected DataSource dataSource;
+	
+	/** Holds the String by which the connection can be reset*/
+	protected String connectionString;
+	
+	/**
+	 * This method is borrowed from <a href="http://svn.apache.org/viewvc/commons/proper/dbcp/trunk/doc/">
+	 * Apache Commons DBCP Example</a> - PoolingDataSourceExample.java
+	 */
+	
+	public static DataSource setupDataSource(String connectURI, String user, String pwd, int maxActive) {
+        //
+        // First, we'll create a ConnectionFactory that the
+        // pool will use to create Connections.
+        // We'll use the DriverManagerConnectionFactory,
+        // using the connect string passed in the command line
+        // arguments.
+        //
+        ConnectionFactory connectionFactory =
+            new DriverManagerConnectionFactory(connectURI, user, pwd);
+
+        //
+        // Next we'll create the PoolableConnectionFactory, which wraps
+        // the "real" Connections created by the ConnectionFactory with
+        // the classes that implement the pooling functionality.
+        //
+        ObjectPool objectPool = new GenericObjectPool();
+        KeyedObjectPoolFactory stmtPool = new GenericKeyedObjectPoolFactory(null, maxActive);
+        
+        PoolableConnectionFactory poolableConnectionFactory =
+        		new PoolableConnectionFactory(connectionFactory, objectPool, stmtPool, null, 0, false, true);
+
+        //
+        // Now we'll need a ObjectPool that serves as the
+        // actual pool of connections.
+        //
+        // We'll use a GenericObjectPool instance, although
+        // any ObjectPool implementation will suffice.
+        //
+        ObjectPool connectionPool = new GenericObjectPool(poolableConnectionFactory);
+
+        //
+        // Finally, we create the PoolingDriver itself,
+        // passing in the object pool we created.
+        //
+        PoolingDataSource dataSource = new PoolingDataSource(connectionPool);
+
+        return dataSource;
+    }	
+	
+	/** Get new / existing connection from the pool */
+	public void fetchConnection(String user, String password, Properties props) throws SQLException {
+		try {
+			connection = dataSource.getConnection();	
+		} catch (SQLException e) {
+			close(connection);
+			if (props == null) connection = DriverManager.getConnection(connectionString);
+			else connection = DriverManager.getConnection(connectionString, props);
+			connection.setAutoCommit(true);
+		}		
+	}
+	
+	/** Resets the connection. */
+	public void resetConnection(Properties props) throws SQLException {
+		close(connection);
+		if (props == null) connection = DriverManager.getConnection(connectionString);
+		else connection = DriverManager.getConnection(connectionString, props);
+		connection.setAutoCommit(true);
+	}
 
 	/** Returns the results for a query as a ResultIterator. This is an 
 	 * extension of corresponding query method in Fabian's Database class 

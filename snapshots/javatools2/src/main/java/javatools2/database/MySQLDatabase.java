@@ -31,9 +31,14 @@ import java.sql.SQLException;
  */
 public class MySQLDatabase extends Database {
 	
-	/** Constructs a new MySQLDatabase from a user and a password,
-	 * all other arguments may be null*/
+	/** Constructs a new MySQLDatabase from a user and a password, all other arguments may be null*/
 	public MySQLDatabase(String user, String password, String database, String host, String port, String charset, String collate) 
+	throws SQLException {
+		this(user, password, database, host, port, charset, collate, 8);
+	}
+	
+	/** Constructs a new MySQLDatabase from a user and a password, all other arguments may be null*/
+	public MySQLDatabase(String user, String password, String database, String host, String port, String charset, String collate, int maxActive) 
 	throws SQLException {
 		Driver driver;
 		try {
@@ -54,9 +59,9 @@ public class MySQLDatabase extends Database {
 		else charset = "&useUnicode=true&characterEncoding=" + charset + "&characterSetResults=" + charset;
 		if (collate == null) collate = "";
 		else collate = "&connectionCollation=" + collate;
-				
-		connection = DriverManager.getConnection(String.format("jdbc:mysql://%s%s/%s?user=%s&password=%s%s%s", host, port, database, user, password, charset, collate));
-		connection.setAutoCommit(true);
+		dataSource = setupDataSource(connectionString, user, password, maxActive);		
+		connectionString = String.format("jdbc:mysql://%s%s/%s?user=%s&password=%s%s%s", host, port, database, user, password, charset, collate);
+		fetchConnection(user, password, null);
 	}
 	
 	/** Constructs a new EMBEDDED MySQLDatabase from a user and a password 
