@@ -3,3 +3,4 @@
 /snapshots/javatools2/.settings
 /snapshots/javatools2/bin
 /snapshots/javatools2/target
+*/.DS_Store
