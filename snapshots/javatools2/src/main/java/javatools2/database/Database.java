@@ -958,8 +958,9 @@ public class Database extends javatools.database.Database {
 		}
 	}
 
-	public void loadCSV(String table, File input, javatools2.database.Inserter bulki, boolean clearTable, char separator) throws IOException, SQLException {
+	public void loadCSV(String table, String inputFile, javatools2.database.Inserter bulki, boolean clearTable, char separator) throws IOException, SQLException {
 		if (clearTable) executeUpdate("DELETE FROM " + table);
+		File input = new File(inputFile);
 		CSVLines csv = new CSVLines(input);
 		if (csv.numColumns() != null && csv.numColumns() != bulki.numColumns()) {
 			throw new SQLException("File " + input.getName() + " has " + csv.numColumns() + " columns, but table " + table + " has " + bulki.numColumns());
