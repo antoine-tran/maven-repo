@@ -27,6 +27,8 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.list.array.TShortArrayList;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -34,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -47,7 +50,9 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
+import javatools.administrative.Announce;
 import javatools.database.ResultIterator;
+import javatools.filehandlers.CSVLines;
 
 /**
  * This class extends Fabian's wrapping methods with the following new features / contributions:<br>
@@ -62,58 +67,58 @@ public class Database extends javatools.database.Database {
 
 	/** The timeout for connection valid */
 	private static final int TIME_OUT = 3;
-	
+
 	/** Connection pool manager. Current version (0.0.1) makes use of the Apache Commons DBCP library */
 	protected DataSource dataSource;
-	
+
 	/** Holds the String by which the connection can be reset*/
 	protected String connectionString;
-	
+
 	/**
 	 * This method is borrowed from <a href="http://svn.apache.org/viewvc/commons/proper/dbcp/trunk/doc/">
 	 * Apache Commons DBCP Example</a> - PoolingDataSourceExample.java
 	 */
-	
+
 	public static DataSource setupDataSource(String connectURI, String user, String pwd, int maxActive) {
-        //
-        // First, we'll create a ConnectionFactory that the
-        // pool will use to create Connections.
-        // We'll use the DriverManagerConnectionFactory,
-        // using the connect string passed in the command line
-        // arguments.
-        //
-        ConnectionFactory connectionFactory =
-            new DriverManagerConnectionFactory(connectURI, user, pwd);
+		//
+		// First, we'll create a ConnectionFactory that the
+		// pool will use to create Connections.
+		// We'll use the DriverManagerConnectionFactory,
+		// using the connect string passed in the command line
+		// arguments.
+		//
+		ConnectionFactory connectionFactory =
+				new DriverManagerConnectionFactory(connectURI, user, pwd);
 
-        //
-        // Next we'll create the PoolableConnectionFactory, which wraps
-        // the "real" Connections created by the ConnectionFactory with
-        // the classes that implement the pooling functionality.
-        //
-        ObjectPool objectPool = new GenericObjectPool();
-        KeyedObjectPoolFactory stmtPool = new GenericKeyedObjectPoolFactory(null, maxActive);
-        
-        PoolableConnectionFactory poolableConnectionFactory =
-        		new PoolableConnectionFactory(connectionFactory, objectPool, stmtPool, null, 0, false, true);
+		//
+		// Next we'll create the PoolableConnectionFactory, which wraps
+		// the "real" Connections created by the ConnectionFactory with
+		// the classes that implement the pooling functionality.
+		//
+		ObjectPool objectPool = new GenericObjectPool();
+		KeyedObjectPoolFactory stmtPool = new GenericKeyedObjectPoolFactory(null, maxActive);
 
-        //
-        // Now we'll need a ObjectPool that serves as the
-        // actual pool of connections.
-        //
-        // We'll use a GenericObjectPool instance, although
-        // any ObjectPool implementation will suffice.
-        //
-        ObjectPool connectionPool = new GenericObjectPool(poolableConnectionFactory);
+		PoolableConnectionFactory poolableConnectionFactory =
+				new PoolableConnectionFactory(connectionFactory, objectPool, stmtPool, null, 0, false, true);
 
-        //
-        // Finally, we create the PoolingDriver itself,
-        // passing in the object pool we created.
-        //
-        PoolingDataSource dataSource = new PoolingDataSource(connectionPool);
+		//
+		// Now we'll need a ObjectPool that serves as the
+		// actual pool of connections.
+		//
+		// We'll use a GenericObjectPool instance, although
+		// any ObjectPool implementation will suffice.
+		//
+		ObjectPool connectionPool = new GenericObjectPool(poolableConnectionFactory);
 
-        return dataSource;
-    }	
-	
+		//
+		// Finally, we create the PoolingDriver itself,
+		// passing in the object pool we created.
+		//
+		PoolingDataSource dataSource = new PoolingDataSource(connectionPool);
+
+		return dataSource;
+	}	
+
 	/** Get new / existing connection from the pool */
 	public void fetchConnection(String user, String password, Properties props) throws SQLException {
 		try {
@@ -125,7 +130,7 @@ public class Database extends javatools.database.Database {
 			connection.setAutoCommit(true);
 		}		
 	}
-	
+
 	/** Resets the connection. */
 	public void resetConnection(Properties props) throws SQLException {
 		close(connection);
@@ -140,7 +145,7 @@ public class Database extends javatools.database.Database {
 	public <T> ResultIterator<T> query(CharSequence sql, ResultIterator.ResultWrapper<T> rc, String... param) throws SQLException {
 		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, param), rc));
 	}
-	
+
 	/** Returns the results for a query as a ResultIterator. This is an 
 	 * extension of corresponding query method in Fabian's Database class 
 	 * with a byte array parameter */
@@ -174,7 +179,7 @@ public class Database extends javatools.database.Database {
 		//close();
 		return (result);
 	}
-	
+
 	/** Returns a single value (or null). This is an extension of corresponding 
 	 * query method in Fabian's Database class with a single integer parameter */
 	public <T> T queryValue(CharSequence sql, ResultIterator.ResultWrapper<T> rc, int... param) throws SQLException {
@@ -228,7 +233,7 @@ public class Database extends javatools.database.Database {
 			return Integer.MAX_VALUE;
 		}
 	}
-	
+
 	/**
 	 * This is an varbinary version of queryValue with parameter. It returns 
 	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
@@ -250,7 +255,7 @@ public class Database extends javatools.database.Database {
 			return Integer.MAX_VALUE;
 		}
 	}
-		
+
 	/**
 	 * This is an int-primitive version of queryValue with parameters. It returns 
 	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
@@ -488,7 +493,7 @@ public class Database extends javatools.database.Database {
 		//close();
 		return (list.size() == 0) ? null : list.toArray();
 	}
-	
+
 	/**
 	 * Return the list of primitive int with parameters, or null if the resultset is empty
 	 * 
@@ -504,7 +509,7 @@ public class Database extends javatools.database.Database {
 		//close();
 		return (list.size() == 0) ? null : list.toArray();
 	}
-	
+
 	/**
 	 * Return the list of primitive int with parameters, or null if the resultset is empty
 	 * 
@@ -520,7 +525,7 @@ public class Database extends javatools.database.Database {
 		//close();
 		return (list.size() == 0) ? null : list.toArray();
 	}
-	
+
 	/**
 	 * Return the list of primitive int with parameters, or null if the resultset is empty
 	 * Variant with integer arguments
@@ -640,7 +645,7 @@ public class Database extends javatools.database.Database {
 	public ResultSet query(CharSequence sql, String... param) throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency, param));
 	}
-	
+
 	/**
 	 * Returns the results for a query as a ResultSet with default type and
 	 * concurrency (read comments!). The preferred way to execute a query is by
@@ -697,7 +702,7 @@ public class Database extends javatools.database.Database {
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
 	 * concurrency.This is an extension of a corresponding query method in 
@@ -719,7 +724,7 @@ public class Database extends javatools.database.Database {
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
 	 * concurrency.This is an extension of a corresponding query method in 
@@ -741,7 +746,7 @@ public class Database extends javatools.database.Database {
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
 	 * concurrency.This is an extension of a corresponding query method in 
@@ -783,7 +788,7 @@ public class Database extends javatools.database.Database {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
-	
+
 	/** 
 	 * Executes an SQL update query, returns the number of rows added/modified/deleted.  
 	 * This is an extension of a corresponding query method in Fabian's Database class 
@@ -803,8 +808,8 @@ public class Database extends javatools.database.Database {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
-	
-	
+
+
 	/** 
 	 * Executes an SQL generic query  
 	 * This is an extension of a corresponding query method in Fabian's Database class 
@@ -824,7 +829,7 @@ public class Database extends javatools.database.Database {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
-	
+
 	/** 
 	 * Executes an SQL update query, returns the number of rows added/modified/deleted.  
 	 * This is an extension of a corresponding query method in Fabian's Database class 
@@ -844,78 +849,78 @@ public class Database extends javatools.database.Database {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Execute a generic query with return parameters (default type is Integer). This method gets around known bugs 
 	 * in Oracle's DML statements handling (http://forums.oracle.com/forums/thread.jspa?threadID=943680)
 	 * @throws SQLException 
 	 */
 	public int returnedExecute(CharSequence sqlcs, String returnParameter, int type) throws SQLException {
-		 StringBuilder sql = new StringBuilder("{call ");
-		 sql.append(prepareQuery(sqlcs.toString()));
-		 sql.append("RETURNING ");
-		 sql.append(returnParameter);
-		 sql.append(" INTO ?}");
-		    try {
-		      CallableStatement s = connection.prepareCall(sql.toString());
-		      s.registerOutParameter(1, type);
-		      int result = s.executeUpdate();
-		      close(s);
-		      if (result > 0) return (s.getInt(1));
-		      else throw new SQLException("SQL statement did not affect: " + sql);
-		    } 
-		    catch (SQLException e) {
-		      throw new SQLException(sql + "\n" + e.getMessage());
-		    }
+		StringBuilder sql = new StringBuilder("{call ");
+		sql.append(prepareQuery(sqlcs.toString()));
+		sql.append("RETURNING ");
+		sql.append(returnParameter);
+		sql.append(" INTO ?}");
+		try {
+			CallableStatement s = connection.prepareCall(sql.toString());
+			s.registerOutParameter(1, type);
+			int result = s.executeUpdate();
+			close(s);
+			if (result > 0) return (s.getInt(1));
+			else throw new SQLException("SQL statement did not affect: " + sql);
+		} 
+		catch (SQLException e) {
+			throw new SQLException(sql + "\n" + e.getMessage());
+		}
 	}
-	
+
 	/** This method is reserved. Each third party-compliant implementation of Database HAS to override this
 	 * method */
 	public int returnedExecute(CharSequence sqlcs, int... param) throws SQLException {
 		return -1;
 	}
-	
+
 	public boolean execute(CharSequence sqlcs) throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
 		try {
 			Statement s = connection.createStatement();
-		      boolean result = s.execute(sql);
-		      close(s);
-		      return (result);
+			boolean result = s.execute(sql);
+			close(s);
+			return (result);
 		}
 		catch (SQLException e) {
-		     throw new SQLException(sql + "\n" + e.getMessage());
+			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Execute a generic query with return parameters (default type is Integer). This method gets around known bugs 
 	 * in Oracle's DML statements handling (http://forums.oracle.com/forums/thread.jspa?threadID=943680)
 	 * @throws SQLException 
 	 */
 	public int returnedExecute(CharSequence sqlcs, int type, String returnParameter, int... param) throws SQLException {
-		 //StringBuilder sql = new StringBuilder("{call ");
+		//StringBuilder sql = new StringBuilder("{call ");
 		StringBuilder sql = new StringBuilder();
-		 sql.append(prepareQuery(sqlcs.toString()));
-		 sql.append("RETURNING ");
-		 sql.append(returnParameter);
-		 //sql.append(" INTO ?}");
-		 sql.append(" INTO ?;");
-		    try {
-		      CallableStatement s = connection.prepareCall(sql.toString());
-		      int n = param.length;
-				for (int i = 1; i <= n; i++)
-					s.setInt(i, param[i - 1]);
-		      s.registerOutParameter(n + 1, type);
-		      int result = s.executeUpdate();
-		      close(s);
-		      if (result > 0) return (s.getInt(1));
-		      else throw new SQLException("SQL statement did not affect: " + sql);
-		    } catch (SQLException e) {
-		      throw new SQLException(sql + "\n" + e.getMessage());
-		    }
+		sql.append(prepareQuery(sqlcs.toString()));
+		sql.append("RETURNING ");
+		sql.append(returnParameter);
+		//sql.append(" INTO ?}");
+		sql.append(" INTO ?;");
+		try {
+			CallableStatement s = connection.prepareCall(sql.toString());
+			int n = param.length;
+			for (int i = 1; i <= n; i++)
+				s.setInt(i, param[i - 1]);
+			s.registerOutParameter(n + 1, type);
+			int result = s.executeUpdate();
+			close(s);
+			if (result > 0) return (s.getInt(1));
+			else throw new SQLException("SQL statement did not affect: " + sql);
+		} catch (SQLException e) {
+			throw new SQLException(sql + "\n" + e.getMessage());
+		}
 	}
-	
+
 	/**
 	 * Return the Ansi SQL colum types of a table
 	 * @param table
@@ -950,6 +955,21 @@ public class Database extends javatools.database.Database {
 			return ps.executeQuery();
 		} catch (SQLException e) {
 			throw e;
+		}
+	}
+
+	public void loadCSV(String table, File input, javatools2.database.Inserter bulki, boolean clearTable, char separator) throws IOException, SQLException {
+		if (clearTable) executeUpdate("DELETE FROM " + table);
+		CSVLines csv = new CSVLines(input);
+		if (csv.numColumns() != null && csv.numColumns() != bulki.numColumns()) {
+			throw new SQLException("File " + input.getName() + " has " + csv.numColumns() + " columns, but table " + table + " has " + bulki.numColumns());
+		}
+		for (List<String> values : csv) {
+			if (values.size() != bulki.numColumns()) {
+				Announce.warning("Line cannot be read from file", input.getName(), "into table", table, ":\n", values);
+				continue;
+			}
+			bulki.insert(values);
 		}
 	}
 
