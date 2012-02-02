@@ -1,7 +1,7 @@
-/snapshots/javatools2/.classpath
-/snapshots/javatools2/.project
-/snapshots/javatools2/.settings
-/snapshots/javatools2/bin
-/snapshots/javatools2/target
+*/.classpath
+*/.project
+*/.settings
+*/bin
+*/target
 */.DS_Store
 .DS_Store
