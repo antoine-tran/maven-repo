@@ -1,7 +1,12 @@
-*/.classpath
-*/.project
-*/.settings
-*/bin
-*/target
+snapshots/javatools2/.classpath
+snapshots/javatools2/.project
+snapshots/tuan4j/.classpath
+snapshots/tuan4j/.project
+snapshots/javatools2/bin
+snapshots/javatools2/target
+snapshots/tuan4j/bin
+snapshots/tuan4j/target
+snapshots/javatools2/.settings
+snapshots/tuan4j/.settings
 */.DS_Store
 .DS_Store
