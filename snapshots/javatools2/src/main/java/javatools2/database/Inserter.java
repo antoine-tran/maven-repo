@@ -37,10 +37,15 @@ import javatools2.utils.Converter;
 public class Inserter extends Database.Inserter {
 
 	/** OVERRIDE: Tells after how many commands we will flush the batch */
-	private int batchSize = 100;
+	private int batchSize = 1000;
 
 	public Inserter(Database database, String table, int... columnTypes) throws SQLException {
 		database.super(table, columnTypes);
+	}
+	
+	public Inserter(Database database, int batchSize, String table, int... columnTypes) throws SQLException {
+		database.super(table, columnTypes);
+		this.batchSize = batchSize;
 	}
 
 	// Because of the lack of polymorphism in Fabian's Inserter, I had to create a static method
@@ -56,6 +61,21 @@ public class Inserter extends Database.Inserter {
 			else sb.append(")");
 		}
 		return new Inserter(database, sb.toString(), columnTypes);
+	}
+	
+	// Because of the lack of polymorphism in Fabian's Inserter, I had to create a static method
+	// for construction of new Inserter object with partial insert capacity
+	public static Inserter newInstance(Database database, int batchSize, String table, Column... columns) throws SQLException {
+		int[] columnTypes = new int[columns.length];
+		StringBuilder sb = new StringBuilder(table);
+		sb.append("(");
+		for (int i = 0; i < columnTypes.length; i++) {
+			columnTypes[i] = columns[i].getType();
+			sb.append(columns[i].getName());
+			if (i < columnTypes.length - 1) sb.append(",");
+			else sb.append(")");
+		}
+		return new Inserter(database, batchSize, sb.toString(), columnTypes);
 	}
 
 	@Override

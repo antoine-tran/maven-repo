@@ -13,8 +13,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+    <developers>
+      <developer>
+        <id>ttran</id>
+        <name>Tuan Tran</name>
+        <email>ttran@l3s.de</email>
+      </developer>
+    </developers>
+
 	<build>
-		<sourceDirectory>src/java</sourceDirectory>
+		<sourceDirectory>src/basic</sourceDirectory>
 		<testSourceDirectory>src/test</testSourceDirectory>
 		<testOutputDirectory>bin/test-classes</testOutputDirectory>
 		<outputDirectory>bin/classes</outputDirectory>
@@ -33,6 +41,7 @@
 
 	<dependencies>
 		
+		<!-- ========= Dependencies for basic package ============== -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -40,6 +49,24 @@
 			<scope>test</scope>
 		</dependency>
 		
-		</dependencies>
+		<!-- ========= Dependencies for hpc (High-performance computing) package ====== -->
+		<dependency>
+			<groupId>colt</groupId>
+			<artifactId>colt</artifactId>
+			<version>1.2.0</version>
+			<scope>compile</scope>
+		</dependency>
+
+
+		<!-- ========= Dependencies for nosql package ============== -->		
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-core</artifactId>
+			<version>1.0.2</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		
+    </dependencies>
 		
 </project>
