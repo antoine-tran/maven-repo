@@ -29,7 +29,7 @@ import org.apache.hadoop.io.WritableComparable;
  * array is specified. It has to be implemented further in order to be used    
  * @author tuan
  *
- */
+ */ 
 public abstract class IntArrayListWritable implements RandomAccess, 
 		WritableComparable<IntArrayListWritable> {
 
