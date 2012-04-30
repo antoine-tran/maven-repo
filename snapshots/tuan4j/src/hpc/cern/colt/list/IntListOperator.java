@@ -21,7 +21,7 @@
 package cern.colt.list;
 
 
-import tuan.hadoop.io.IntArrayListWritable;
+import tuan.hadoop.io.IntListWritable;
 import cern.colt.list.IntArrayList;
 
 /**

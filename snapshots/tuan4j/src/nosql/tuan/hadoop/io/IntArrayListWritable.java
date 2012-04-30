@@ -1,129 +1,183 @@
-/**
- * ==================================
- * 
- * Copyright (c) 2010 Anh Tuan Tran
- *
- * URL: http://www.mpi-inf.mpg.de/~attran,
- *          http://www.l3s.de/~ttran
- *
- * Email: tranatuan24@gmail.com
- * ==================================
- * 
- * This source code is provided with AS IF - it does not guarantee the
- * or compatibilities with older or newer version of third-parties. In any
- * cases, if you have problems regarding using libraries delivered with
- * the project, feel free to write to the above email. Also, we would like
- * to get feedbacks from all of you
- */
 package tuan.hadoop.io;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.util.Arrays;
+
 
 /**
- * This class extends the Java ArrayList to be writable in Hadoop setting.
- * It is an abstract extension, i.e. no data structure for the 
- * array is specified. It has to be implemented further in order to be used    
+ * This class tailors the two classes ArrayListOfInts and 
+ * ArrayListOfIntsWritable of Jimmy Lin's Cloud9 Map-Reduce
+ * librarry (http://lintool.github.com/Cloud9), to make it
+ * more flexible to other frameworks.
+ * 
  * @author tuan
  *
- */ 
-public abstract class IntArrayListWritable extends ArrayListWritable {
+ */
+public class IntArrayListWritable extends IntListWritable {
 
+	private transient int[] array;
 
 	/**
-	 * Returns <tt>true</tt> if this list contains the input element.
+	 * Constructs an empty list with the specified initial capacity.
 	 *
-	 * @param n element under consideration
-	 * @return <tt>true</tt> if this list contains the input element
+	 * @param initialCapacity the initial capacity of the list
 	 */
-	public boolean contains(int element) {
-		return (indexOf(element) >= 0);
+	public IntArrayListWritable(int initCapacity) {
+		if (initCapacity < 0) {
+			throw new IllegalArgumentException(
+					"Illegal Capacity: " + initCapacity);
+		}
+
+		array = new int[initCapacity];
 	}
-	
-	/** 
-	 * Returns the index of the input element, or -1 if not found 
-	 */
-	public abstract int indexOf(int element);
-	
-	/** 
-	 * Returns the last index of the input element, in case it
-	 * appears many times in the array, or -1 if not found 
-	 */
-	public abstract int lastIndexOf(int element);
-	
-	/**
-	 * Returns the element at the specified position
-	 */
-	public abstract int get(int index);
-	
-	/**
-     * Replaces the element at the specified position in this list with
-     * the specified element. If the position is beyond the range of the
-     * array, nothing happens.
-     *
-     * @param index index of the element to replace
-     * @param element element to be stored at the specified position
-     * @return the element previously at the specified position
-     */
-    public abstract int set(int index, int element);
-	
-    /**
-     * Removes the element at the specified position in this list. 
-     * Shifts any subsequent elements to the left (subtracts one 
-     * from their indices).
-     *
-     * @param index the index of the element to be removed
-     * @return the element that was removed from the list
-     */
-    public abstract int remove(int index);
-    
-    /**
-     * Appends the specified element to the end of this list.
-     */
-    public abstract IntArrayListWritable add(int e);
 
-    /**
-     * Inserts the specified element at the specified position in this list.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (adds one to their indices).
-     *
-     * @param index index at which the specified element is to be inserted
-     * @param element element to be inserted
-     */
-    public abstract IntArrayListWritable add(int index, int element);
-	
-	/** Get the data in the primitive format */
-	public abstract int[] toArray();
-	
-	/** 
-	 * Appends data of the other {@link IntArrayListWritable} into the tail of
-	 * the array */
-	public abstract IntArrayListWritable concat(IntArrayListWritable obj);
-	
 	/**
-	   * Deserializes this object.
-	   *
-	   * @param in source for raw byte representation
-	   */
-	  public void readFields(DataInput in) throws IOException {
-	    this.clear();
-	    int size = in.readInt();
-	    for (int i = 0; i < size; i++) {
-	      add(i, in.readInt());
-	    }
-	  }
+	 * Constructs an empty list with an initial capacity of ten.
+	 */
+	public IntArrayListWritable() {
+		this(INITIAL_CAPACITY_DEFAULT);
+	}
 
-	  /**
-	   * Serializes this object.
-	   *
-	   * @param out	where to write the raw byte representation
-	   */
-	  public void write(DataOutput out) throws IOException {
-	    int size = size();
-	    out.writeInt(size);
-	    for (int i = 0; i < size; i++) {
-	      out.writeInt(get(i));
-	    }
-	  }
+	/**
+	 * Constructs a list from an array. Defensively makes a copy of the array.
+	 *
+	 * @param a source array
+	 */
+	public IntArrayListWritable(int[] a) {
+		if (a != null) {
+			// Be defensive and make a copy of the array.
+			array = Arrays.copyOf(a, a.length);
+			size = array.length;	
+		}		
+	}
+
+	/**
+	 * Constructs a list populated with ints in range [first, last).
+	 *
+	 * @param first the smallest int in the range (inclusive)
+	 * @param last the largest int in the range (exclusive)
+	 */
+	public IntArrayListWritable(int first, int last) {
+		this(last - first);
+
+		int j = 0;
+		for (int i = first; i < last; i++) {
+			this.add(j++, i);
+		}
+	}
+
+	@Override
+	public void ensureCapacity(int minCapacity) {
+		int oldCapacity = array.length;
+		if (minCapacity > oldCapacity) {
+			int newCapacity = (oldCapacity * 3) / 2 + 1;
+			if (newCapacity < minCapacity) {
+				newCapacity = minCapacity;
+			}
+			array = Arrays.copyOf(array, newCapacity);
+		}
+	}
+
+	@Override
+	public void trimToSize() {
+		int oldCapacity = array.length;
+		if (size < oldCapacity) {
+			array = Arrays.copyOf(array, size);
+		}
+	}
+
+	@Override
+	public int indexOf(int element) {
+		for (int i = 0; i < size; i++) {
+			if (element == array[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public int lastIndexOf(int element) {
+		for (int i = size - 1; i >= 0; i--) {
+			if (element == array[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public int get(int index) {
+		return array[index];
+	}
+
+	@Override
+	public int set(int index, int element) {
+		int oldValue = array[index];
+		array[index] = element;
+		return oldValue;
+	}
+
+	@Override
+	public int remove(int index) {
+		if (index >= size) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		int oldValue = array[index];
+
+		int numMoved = size - index - 1;
+		if (numMoved > 0) {
+			System.arraycopy(array, index + 1, array, index, numMoved);
+		}
+
+		size--;
+		return oldValue;
+	}
+
+	@Override
+	public IntArrayListWritable add(int e) {
+		ensureCapacity(size + 1); // Increments modCount!!
+		array[size++] = e;
+		return this;
+	}
+
+	@Override
+	public IntArrayListWritable add(int index, int element) {
+		if (index > size || index < 0) {
+			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+		}
+
+		ensureCapacity(size + 1); // Increments modCount!!
+		System.arraycopy(array, index, array, index + 1, size - index);
+		array[index] = element;
+		size++;
+		return this;
+	}
+
+	@Override
+	public void sort(boolean ascending) {
+		trimToSize();
+		if (ascending) {
+			Arrays.sort(array);	
+		}
+		else {
+			int[] tmpArr = new int[size];
+			int j = 0;			
+			for (int i = array.length-1; i >= 0; i--) {
+				tmpArr[ j++ ] = array[i];
+			}
+			Arrays.sort(tmpArr);	
+			array = tmpArr;
+		}
+	}
+
+	@Override
+	public void clear() {
+		size = 0;
+		array = new int[INITIAL_CAPACITY_DEFAULT];
+	}
+
+	@Override
+	public int[] toArray() {
+		return array;
+	}
 }
