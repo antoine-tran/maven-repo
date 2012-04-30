@@ -21,10 +21,10 @@ import java.util.Random;
 
 /**
  * This class provides a number of utility methods for
- * generating random numbers with discrete distribution
+ * generating random numbers with a discrete distribution
  * 
  * @version 0.1
- * @author tuan
+ * @author tuan 
  * @since 27.04.2011
  *
  */
@@ -42,8 +42,8 @@ public abstract class DiscreteRandom {
 	
 	/**
 	 * All discrete distribution can be characterized by the 
-	 * probabilities Pr(X = k), k = 1, 2, 3, ...... This method
-	 * generates randomly an integer number based on a
+	 * probabilities Pr(X = k), where k is an integer from a countable set.
+	 * This method generates randomly an integer number based on a
 	 * particular distribution. 
 	 */
 	public abstract int nextInt() throws ParameterNotDeclaredException;
@@ -52,11 +52,11 @@ public abstract class DiscreteRandom {
 	 * parameterize the distribution at the double scale
 	 */
 	public abstract void parameterize(double... par) throws 
-		ParameterAlreadyDeclaredException;
+		ParameterAlreadyDeclaredException, InvalidParameterException;
 	
 	/**
 	 * parameterize the distribution at the float scale
 	 */
 	public abstract void parameterize(float... par) throws 
-		ParameterAlreadyDeclaredException;;
+		ParameterAlreadyDeclaredException, InvalidParameterException;
 }

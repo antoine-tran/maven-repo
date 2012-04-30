@@ -66,7 +66,10 @@ public class JimmyIntArrayListWritable extends IntArrayListWritable {
 	}
 
 	@Override
-	public int compareTo(IntArrayListWritable obj) {
+	public int compareTo(ArrayListWritable obj) {
+		if (!(obj instanceof JimmyIntArrayListWritable)) {
+			throw new ClassCastException();	
+		}
 		JimmyIntArrayListWritable other = (JimmyIntArrayListWritable) obj;
 		if (isEmpty()) {
 			if (other.isEmpty()) {

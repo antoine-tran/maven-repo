@@ -20,8 +20,6 @@ package tuan.hadoop.io;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.RandomAccess;
-import org.apache.hadoop.io.WritableComparable;
 
 /**
  * This class extends the Java ArrayList to be writable in Hadoop setting.
@@ -30,46 +28,8 @@ import org.apache.hadoop.io.WritableComparable;
  * @author tuan
  *
  */ 
-public abstract class IntArrayListWritable implements RandomAccess, 
-		WritableComparable<IntArrayListWritable> {
+public abstract class IntArrayListWritable extends ArrayListWritable {
 
-	/** real number of elements */
-	protected transient int size;
-	
-	/** initial capacity of the array by default */
-	protected static final int INITIAL_CAPACITY_DEFAULT = 10;
-
-	public int size() {
-		return size;
-	}
-
-	public boolean isEmpty() {
-		return (size == 0);
-	}
-
-	/**
-	 * Specifies the length of this list.
-	 */
-	public void setSize(int size) {
-		ensureCapacity(size);
-		this.size = size;
-	}
-
-	/**
-	 * Increases the capacity of this object, if necessary, to ensure that 
-	 * it can hold at least the number of elements specified by the minimum
-	 * capacity argument. 
-	 * 
-	 * @param minCapacity the desired minimum capacity
-	 */
-	public abstract void ensureCapacity(int minCapacity);
-
-	/**
-	 * Trims the capacity of this object to be the list's current size.
-	 * An application can use this operation to minimize the memory 
-	 * footprint of the object.
-	 */
-	public abstract void trimToSize();
 
 	/**
 	 * Returns <tt>true</tt> if this list contains the input element.
@@ -132,21 +92,9 @@ public abstract class IntArrayListWritable implements RandomAccess,
      * @param element element to be inserted
      */
     public abstract IntArrayListWritable add(int index, int element);
-    
-	/**
-	 * Stability sort the elements of the array
-	 */
-	public abstract void sort(boolean ascending);
-	
-	/**
-	 * Removes all of the elements from this list. The list will
-	 * be empty after this call returns.
-	 */
-	public abstract void clear();
 	
 	/** Get the data in the primitive format */
 	public abstract int[] toArray();
-	
 	
 	/** 
 	 * Appends data of the other {@link IntArrayListWritable} into the tail of
@@ -178,7 +126,4 @@ public abstract class IntArrayListWritable implements RandomAccess,
 	      out.writeInt(get(i));
 	    }
 	  }
-	
-	/** All implementations have to give an explicit representation of the array */
-	public abstract String toString();
 }
