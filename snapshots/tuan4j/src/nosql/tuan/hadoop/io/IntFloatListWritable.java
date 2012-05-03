@@ -22,20 +22,19 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * @author work
+ * This class extends the basic java.util.List to make it writable in Hadoop
+ * setting. It also supports a tuple type (integer index, float content) as
+ * complex items. Such a data type is useful in many applications, e.g. 
+ * managing student scores, or to rank search results.  
+ * @author tuan
  *
  */
-public abstract class IntFloatListWritable extends ListWritable<IntFloatListWritable> {
+public abstract class IntFloatListWritable extends 
+		ListWritable<IntFloatListWritable> {
+	
 
-	/**
-	 * Returns <tt>true</tt> if this list contains the input element.
-	 *
-	 * @param n element under consideration
-	 * @return <tt>true</tt> if this list contains the input element
-	 */
-	public boolean contains(int id, float content) {
-		return (indexOf(id, content) >= 0);
-	}
+	protected static final int DEFAULT_CAPACITY = 10;
+	protected static final float LOAD_FACTOR = 1.5f;
 
 	/**
 	 * Returns <tt>true</tt> if this list contains the input element.
@@ -50,7 +49,7 @@ public abstract class IntFloatListWritable extends ListWritable<IntFloatListWrit
 	/** 
 	 * Returns the index of the input element, or -1 if not found 
 	 */
-	public abstract int indexOf(int element, float content);
+	public abstract int[] indicesOf(float content);
 
 	/** 
 	 * Returns the index of the input element, or -1 if not found 
@@ -64,30 +63,27 @@ public abstract class IntFloatListWritable extends ListWritable<IntFloatListWrit
 	public abstract float contentOf(int id);
 
 	/** 
-	 * Returns the index of the input element, or -1 if not found 
-	 */
-	public abstract int lastIndexOf(int element, float content);
-
-	/** 
 	 * Returns the last index of the input element, in case it
 	 * appears many times in the array, or -1 if not found 
 	 */
 	public abstract int lastIndexOf(int element);
 
 	/**
-	 * Returns the index at the specified position
+	 * Returns the index at the specified position. If the position is out of
+	 * the current range of the list, the Float.MAX_VALUE will be returned
 	 */
 	public abstract int getIndex(int position);
 
 	/**
-	 * Returns the content at the specified position
+	 * Returns the content at the specified position. If the position is out of
+	 * the current range of the list, the Integer.MAX_VALUE will be returned
 	 */
 	public abstract float getContent(int position);
 
 	/**
 	 * Replaces the element at the specified position in this list with
 	 * the specified element. If the position is beyond the range of the
-	 * array, nothing happens.
+	 * array, an IndexOutOfBoundException will be thrown.
 	 *
 	 * @param index index of the element to replace
 	 * @param element element to be stored at the specified position
@@ -98,13 +94,13 @@ public abstract class IntFloatListWritable extends ListWritable<IntFloatListWrit
 	/**
 	 * Replaces the element at the specified position in this list with
 	 * the specified element. If the position is beyond the range of the
-	 * array, nothing happens.
+	 * array, an IndexOutOfBoundException will be thrown.
 	 *
 	 * @param index index of the element to replace
 	 * @param element element to be stored at the specified position
 	 * @return the element previously at the specified position
 	 */
-	public abstract float setContent(int index, float content);
+	public abstract float setContent(int position, float content);
 
 	/**
 	 * Removes the element at the specified position in this list. 
@@ -114,7 +110,17 @@ public abstract class IntFloatListWritable extends ListWritable<IntFloatListWrit
 	 * @param index the index of the element to be removed
 	 * @return the element that was removed from the list
 	 */
-	public abstract int remove(int index);
+	public abstract int remove(int position);
+	
+	/**
+	 * Removes the element at the specified position in this list. 
+	 * Shifts any subsequent elements to the left (subtracts one 
+	 * from their indices).
+	 *
+	 * @param index the index of the element to be removed
+	 * @return the content that was removed from the list
+	 */
+	public abstract float removeAndGetBackContent(int position);
 
 	/**
 	 * Appends the specified element to the end of this list.
