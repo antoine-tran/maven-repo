@@ -13,7 +13,7 @@ import java.util.Arrays;
  *
  */
 public class IntArrayListWritable extends IntListWritable {
-
+ 
 	private transient int[] array;
 
 	/**

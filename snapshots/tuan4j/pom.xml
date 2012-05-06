@@ -22,7 +22,48 @@
     </developers>
 
 	<build>
-		<sourceDirectory>src/basic</sourceDirectory>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>	
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.3.1</version>				
+			</plugin>
+			
+			<plugin>
+    			<groupId>org.codehaus.mojo</groupId>
+    			<artifactId>build-helper-maven-plugin</artifactId>
+    			<version>1.7</version>
+    			<executions>
+        			<execution>
+            			<phase>generate-sources</phase>
+            			<goals>
+            				<goal>add-source</goal>
+            			</goals>
+            			<configuration>
+                			<sources>
+                    			<source>src/hpc</source>
+                    			<source>src/nosql</source>
+                			</sources>
+            			</configuration>
+        			</execution>
+    			</executions>
+			</plugin>
+		</plugins>
+		
+		<sourceDirectory>src/basic</sourceDirectory>		
 		<testSourceDirectory>src/test</testSourceDirectory>
 		<testOutputDirectory>bin/test-classes</testOutputDirectory>
 		<outputDirectory>bin/classes</outputDirectory>
