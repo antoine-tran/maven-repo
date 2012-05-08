@@ -46,7 +46,7 @@
     			<groupId>org.codehaus.mojo</groupId>
     			<artifactId>build-helper-maven-plugin</artifactId>
     			<version>1.7</version>
-    			<executions>
+    			<executions> 
         			<execution>
             			<phase>generate-sources</phase>
             			<goals>
