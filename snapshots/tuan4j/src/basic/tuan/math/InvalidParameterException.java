@@ -22,6 +22,7 @@ package tuan.math;
  * @author tuan
  *
  */
+@SuppressWarnings("serial")
 public class InvalidParameterException extends Exception {
 
 }
