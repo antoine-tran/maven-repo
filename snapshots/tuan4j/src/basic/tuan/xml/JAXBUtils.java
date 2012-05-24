@@ -17,6 +17,8 @@
  */
 package tuan.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -68,6 +70,17 @@ public class JAXBUtils {
 		fos.close();
 	}
 	
+	public static <T> String marshallToString(Object jaxbElement, Class<T> c)
+			throws JAXBException, IOException {
+		initMarshaller(c);
+		ByteArrayOutputStream fos = new ByteArrayOutputStream();
+		m.marshal(jaxbElement, fos);
+		fos.flush();
+		String res = fos.toString("UTF-8");
+		fos.close();
+		return res;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <T> T unmarshall(String file, Class<T> c) throws IOException, 
 			JAXBException {
@@ -81,5 +94,13 @@ public class JAXBUtils {
 			throws IOException, JAXBException {
 		initUnmarshaller(c);
 		return (T) um.unmarshal(input);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T unmarshallString(String str, Class<T> c) throws IOException,
+			JAXBException {
+		initUnmarshaller(c);
+		ByteArrayInputStream bis = new ByteArrayInputStream(str.getBytes());
+		return (T) um.unmarshal(bis);
 	}
 }
