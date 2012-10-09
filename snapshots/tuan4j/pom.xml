@@ -56,7 +56,8 @@
                 			<sources>
                     			<source>src/scientific</source>
                     			<source>src/nosql</source>
-                    			<source>src/stanford-nlp-lite</source>
+                    			<source>src/basic</source>
+                    			<source>src/social</source>
                 			</sources>
             			</configuration>
         			</execution>
@@ -117,7 +118,19 @@
       		<optional>true</optional>
     	</dependency>
 		
-		
+		<!-- ========= Shared dependencies for social packages ============== -->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+  		    <artifactId>httpcore</artifactId>
+            <version>4.2.2</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.1</version>
+	    </dependency>
+	    
     </dependencies>
 		
 </project>

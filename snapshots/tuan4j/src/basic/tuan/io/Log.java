@@ -20,7 +20,7 @@ package tuan.io;
 import tuan.calendar.Calendar;
 
 /**
- * Light-weigh and fast logging methods
+ * Simple (yet potentially time-consuming) logging methods
  * 
  * @author tuan
  *
