@@ -29,9 +29,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-
-import tuan.facebook.GraphAPIs;
+import tuan.io.FileUtility;
 
 /**
  * This class contains methods for retrieving the number of times
@@ -51,6 +53,12 @@ public class ShareCounter {
 	 * or Twitter will screw you */
 	public static final String PRIVATE_TWEET_COUNT_API = 
 			"http://urls.api.twitter.com/1/urls/count.json?url=";
+	
+	/** Google Plus Share Count API */
+	public static final String GOOGLE_PLUS_CNT_API = "https://clients6.google.com/rpc?key=";
+	
+	/** LinkedIn Count API */
+	public static final String LINKEDIN_CNT_API = "http://www.linkedin.com/countserv/count/share?format=json&url=";
 	
 	/** this method returns the number of times a web page ss shared on Facebook 
 	 * @param url the raw HTTP URL address of the web page
@@ -172,16 +180,204 @@ public class ShareCounter {
 		}
 	}
 	
-	public static int 
+	/**
+	 * this method gets the number of share count on Goolge Plus 
+	 **/
+	public static int googlePlus(String link, String keyPath) throws IOException {
+		
+		// Get the private API key
+		String api = null;
+		for (String str : FileUtility.readLines(keyPath, null)) {
+			api = str;
+		}
+		
+		// Register POST request and response
+		HttpClient client = new DefaultHttpClient();
+		if (api == null) {
+			throw new RuntimeException("API key is null");
+		} else {
+			HttpPost req = new HttpPost("https://clients6.google.com/rpc?key=" + api);
+			
+			// Generate POST input from the following JSON format:
+			// [{
+			//     "method":"pos.plusones.get",
+			//     "id":"p",
+			//     "params":{
+			//         "nolog":true,
+			//         "id":"http://stylehatch.co/",
+			//         "source":"widget",
+			//         "userId":"@viewer",
+			//         "groupId":"@self"
+			//         },
+			//     "jsonrpc":"2.0",
+			//     "key":"p",
+			//     "apiVersion":"v1"
+			// }]
+			StringBuilder postData =
+		            new StringBuilder("{\"method\":\"pos.plusones.get\",");
+		    postData.append("\"id\":\"p\",");
+		    postData.append("\"params\":");
+		    postData.append("{\"nolog\":true,");
+		    postData.append("\"id\":\"");
+		    postData.append(link);
+		    postData.append("\",");
+		    postData.append("\"source\":\"widget\",");
+		    postData.append("\"userId\":\"@viewer\",");
+		    postData.append("\"groupId\":\"@self\"");
+		    postData.append("},");
+		    postData.append("\"jsonrpc\":\"2.0\",");
+		    postData.append("\"key\":\"p\",");
+		    postData.append("\"apiVersion\":\"v1\"}");			
+			StringEntity params = new StringEntity(postData.toString(), "ISO-8859-1");
+			req.addHeader("content-type", "application/json");
+			req.setEntity(params);
+			
+			// Get response and close the connection
+			HttpResponse res = client.execute(req);
+			HttpEntity entity = res.getEntity();
+			client.getConnectionManager().shutdown();
+			
+			// extract the result
+			String json = EntityUtils.toString(entity);
+			int offset = json.indexOf("\"count\":");
+			int end = json.indexOf("}", offset);
+			String cntStr = json.substring(offset + 8, end).trim();
+			Double cnt = Double.parseDouble(cntStr);
+			
+			return cnt.intValue();
+		}
+	}
+	
+	public static int googlePlus(String link, String keyPath, HttpClient client) throws IOException {
+		
+		// Get the private API key
+		String api = null;
+		for (String str : FileUtility.readLines(keyPath, null)) {
+			api = str;
+		}
+		
+		// Register POST request and response
+		if (api == null) {
+			throw new RuntimeException("API key is null");
+		} else {
+			HttpPost req = new HttpPost("https://clients6.google.com/rpc?key=" + api);
+			
+			// Generate POST input from the following JSON format:
+			// [{
+			//     "method":"pos.plusones.get",
+			//     "id":"p",
+			//     "params":{
+			//         "nolog":true,
+			//         "id":"http://stylehatch.co/",
+			//         "source":"widget",
+			//         "userId":"@viewer",
+			//         "groupId":"@self"
+			//         },
+			//     "jsonrpc":"2.0",
+			//     "key":"p",
+			//     "apiVersion":"v1"
+			// }]
+			StringBuilder postData = new StringBuilder("{\"method\":");
+			postData.append("\"pos.plusones.get\",");
+		    postData.append("\"id\":\"p\",");
+		    postData.append("\"params\":");
+		    postData.append("{\"nolog\":true,");
+		    postData.append("\"id\":\"");
+		    postData.append(link);
+		    postData.append("\",");
+		    postData.append("\"source\":\"widget\",");
+		    postData.append("\"userId\":\"@viewer\",");
+		    postData.append("\"groupId\":\"@self\"");
+		    postData.append("},");
+		    postData.append("\"jsonrpc\":\"2.0\",");
+		    postData.append("\"key\":\"p\",");
+		    postData.append("\"apiVersion\":\"v1\"}");			
+			StringEntity params = new StringEntity(postData.toString(), "ISO-8859-1");
+			req.addHeader("content-type", "application/json");
+			req.setEntity(params);
+			
+			// Get response and close the connection
+			HttpResponse res = client.execute(req);
+			HttpEntity entity = res.getEntity();
+			
+			// extract the result
+			String json = EntityUtils.toString(entity);
+			int offset = json.indexOf("\"count\":");
+			int end = json.indexOf("}", offset);
+			String cntStr = json.substring(offset + 8, end).trim();
+			Double cnt = Double.parseDouble(cntStr);
+			
+			return cnt.intValue();
+		}
+	}
+	
+	public static int linkedIn(String link) throws IOException {
+		
+		// Issue a request to the API
+		String encoded = URLEncoder.encode(link, "ISO-8859-1");
+		URL url = new URL(LINKEDIN_CNT_API + encoded);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		InputStream response = conn.getInputStream();
+		InputStreamReader stream = new InputStreamReader(response, "UTF-8");
+		BufferedReader reader = new BufferedReader(stream);
+		String line;
+		StringBuilder output = new StringBuilder();
+		while ((line = reader.readLine()) != null) {
+			output.append(line);
+		}
+		
+		// Release resource
+		reader.close();
+		stream.close();
+		response.close();
+		conn.disconnect();
+		
+		// now extract the count
+		String json = output.toString();
+		int shareId =  json.indexOf("\"count\":");
+		int end = json.indexOf(",", shareId);
+		String countStr = json.substring(shareId + 8, end).trim();		
+		try {
+			return Integer.parseInt(countStr); 
+		} catch (NumberFormatException e) {
+			throw new IOException("Mal-formed JSON response: ", e);
+		}		
+	}
+	
+	/** this method returns the number of times a web page ss shared on Facebook. It works
+	 * through either a proxy or a direct connection  
+	 * @param url the raw HTTP URL address of the web page
+	 * @throws IOException */
+	public static int linkedIn(String link, HttpClient client) throws IOException {
+		
+		// Issue a request to the API
+		String encoded = URLEncoder.encode(link, "ISO-8859-1");
+		HttpGet req = new HttpGet(LINKEDIN_CNT_API + encoded);
+		HttpResponse response = client.execute(req);
+		HttpEntity entity = response.getEntity();	
+			
+		// now extract the count
+		String json = EntityUtils.toString(entity);
+		int shareId =  json.indexOf("\"count\":");
+		int closeBracketId = json.indexOf(",", shareId);
+		String countStr = json.substring(shareId + 9, closeBracketId).trim();		
+		try {
+			return Integer.parseInt(countStr); 
+		} catch (NumberFormatException e) {
+			throw new IOException("Mal-formed JSON response: ", e);
+		}		
+	}
+
 	
 	// Test routine
-	public static void main(String[] args) {
+	/* public static void main(String[] args) {	
+	
 		try {
-			System.out.println(GraphAPIs.getShareCount(
-					"http://news.yahoo.com/california-gasoline-prices-set-plunge-spike-ends-004934596.html"));
+			System.out.println(linkedIn(
+			"http://news.yahoo.com/california-gasoline-prices-set-plunge-spike-ends-004934596.html"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	} */
 }

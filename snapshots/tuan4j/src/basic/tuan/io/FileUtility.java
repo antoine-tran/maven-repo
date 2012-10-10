@@ -97,7 +97,7 @@ public class FileUtility {
 	 *
 	 * @throws An exception if otherwise
 	 */
-	public static Object read(String fileName) throws Exception {
+	public static Object read(String fileName) throws IOException, ClassNotFoundException {
 		File file = new File(fileName);
 		ObjectInputStream ois = null;
 		
@@ -110,11 +110,7 @@ public class FileUtility {
 			catch (IOException e) {
 				e.printStackTrace();
 				return null;
-			} 
-			catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				throw e;
-			}
+			}			
 			finally {
 				ois.close();
 			}
@@ -300,6 +296,11 @@ public class FileUtility {
 		@Override
 		public void handle(Throwable e) {
 			e.printStackTrace();
+		}
+
+		@Override
+		public void dispatch(Throwable e) throws Throwable {
+			throw e;
 		}		
 	}
 }

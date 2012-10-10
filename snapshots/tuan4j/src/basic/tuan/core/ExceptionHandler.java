@@ -25,4 +25,5 @@ package tuan.core;
  */
 public interface ExceptionHandler {
 	public void handle(Throwable e);
+	public void dispatch(Throwable e) throws Throwable;
 }
