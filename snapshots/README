@@ -2,7 +2,7 @@
    Java basic operations (I/O executions, logging)
    
    License: GNU Lesser GPL v2.1
-   Current snapshot: 0.1.1
+   Current version: 0.1-beta1
 
 2. Javatools2 - An extended version of Max-Planck Institute for Informatics's
    Javatools with many new features:
@@ -11,4 +11,10 @@
    - Flexible logging methods
 
    License: GNU Lesser GPL v2.1
-   Current snapshot: 0.2.0 
+   Current version: 1.0 
+
+3. Stanford CoreNLP Ext: An extension to Stanford CoreNLP with custom annotations
+   for ad-hoc NLP tasks. It works with Stanford CoreNLP version 1.3.4 or later
+   
+   License:  GNU General Public License v2.x
+   Current version: 0.1

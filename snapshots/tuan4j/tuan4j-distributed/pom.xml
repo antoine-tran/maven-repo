@@ -180,4 +180,12 @@
       <optional>true</optional>
     </dependency>
   </dependencies>
+
+  <repositories>
+     <repository>
+       <id>antoine-tran-github-releases</id>
+       <name>Tuan Tran's Personal Repository for Maven</name>
+       <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+     </repository>
+  </repositories>
 </project>
