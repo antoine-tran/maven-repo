@@ -14,7 +14,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 
 public class TestAnnotations {
 
-	@Test
+	//@Test
 	public void testNETokenAnnotations() {
 		Properties props = new Properties();		
 		props.put("annotators", "tokenize, ssplit, pos, lemma, ner, nerannot");
