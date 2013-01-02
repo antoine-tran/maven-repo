@@ -4,11 +4,11 @@ snapshots/tuan4j/*/.classpath
 snapshots/tuan4j/*/.project
 snapshots/javatools2/bin
 snapshots/javatools2/target
-snapshots/*/*/bin
-snapshots/*/*/target
-snapshots/*/*/.settings
-snapshots/*/*/.classpath
-snapshots/*/*/.project
+snapshots/*/bin
+snapshots/*/target
+snapshots/*/.settings
+snapshots/*/.classpath
+snapshots/*/.project
 snapshots/tuan4j/*/bin
 snapshots/tuan4j/*/target
 snapshots/javatools2/.settings
