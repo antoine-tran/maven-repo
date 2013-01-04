@@ -65,6 +65,25 @@ public class StringUtils {
 	public static boolean isNumeric(String string) {
 		return string.matches("-?\\d+(.\\d+)?");
 	}
+	
+	/** Some tasks need extract number-like information from a text, such as extracting number
+	 * of likes of a social media post in a text "2700 people likes this text". This method
+	 * uses a simple heuristic to extract such information. It returns Integer.MIN_VALUE if
+	 * failure occurs */
+	public static int getOnlyNumerics(String text) {
+		
+		if (text == null) return Integer.MIN_VALUE;
+		int n = text.length();		
+		char[] inputBuf = text.toCharArray();
+		char[] outputBuf = new char[n];
+		int i = 0;
+		for (char c : inputBuf) {
+			if (Character.isDigit(c)) {
+				outputBuf[i++] = c;
+			}
+		}	
+		return Integer.parseInt(String.valueOf(outputBuf, 0, i));
+	}
 
 	/***
 	 * Calculate the Levenshtein Distance (http://en.wikipedia.org/wiki/Levenshtein_distance)
