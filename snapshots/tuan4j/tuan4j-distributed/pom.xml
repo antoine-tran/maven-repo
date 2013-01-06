@@ -172,13 +172,7 @@
 	  <groupId>org.apache.httpcomponents</groupId>
 	  <artifactId>httpclient</artifactId>
 	  <version>4.1</version>
-	</dependency>
-	<dependency>
-      <groupId>fastutil</groupId>
-      <artifactId>fastutil</artifactId>
-      <version>6.4.4</version>
-      <optional>true</optional>
-    </dependency>
+	</dependency>           
   </dependencies>
 
   <repositories>

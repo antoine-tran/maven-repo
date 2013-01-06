@@ -17,15 +17,17 @@
  */
 package tuan.hadoop.io;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import tuan.collections.IntSet;
+
 
 /**
+ * This collection used BitSet to check the existence of a key
  * @author tuan
  *
  */
-public class IntHashSetWritable extends IntSetWritable {
+public class IntBitSetWritable extends IntSetWritable {
 
-	private transient IntOpenHashSet data; 
+	private transient IntSet data; 
 	
 	@Override
 	public boolean contains(int element) {
@@ -83,16 +85,14 @@ public class IntHashSetWritable extends IntSetWritable {
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
-		if (data.trim(minCapacity)) {
+		if (data.trimToSize(minCapacity)) {
 			throw new RuntimeException("hash table grows too large");
 		}
 	}
 
 	@Override
 	public void trimToSize() {
-		if (data.trim()) {
-			throw new RuntimeException("hash table grows too large");
-		}	
+		data.trim();
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class IntHashSetWritable extends IntSetWritable {
 
 	@Override
 	public int[] toArray() {		
-		return data.toIntArray();
+		return data.toArray();
 	}
 
 }
