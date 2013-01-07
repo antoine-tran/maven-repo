@@ -21,9 +21,9 @@ package tuan.collections;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
-
-/** An unordered map that uses int keys. This implementation is a cuckoo hash map using 3 hashes, random walking, and a small stash
+ ******************************************************************************
+ *
+ * An unordered map that uses int keys. This implementation is a cuckoo hash map using 3 hashes, random walking, and a small stash
  * for problematic keys. Null values are allowed. No allocation is done except when growing the table size. <br>
  * <br>
  * This map performs very fast get, containsKey, and remove (typically O(1), worst case O(log(n))). Put may be a bit slower,

@@ -8,7 +8,18 @@
   <description>This library provides utility methods for widely used tasks in a typical Java software development, be it an academic prototype or an industrial software. It also includes the core, highly reusable components in famous Stanford CoreNLP tool (http://nlp.stanford.edu/software/corenlp.shtml)</description>
   <version>0.2-beta1</version>
   <packaging>jar</packaging>
-  
+  <licenses>
+	<license>
+	  <name>New BSD License</name>
+	  <url>http://www.opensource.org/licenses/bsd-license.php</url>
+	  <distribution>repo</distribution>
+	</license>
+	<license>
+	  <name>GPL General Public Licene, version 2</name>
+	  <url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+	  <distribution>repo</distribution>
+	</license>
+  </licenses>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -18,6 +29,11 @@
       <name>Tuan Tran</name>
       <email>ttran@l3s.de</email>
     </developer>
+	<developer>
+	  <id>nathan.sweet</id>
+	  <name>Nathan Sweet</name>
+	  <email>nathan.sweet@gmail.com</email>
+	</developer>
     <developer>
       <id>christopher.manning</id>
       <name>Christopher Manning</name>

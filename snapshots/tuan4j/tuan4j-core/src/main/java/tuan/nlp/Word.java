@@ -116,4 +116,8 @@ public class Word {
 	public static boolean isStopWordStrict(String s) {
 		return stopWords.contains(s.toLowerCase());
 	}
+	
+	public static boolean isStopWord(String s) {
+		return stopWords.contains(s);
+	}
 }
