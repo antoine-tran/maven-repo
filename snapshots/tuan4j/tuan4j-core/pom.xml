@@ -5,7 +5,7 @@
   <groupId>tuan4j</groupId>
   <artifactId>tuan4j-core</artifactId>
   <name>Tuan4J Core</name>
-  <description>This library provides utility methods for widely used tasks in a typical Java software development, be it an academic prototype or an industrial software. It also includes the core, highly reusable components in famous Stanford CoreNLP tool</description>
+  <description>This library provides utility methods for widely used tasks in a typical Java software development, be it an academic prototype or an industrial software. It also includes the core, highly reusable components in famous Stanford CoreNLP tool (http://nlp.stanford.edu/software/corenlp.shtml)</description>
   <version>0.2-beta1</version>
   <packaging>jar</packaging>
   
