@@ -19,7 +19,7 @@ public interface LSH<T extends MetricPoint> {
 	 *  is null */
 	public void put(@Nullable T doc);
 	
-	/** query the document and get its nearest neighbors based on a */
+	/** query the document and get its nearest neighbors based on a ranking score */
 	public <K> Iterator<? extends Result<K>> neighbours(T query);
 	
 	/** light-weight query processor that returns only the keys of neighbours in
