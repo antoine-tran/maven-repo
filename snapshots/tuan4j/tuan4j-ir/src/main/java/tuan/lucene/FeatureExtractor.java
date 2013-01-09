@@ -366,7 +366,7 @@ public class FeatureExtractor {
 
 			// Print help message when command arguments are invalid
 			if (cmd.getOptions().length == 0) {
-				printHelp(opts);
+				printHelp("arguments cannot be empty", opts);
 				System.exit(-1);
 			}			
 
@@ -387,7 +387,7 @@ public class FeatureExtractor {
 				luceneLoc = cmd.getOptionValue("lucene");
 			} 
 			else {
-				printHelp(opts);
+				printHelp("lucene index path has to be specified", opts);
 				System.exit(-1);
 			}
 			
@@ -395,7 +395,7 @@ public class FeatureExtractor {
 				fields = cmd.getOptionValues("fields");
 			} 
 			else {
-				printHelp(opts);
+				printHelp("lucene fields have to be specified", opts);
 				System.exit(-1);
 			}
 			
@@ -412,7 +412,8 @@ public class FeatureExtractor {
 			if (cmd.hasOption("distribution")) {
 				String[] inputs = cmd.getOptionValues("distribution");
 				if (inputs == null || inputs.length != 2) {
-					printHelp(opts);
+					printHelp("word distribution task needs two inputs (vocabulary" +
+							" file & field)", opts);
 					System.exit(-1);
 				}
 				else fe.exportWordDistribution(inputs[0], inputs[1]);
@@ -422,7 +423,8 @@ public class FeatureExtractor {
 			if (cmd.hasOption("tfidfs")) {
 				String[] inputs = cmd.getOptionValues("tfidfs");
 				if (inputs == null || inputs.length != 2) {
-					printHelp(opts);
+					printHelp("tf-idf calculation task needs two inputs (vocabulary" +
+							" file path, output file path)", opts);
 					System.exit(-1);
 				}
 				else {
@@ -444,7 +446,8 @@ public class FeatureExtractor {
 			if (cmd.hasOption("tfidf")) {
 				String[] inputs = cmd.getOptionValues("tfidf");
 				if (inputs == null || inputs.length != 2) {
-					printHelp(opts);
+					printHelp("document tf-idf calculation task needs two" +
+							" inputs (vocabulary file path & document id)", opts);
 					System.exit(-1);
 				}
 				else {
@@ -454,15 +457,15 @@ public class FeatureExtractor {
 					}
 					catch (NumberFormatException e) {
 						System.err.println("document id must be an integer");
-						printHelp(opts);
+						printHelp("document id must be an integer", opts);
 						System.exit(-1);
 					}
 				}
 			}
-			else {
-				printHelp(opts);
+			/*else {
+				printHelp("command line syntax", opts);
 				System.exit(-1);
-			}
+			}*/
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -470,8 +473,8 @@ public class FeatureExtractor {
 		}
 	}
 	
-	private static final void printHelp(Options opts) {
+	private static final void printHelp(String msg, Options opts) {
 		HelpFormatter help = new HelpFormatter();
-		help.printHelp("", opts);
+		help.printHelp(msg, opts);
 	}
 }
