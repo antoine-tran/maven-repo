@@ -11,6 +11,7 @@ snapshots/*/.classpath
 snapshots/*/.project
 snapshots/tuan4j/*/bin
 snapshots/tuan4j/*/target
+snapshots/tuan4j/*/.fatjar
 snapshots/javatools2/.settings
 snapshots/tuan4j/*/.settings
 */.DS_Store

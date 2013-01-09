@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Wed Jan 09 17:43:14 CET 2013
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=lucenex.jar
+manifest.mergeall=true
+manifest.mainclass=tuan.lucene.FeatureExtractor
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<jar|junit-4.11.jar>;<jar|hamcrest-core-1.3.jar>;<jar|lucene-analyzers-common-4.0.0.jar>
+includes=

@@ -4,13 +4,26 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Writer;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -120,7 +133,7 @@ public class FeatureExtractor {
 			if (writer != null) writer.close();
 		}
 	}
-	
+
 	/** Extract list of vocabulary and load into the main memory
 	 * Caveat: We must call this method separately from loadVocabulary(),
 	 * for the consistency of global dimension mappings
@@ -145,7 +158,7 @@ public class FeatureExtractor {
 					vocabulary.put(termText, totalCnt++);
 				}
 			}
-			
+
 		} finally {
 			if (writer != null) writer.close();
 		}
@@ -160,7 +173,7 @@ public class FeatureExtractor {
 			if (liveDocs == null || liveDocs.get(i)) {
 				Document doc = tfidf(i);
 				if (doc != null) output.write(doc.key() + "\t" + doc.toString() + "\n");
-				
+
 				// log the document having no extracted terms for analysis
 				else Log.log("document ignored " + i);
 			}
@@ -185,6 +198,16 @@ public class FeatureExtractor {
 		return doc.toString();
 	}
 
+	/** Convenience method to extract tf-idf features for a document and output as 
+	 * a string. The input is document id in the index, the output is
+	 * of form "f1 f2 f3 ....." 
+	 * @throws IOException */
+	public String extractTFIDF(String vocabularyFile, int docNo) throws IOException {
+		loadVocabulary(vocabularyFile);
+		Document doc = tfidf(docNo);
+		return doc.toString();
+	}
+
 	/** Extract features for a document indexed by lucene. The input  is document id in the
 	 * index, and the field of the documents to be counted. The output is a Document object,
 	 * where dimensions are terms, and features are tf-idf. If all terms in the document are
@@ -200,7 +223,7 @@ public class FeatureExtractor {
 		// first run: calculate the idf's
 		int totalDocs = index.numDocs();
 		for (String field : fields) {
-			
+
 			// NOTE: Not all fields support term vecctor indexing 
 			Terms termsAtField = index.getTermVector(docNo, field);
 
@@ -255,5 +278,199 @@ public class FeatureExtractor {
 		}
 		ArrayFeatures f = new ArrayFeatures(dimension, features);
 		return new Document(String.valueOf(docNo), f, vocabulary.size());
+	}
+
+	// command line tool
+	@SuppressWarnings("static-access")
+	public static void main(String[] args) {
+		Options opts = new Options();
+		OptionGroup optGrp = new OptionGroup();
+
+		// Output stream and error stream
+		Option outputStr =  OptionBuilder.withArgName("o").withLongOpt("output")
+				.withDescription("When set, the system will redirect the output" +
+						" stream to the file specified by this arguments")
+				.hasArg()
+				.create();
+		opts.addOption(outputStr);
+
+		Option errStr =  OptionBuilder.withArgName("e").withLongOpt("error")
+				.withDescription("When set, the system will redirect the error" +
+						" stream to the file specified by this arguments")
+				.hasArg()
+				.create();
+		opts.addOption(errStr);
+
+		// Option 1: load input lucene path
+		Option lucenePath = OptionBuilder.withArgName("p").withLongOpt("lucene")
+				.withDescription("Register lucene index path")
+				.isRequired(true)
+				.hasArg()				
+				.create();
+		optGrp.addOption(lucenePath);
+
+		// Option 2: load input fields
+		Option inputFields = OptionBuilder.withArgName("f").withLongOpt("fields")
+				.withDescription("Load indexable fields that the tool will work with")
+				.isRequired(true)				
+				.hasOptionalArgs()
+				.withValueSeparator(' ')
+				.create();
+		optGrp.addOption(inputFields);
+
+		// Option 3: export vocabulary to file
+		Option exportVocabulary = OptionBuilder.withArgName("v").withLongOpt("vocabulary")
+				.withDescription("export vocabulary of input fields to a text file, one" +
+						" term per line")
+				.hasArg()
+				.create();
+		optGrp.addOption(exportVocabulary);
+
+		// Option 4: export word distribution to file
+		Option distribution = OptionBuilder.withArgName("d").withLongOpt("distribution")
+				.withDescription("export word distributions of input fields to a text file," +
+						" each line of which corresponds to a term, followed by total term" +
+						" frequency and the number of documents containing the terms. " +
+						"Input required: Paths of vocabulary file and output file ")
+				.hasArgs(2)
+				.create();
+		optGrp.addOption(distribution);
+
+		// Option 5: extract tf-idf features to file
+		Option tfidfs = OptionBuilder.withArgName("t").withLongOpt("tfidfs")
+				.withDescription("extract tf-idf vectors for documents from lucene index." +
+						" Input required: paths of vocabulary file, output file")
+				.hasArgs(2)
+				.create();
+		optGrp.addOption(tfidfs);
+
+		// Option 6: extract tf-idf features for a specific document 
+		Option tfidf = OptionBuilder.withArgName("i").withLongOpt("tfidf")
+				.withDescription("extract tf-idf vectors for a document from lucene index." +
+						" Input required: paths of vocabulary file, document id in the index")
+				.hasArgs(2)
+				.create();
+		optGrp.addOption(tfidf);
+
+		FeatureExtractor fe = null;
+		String luceneLoc = null;
+		String[] fields = null;
+
+		// Parse the command line
+		try {
+			// check which script to be called
+			CommandLineParser parser = new GnuParser();
+			CommandLine cmd = parser.parse(opts, args);
+
+
+			// Print help message when command arguments are invalid
+			if (cmd.getOptions().length == 0) {
+				printHelp(opts);
+				System.exit(-1);
+			}			
+
+			// Check the output / error configuration
+			if (cmd.hasOption("output")) {
+				String outStream = cmd.getOptionValue("output");
+				PrintStream out = new PrintStream(new FileOutputStream(outStream));
+				System.setOut(out);
+			}
+
+			if (cmd.hasOption("error")) {
+				String errStream = cmd.getOptionValue("error");
+				PrintStream err = new PrintStream(new FileOutputStream(errStream));
+				System.setErr(err);
+			}
+			// Get mandatory argument values
+			if (cmd.hasOption("lucene")) {
+				luceneLoc = cmd.getOptionValue("lucene");
+			} 
+			else {
+				printHelp(opts);
+				System.exit(-1);
+			}
+			
+			if (cmd.hasOption("fields")) {
+				fields = cmd.getOptionValues("fields");
+			} 
+			else {
+				printHelp(opts);
+				System.exit(-1);
+			}
+			
+			fe = new FeatureExtractor(luceneLoc, fields);
+			
+			// do the demanded tasks
+			// export vocabulary
+			if (cmd.hasOption("vocabulary")) {
+				String input = cmd.getOptionValue("vocabulary");
+				fe.exportVocabulary(input);
+			}
+			
+			// export word distribution
+			if (cmd.hasOption("distribution")) {
+				String[] inputs = cmd.getOptionValues("distribution");
+				if (inputs == null || inputs.length != 2) {
+					printHelp(opts);
+					System.exit(-1);
+				}
+				else fe.exportWordDistribution(inputs[0], inputs[1]);
+			}
+			
+			// extract tf-idfs for all
+			if (cmd.hasOption("tfidfs")) {
+				String[] inputs = cmd.getOptionValues("tfidfs");
+				if (inputs == null || inputs.length != 2) {
+					printHelp(opts);
+					System.exit(-1);
+				}
+				else {
+					Writer out = new FileWriter(inputs[1]);
+					try {
+						fe.extractTFIDF(inputs[0], out);
+					} 
+					catch (IOException e) {
+						e.printStackTrace();
+					}
+					finally {
+						out.close();
+					}
+				}				
+					
+			} 
+			
+			// extract tf-idf for a given document
+			if (cmd.hasOption("tfidf")) {
+				String[] inputs = cmd.getOptionValues("tfidf");
+				if (inputs == null || inputs.length != 2) {
+					printHelp(opts);
+					System.exit(-1);
+				}
+				else {
+					try {
+						int i = Integer.parseInt(inputs[1]);
+						System.out.println(fe.extractTFIDF(inputs[0], i));
+					}
+					catch (NumberFormatException e) {
+						System.err.println("document id must be an integer");
+						printHelp(opts);
+						System.exit(-1);
+					}
+				}
+			}
+			else {
+				printHelp(opts);
+				System.exit(-1);
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static final void printHelp(Options opts) {
+		HelpFormatter help = new HelpFormatter();
+		help.printHelp("", opts);
 	}
 }
