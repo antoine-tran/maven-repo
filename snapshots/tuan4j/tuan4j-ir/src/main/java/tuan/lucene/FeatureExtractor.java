@@ -351,6 +351,7 @@ public class FeatureExtractor {
 				.hasArgs(2)
 				.create();
 		optGrp.addOption(tfidf);
+		opts.addOptionGroup(optGrp);
 
 		FeatureExtractor fe = null;
 		String luceneLoc = null;
