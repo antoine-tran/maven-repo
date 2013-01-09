@@ -29,7 +29,7 @@ public class TestTermFeatureExtractor {
 	
 	@Before
 	public void setUpIndex() throws IOException {
-		Directory dir = FSDirectory.open(new File(LUCENE_DIR_DEBIAN));
+		Directory dir = FSDirectory.open(new File(LUCENE_DIR_MAC));
 		CharArraySet chars = new CharArraySet(Version.LUCENE_40, new ArrayList<String>(), false);
 		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40, chars);
 		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_40, analyzer);
@@ -55,10 +55,10 @@ public class TestTermFeatureExtractor {
 	@Test
 	public void testFeatures() throws IOException {
 		FeatureExtractor extractor = 
-				new FeatureExtractor(LUCENE_DIR_DEBIAN, "title", "text");
+				new FeatureExtractor(LUCENE_DIR_MAC, "title", "text");
 		FileWriter writer = null;
 		try {
-			writer = new FileWriter(LUCENE_OUT_FILE_DEBIAN);
+			writer = new FileWriter(LUCENE_OUT_FILE_MAC);
 			extractor.extractTFIDF(null, writer);
 		} finally {
 			if (writer != null) writer.close();
