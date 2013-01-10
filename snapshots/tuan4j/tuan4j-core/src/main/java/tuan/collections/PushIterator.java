@@ -34,6 +34,7 @@ import java.util.Iterator;
  * @since 2012-02-01
  * @version 0.0.1
  */
+@Deprecated
 public interface PushIterator<T> extends Iterator<T> {
 
 	/** activate the iterator */

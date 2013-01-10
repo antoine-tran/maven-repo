@@ -78,7 +78,9 @@ public class LongTreeMap<V> {
 		return (get(x, key) != null);
 	}
 	
-	public boolean contains()
+	public boolean containsValue() {
+		
+	}
 
 	/*************************************************************************
 	 *  Red-black insertion

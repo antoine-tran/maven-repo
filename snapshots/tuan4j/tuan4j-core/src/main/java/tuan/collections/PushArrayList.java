@@ -40,6 +40,7 @@ import java.util.NoSuchElementException;
  * @since 2012-02-01
  *
  */
+@Deprecated
 public class PushArrayList<T> implements PushIterator<T> {
 
 	// Underlying data array. This supports instance random access

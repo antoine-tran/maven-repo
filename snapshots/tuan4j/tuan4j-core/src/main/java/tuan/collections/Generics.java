@@ -1,6 +1,7 @@
 package tuan.collections;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -39,11 +40,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * theory and practice: The pseudo-typedef antipattern</a>.
  *
  * @author Ilya Sherman
+ * @author tuan
  */
 public class Generics {
 
   private Generics() {} // static class
 
+  /* not needed in Java 7 */
+  public static <E> E[] newArray(Class<E> c, int capacity) {	  
+	  return (E[]) Array.newInstance(c, capacity);
+  }
+  
   /* Collections */
   public static <E> ArrayList<E> newArrayList() {
     return new ArrayList<E>();
