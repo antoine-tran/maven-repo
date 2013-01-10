@@ -44,6 +44,7 @@ import tuan.io.FileUtility;
 import tuan.io.Log;
 import tuan.ml.data.ArrayFeatures;
 import tuan.ml.data.Document;
+import tuan.collections.LongTreeMap;
 
 public class FeatureExtractor {
 
@@ -147,30 +148,32 @@ public class FeatureExtractor {
 			int totalCnt = 0;
 			writer = new FileWriter(outputFile);
 			vocabulary = new TObjectIntHashMap<String>();
-			
+
 			// we load temporarily map of word and its doc frequencies
-			LongTreeMap freqMap = new LongTreeMap();
-			
+			LongTreeMap<String> freqMap = new LongTreeMap<String>();
+
 			TermsEnum termsEnum = null;
 			Terms termsAtField = MultiFields.getTerms(index, contentField);
 			termsEnum = termsAtField.iterator(termsEnum);
 			BytesRef term;
 			while ((term = termsEnum.next()) != null) {
 				String termText = term.utf8ToString();
-				if (!vocabulary.containsKey(termText)) {
-					long docFreq = termsEnum.docFreq();
-					vocabulary.put(termText, totalCnt);
-					freqMap.put(totalCnt, docFreq);
-					totalCnt++;
-					
-					//Term t = new Term(contentField, term);
-					//long termFreq = index.totalTermFreq(t);
-					//writer.write(termText + "\t" + termFreq + "\t" + docFreq + "\n");
-				}
+
+				long docFreq = termsEnum.docFreq();
+				vocabulary.put(termText, totalCnt);
+				if (freqMap.contains(key))
+				freqMap.put(totalCnt, docFreq);
+				totalCnt++;
+				Term t;
+				
+				//Term t = new Term(contentField, term);
+				//long termFreq = index.totalTermFreq(t);
+				//writer.write(termText + "\t" + termFreq + "\t" + docFreq + "\n");
+
 			}
-			
+
 			// sort the freqMap based on doc frequencies
-			
+			freqMap.
 		} finally {
 			if (writer != null) writer.close();
 		}
@@ -302,15 +305,15 @@ public class FeatureExtractor {
 		Option outputStr =  OptionBuilder.withArgName("o").withLongOpt("output")
 				.withDescription("When set, the system will redirect the output" +
 						" stream to the file specified by this arguments")
-				.hasArg()
-				.create();
+						.hasArg()
+						.create();
 		opts.addOption(outputStr);
 
 		Option errStr =  OptionBuilder.withArgName("e").withLongOpt("error")
 				.withDescription("When set, the system will redirect the error" +
 						" stream to the file specified by this arguments")
-				.hasArg()
-				.create();
+						.hasArg()
+						.create();
 		opts.addOption(errStr);
 
 		// Option 1: load input lucene path
@@ -334,8 +337,8 @@ public class FeatureExtractor {
 		Option exportVocabulary = OptionBuilder.withArgName("v").withLongOpt("vocabulary")
 				.withDescription("export vocabulary of input fields to a text file, one" +
 						" term per line")
-				.hasArg()
-				.create();
+						.hasArg()
+						.create();
 		optGrp.addOption(exportVocabulary);
 
 		// Option 4: export word distribution to file
@@ -344,24 +347,24 @@ public class FeatureExtractor {
 						" each line of which corresponds to a term, followed by total term" +
 						" frequency and the number of documents containing the terms. " +
 						"Input required: Paths of vocabulary file and output file ")
-				.hasArgs(2)
-				.create();
+						.hasArgs(2)
+						.create();
 		optGrp.addOption(distribution);
 
 		// Option 5: extract tf-idf features to file
 		Option tfidfs = OptionBuilder.withArgName("t").withLongOpt("tfidfs")
 				.withDescription("extract tf-idf vectors for documents from lucene index." +
 						" Input required: paths of vocabulary file, output file")
-				.hasArgs(2)
-				.create();
+						.hasArgs(2)
+						.create();
 		optGrp.addOption(tfidfs);
 
 		// Option 6: extract tf-idf features for a specific document 
 		Option tfidf = OptionBuilder.withArgName("i").withLongOpt("tfidf")
 				.withDescription("extract tf-idf vectors for a document from lucene index." +
 						" Input required: paths of vocabulary file, document id in the index")
-				.hasArgs(2)
-				.create();
+						.hasArgs(2)
+						.create();
 		optGrp.addOption(tfidf);
 		opts.addOptionGroup(optGrp);
 
@@ -402,7 +405,7 @@ public class FeatureExtractor {
 				printHelp("lucene index path has to be specified", opts);
 				System.exit(-1);
 			}
-			
+
 			if (cmd.hasOption("fields")) {
 				fields = cmd.getOptionValues("fields");
 			} 
@@ -410,16 +413,16 @@ public class FeatureExtractor {
 				printHelp("lucene fields have to be specified", opts);
 				System.exit(-1);
 			}
-			
+
 			fe = new FeatureExtractor(luceneLoc, fields);
-			
+
 			// do the demanded tasks
 			// export vocabulary
 			if (cmd.hasOption("vocabulary")) {
 				String input = cmd.getOptionValue("vocabulary");
 				fe.exportVocabulary(input);
 			}
-			
+
 			// export word distribution
 			if (cmd.hasOption("distribution")) {
 				String[] inputs = cmd.getOptionValues("distribution");
@@ -430,7 +433,7 @@ public class FeatureExtractor {
 				}
 				else fe.exportWordDistribution(inputs[0], inputs[1]);
 			}
-			
+
 			// extract tf-idfs for all
 			if (cmd.hasOption("tfidfs")) {
 				String[] inputs = cmd.getOptionValues("tfidfs");
@@ -451,9 +454,9 @@ public class FeatureExtractor {
 						out.close();
 					}
 				}				
-					
+
 			} 
-			
+
 			// extract tf-idf for a given document
 			if (cmd.hasOption("tfidf")) {
 				String[] inputs = cmd.getOptionValues("tfidf");
@@ -484,11 +487,11 @@ public class FeatureExtractor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static final void printHelp(String msg, Options opts) {
 		HelpFormatter help = new HelpFormatter();
 		help.printHelp(msg, opts);
 	}
-	
+
 	private static class 
 }

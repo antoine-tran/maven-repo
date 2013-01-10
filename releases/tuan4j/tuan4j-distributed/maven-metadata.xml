@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>tuan4j</groupId>
+  <artifactId>tuan4j-distributed</artifactId>
+  <versioning>
+    <versions>
+      <version>0.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20130110020713</lastUpdated>
+  </versioning>
+</metadata>
