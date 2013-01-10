@@ -1,6 +1,8 @@
 package tuan.lucene;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TIntLongHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.io.File;
@@ -36,6 +38,7 @@ import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
 import com.google.common.collect.HashMultiset;
+import com.google.common.primitives.Longs;
 
 import tuan.io.FileUtility;
 import tuan.io.Log;
@@ -138,12 +141,16 @@ public class FeatureExtractor {
 	 * Caveat: We must call this method separately from loadVocabulary(),
 	 * for the consistency of global dimension mappings
 	 */
-	public void exportWordDistribution(String outputFile, String contentField) throws IOException {
+	public void exportWordDistribution(String outputFile, String contentField, int ascending) throws IOException {
 		FileWriter writer = null;
 		try {
 			int totalCnt = 0;
 			writer = new FileWriter(outputFile);
 			vocabulary = new TObjectIntHashMap<String>();
+			
+			// we load temporarily map of word and its doc frequencies
+			LongTreeMap freqMap = new LongTreeMap();
+			
 			TermsEnum termsEnum = null;
 			Terms termsAtField = MultiFields.getTerms(index, contentField);
 			termsEnum = termsAtField.iterator(termsEnum);
@@ -151,14 +158,19 @@ public class FeatureExtractor {
 			while ((term = termsEnum.next()) != null) {
 				String termText = term.utf8ToString();
 				if (!vocabulary.containsKey(termText)) {
-					Term t = new Term(contentField, term);
-					long termFreq = index.totalTermFreq(t);
-					long docFreq = index.docFreq(t);
-					writer.write(termText + "\t" + termFreq + "\t" + docFreq + "\n");
-					vocabulary.put(termText, totalCnt++);
+					long docFreq = termsEnum.docFreq();
+					vocabulary.put(termText, totalCnt);
+					freqMap.put(totalCnt, docFreq);
+					totalCnt++;
+					
+					//Term t = new Term(contentField, term);
+					//long termFreq = index.totalTermFreq(t);
+					//writer.write(termText + "\t" + termFreq + "\t" + docFreq + "\n");
 				}
 			}
-
+			
+			// sort the freqMap based on doc frequencies
+			
 		} finally {
 			if (writer != null) writer.close();
 		}
@@ -477,4 +489,6 @@ public class FeatureExtractor {
 		HelpFormatter help = new HelpFormatter();
 		help.printHelp(msg, opts);
 	}
+	
+	private static class 
 }
