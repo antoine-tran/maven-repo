@@ -104,7 +104,7 @@ public class Document implements Comparable<Document>, Serializable {
 	public String toString() {
 		if (cachedString == null) {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0, j = 0; i < dim; i++) {
+			for (int i = 0, j = 0; i < dim && j < features.size(); i++) {
 				if (i == features.dimensionValue(j)) {
 					sb.append(features.featureValue(j));
 					j++;

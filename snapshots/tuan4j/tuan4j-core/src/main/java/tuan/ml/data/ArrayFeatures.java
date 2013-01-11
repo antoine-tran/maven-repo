@@ -25,6 +25,8 @@ public class ArrayFeatures implements RandomAccessFeatures {
 	// indicates the absence of features at a dimension (over-fitting issue),
 	private double vals[];
 	
+	private String cachedString;
+	
 	/** 
 	 * This is the default constructor for array-based features. The best practice
 	 * is to sort dimension ids before instantiating the feature object. For the 
@@ -123,6 +125,18 @@ public class ArrayFeatures implements RandomAccessFeatures {
 			hashcode += (int) val;
 		}
 		return hashcode;
+	}
+	
+	@Override
+	public String toString() {
+		if (cachedString == null) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < dim; i++) {
+				sb.append(keys[i]).append(":").append(vals[i]).append("\t");
+			}
+			cachedString = sb.toString();
+		}
+		return cachedString;
 	}
 
 	@Override
