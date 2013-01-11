@@ -1,8 +1,6 @@
 package tuan.lucene;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TIntLongHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.io.File;
@@ -11,12 +9,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -28,7 +24,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -41,13 +36,11 @@ import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
 import com.google.common.collect.HashMultiset;
-import com.google.common.primitives.Longs;
 
 import tuan.io.FileUtility;
 import tuan.io.Log;
 import tuan.ml.data.ArrayFeatures;
 import tuan.ml.data.Document;
-import tuan.collections.LongTreeMap;
 
 public class FeatureExtractor {
 
