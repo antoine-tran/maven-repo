@@ -165,7 +165,10 @@ public class FeatureExtractor {
 			for (TermFreq tf : tmpArray) {
 				vocabulary.put(tf.term.text(), totalCnt++);
 				long termFreq = index.totalTermFreq(tf.term);
-				writer.write(tf.term + "\t" + termFreq + "\t" + tf.freq + "\n");
+				String txt = tf.term.text();
+				int i = txt.indexOf(":");
+				if (i != -1) txt = txt.substring(i + 1);
+				writer.write(txt + "\t" + termFreq + "\t" + tf.freq + "\n");
 			}
 		} finally {
 			if (writer != null) writer.close();
