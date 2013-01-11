@@ -17,22 +17,22 @@ public abstract class MapFactory<K,V> implements Serializable {
 
   private static final long serialVersionUID = 4529666940763477360L;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public static final MapFactory HASH_MAP_FACTORY = new HashMapFactory();
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public static final MapFactory IDENTITY_HASH_MAP_FACTORY = new IdentityHashMapFactory();
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static final MapFactory WEAK_HASH_MAP_FACTORY = new WeakHashMapFactory();
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static final MapFactory TREE_MAP_FACTORY = new TreeMapFactory();
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static final MapFactory LINKED_HASH_MAP_FACTORY = new LinkedHashMapFactory();
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static final MapFactory ARRAY_MAP_FACTORY = new ArrayMapFactory();
 
 

@@ -4,17 +4,17 @@ import java.io.Serializable;
 
 /** An entry of key-value pair */
 @SuppressWarnings("serial")
-public class IntObjectPair<T> implements Serializable {
+public class LongObjectPair<T> implements Serializable {
 	
-	private int key;
+	private long key;
 	private T val;
 	
-	public IntObjectPair(int key, T value) {
+	public LongObjectPair(long key, T value) {
 		this.key = key;
 		this.val = value;
 	}
 	
-	public int getKey() {
+	public long getKey() {
 		return key;
 	}
 
@@ -22,7 +22,7 @@ public class IntObjectPair<T> implements Serializable {
 		return val;
 	}
 	
-	public void setKey(int key) {
+	public void setKey(long key) {
 		this.key = key;
 	}
 	

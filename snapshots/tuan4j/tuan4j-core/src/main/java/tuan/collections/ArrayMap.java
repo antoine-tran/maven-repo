@@ -21,9 +21,7 @@ public final class ArrayMap<K,V> extends AbstractMap<K,V> implements Serializabl
 
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings({"NonSerializableFieldInSerializableClass"})
     private K key;
-    @SuppressWarnings({"NonSerializableFieldInSerializableClass"})
     private V value;
 
     public K getKey() {
@@ -53,7 +51,7 @@ public final class ArrayMap<K,V> extends AbstractMap<K,V> implements Serializabl
       if (! (o instanceof Entry)) {
         return false;
       }
-      Entry e = (Entry) o;
+      Entry<K, V> e = (Entry<K, V>) o;
       return (getKey() == null ? e.getKey() == null : getKey().equals(e.getKey())) && (getValue() == null ? e.getValue() == null : getValue().equals(e.getValue()));
     }
 
@@ -98,7 +96,7 @@ public final class ArrayMap<K,V> extends AbstractMap<K,V> implements Serializabl
     capacity = size;
     entryArray = new Entry[size];
     for (int i=0; i<keys.length; i++) {
-      entryArray[i] = new Entry(keys[i], values[i]);
+      entryArray[i] = new Entry<K, V>(keys[i], values[i]);
     }
   }
 

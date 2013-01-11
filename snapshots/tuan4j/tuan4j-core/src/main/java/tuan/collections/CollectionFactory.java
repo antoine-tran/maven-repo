@@ -11,13 +11,13 @@ import java.util.*;
 public abstract class CollectionFactory<T> implements Serializable {
 
   private static final long serialVersionUID = 3711321773145894069L;
-  @SuppressWarnings("unchecked")
-  public static final CollectionFactory ARRAY_LIST_FACTORY = new ArrayListFactory();
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
+public static final CollectionFactory ARRAY_LIST_FACTORY = new ArrayListFactory();
+  @SuppressWarnings("rawtypes")
   public static final CollectionFactory LINKED_LIST_FACTORY = new LinkedListFactory();
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public static final CollectionFactory HASH_SET_FACTORY = new HashSetFactory();
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public static final CollectionFactory TREE_SET_FACTORY = new TreeSetFactory();
 
 

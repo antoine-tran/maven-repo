@@ -4,29 +4,29 @@ import java.io.Serializable;
 
 /** An entry of key-value pair */
 @SuppressWarnings("serial")
-public class IntObjectPair<T> implements Serializable {
+public class LongIntPair implements Serializable {
 	
-	private int key;
-	private T val;
+	private long key;
+	private int val;
 	
-	public IntObjectPair(int key, T value) {
+	public LongIntPair(long key, int value) {
 		this.key = key;
 		this.val = value;
 	}
 	
-	public int getKey() {
+	public long getKey() {
 		return key;
 	}
 
-	public T getValue() {
+	public int getValue() {
 		return val;
 	}
 	
-	public void setKey(int key) {
+	public void setKey(long key) {
 		this.key = key;
 	}
 	
-	public void setValue(T val) {
+	public void setValue(int val) {
 		this.val = val;
 	}
 		

@@ -54,6 +54,18 @@ public class IntSet {
     return(true);
   } 
   
+  /** Adds the element without checking its existence*/
+  public boolean forceAdd(int v) {
+    // Use setAddIndex() also to set the addIndex
+	setAddIndex();  
+    if(numElements==data.length) data=Arrays.copyOf(data,data.length+100);
+    data[addIndex]=v;
+    isThere.set(addIndex,true);
+    numElements++;
+    if(addIndex>lastIndex) lastIndex=addIndex;
+    return(true);
+  } 
+  
   public void clear(int capacity) {
     numElements=0;
     data=new int[capacity];
@@ -80,12 +92,23 @@ public class IntSet {
     }
     return(-1);
   }
+  
+  /** Quickly set addIndex to a free position */
+  protected void setAddIndex() {
+	  addIndex=lastIndex+1;
+	  for(int i=lastIndex;i>=0;i--) {
+		  if(!isThere.get(i)) {
+			  addIndex=i;
+			  break;
+		  }
+	  }
+  }
 
   /** Deletes empty space if necessary*/
   protected void shrink() {
     if(numElements<data.length/2 && data.length>300) {    
       IntSet result=new IntSet(numElements+100);
-      result.addAll(this);
+      result.addUnique(this);
       this.data=result.data;
       this.isThere=result.isThere;
       this.lastIndex=result.lastIndex;
@@ -97,7 +120,7 @@ public class IntSet {
   public void trim() {
 	if(numElements<data.length) {
 	  IntSet result=new IntSet(numElements);
-	  result.addAll(this);
+	  result.addUnique(this);
       this.data=result.data;
       this.isThere=result.isThere;
       this.lastIndex=result.lastIndex;
@@ -110,7 +133,7 @@ public class IntSet {
   public boolean trimToSize(int minSize) {
 	if(numElements<=minSize) {
 	  IntSet result=new IntSet(minSize);
-	  result.addAll(this);
+	  result.addUnique(this);
       this.data=result.data;
       this.isThere=result.isThere;
       this.lastIndex=result.lastIndex;
@@ -160,7 +183,7 @@ public class IntSet {
   public void setTo(IntSet copy) {
     if(copy==this) return;
     clear(copy.size());
-    addAll(copy);
+    addUnique(copy);
   }
   
   /** Removes one element, returns TRUE if the set was modified*/
@@ -246,6 +269,31 @@ public class IntSet {
     return(returnValue);
   }
 
+  /** Adds all elements, skip checking duplicates */
+  public boolean addUnique(int[] c) {
+    boolean returnValue=false;
+    for(int i : c) returnValue|=forceAdd(i);
+    return(returnValue);
+  }
+
+  /** Adds all elements, skip checking duplicates */
+  public boolean addUnique(IntSet s) {
+    boolean returnValue=false;
+    for(int index=0;index<=s.lastIndex;index++) {
+      if(s.isThere.get(index)) returnValue|=forceAdd(s.data[index]);
+    }
+    return(returnValue);
+  }
+
+  /** Adds all elements, skip checking duplicates */
+  public boolean addUnique(BitSet s) {
+    boolean returnValue=false;
+    for(int i=s.nextSetBit(0);i>=0;i=s.nextSetBit(i+1)) {      
+      returnValue|=forceAdd(i);
+    }
+    return(returnValue);
+  }
+  
   /** Removes all elements of s from this set*/
   public boolean removeAll(BitSet s) {
     boolean returnValue=false;

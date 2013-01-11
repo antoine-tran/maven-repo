@@ -9,11 +9,12 @@ import java.util.Iterator;
 
 /** A set backed by an array */
 @SuppressWarnings("serial")
+@Deprecated
 public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 
 	private E[] data;
 
-	private Class<E> c;
+	private Class<?> c;
 
 	/** Tells whether the int is there*/
 	protected BitSet isThere;
@@ -34,6 +35,17 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	public boolean add(E v) {
 		// Use contains() also to set the addIndex
 		if(contains(v)) return(false);  
+		if(numElements==data.length) data=Arrays.copyOf(data,data.length+100);
+		data[addIndex]=v;
+		isThere.set(addIndex,true);
+		numElements++;
+		if(addIndex>lastIndex) lastIndex=addIndex;
+		return(true);
+	} 
+	
+	/** Adds the element without checking its uniqueness */
+	public boolean addQuick(E v) {
+		// Use contains() also to set the addIndex
 		if(numElements==data.length) data=Arrays.copyOf(data,data.length+100);
 		data[addIndex]=v;
 		isThere.set(addIndex,true);
@@ -63,8 +75,10 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	/** Deletes empty space if necessary*/
 	protected void shrink() {
 		if(numElements<data.length/2 && data.length>300) {    
-			ArraySet<E> result = new ArraySet<E>(c, numElements+100);
-			result.addAll(this);
+			ArraySet<E> result = 
+					new ArraySet<E>((E[])Array.newInstance(c, numElements + 100), 
+							numElements+100);
+			result.addAllUnique(this);
 			this.data=result.data;
 			this.isThere=result.isThere;
 			this.lastIndex=result.lastIndex;
@@ -75,8 +89,10 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	/** Force to delete empty space*/
 	public void trim() {
 		if(numElements<data.length) {
-			ArraySet<E> result=new ArraySet<E>(c, numElements);
-			result.addAll(this);
+			ArraySet<E> result = 
+					new ArraySet<E>((E[])Array.newInstance(c, numElements),
+							numElements);
+			result.addAllUnique(this);
 			this.data=result.data;
 			this.isThere=result.isThere;
 			this.lastIndex=result.lastIndex;
@@ -88,8 +104,10 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	 * Return true if the data is modified*/
 	public boolean trimToSize(int minSize) {
 		if(numElements<=minSize) {
-			ArraySet<E> result=new ArraySet<E>(c, minSize);
-			result.addAll(this);
+			ArraySet<E> result=
+					new ArraySet<E>(new ArraySet<E>(
+							(E[])Array.newInstance(c, minSize), minSize));
+			result.addAllUnique(this);
 			this.data=result.data;
 			this.isThere=result.isThere;
 			this.lastIndex=result.lastIndex;
@@ -107,10 +125,13 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 
 	// ----------- Wrapper methods -------------
 
-	/** Creates a new ArraySet from initial values.*/
-	public static <E> ArraySet<E> asSet(Class<E> c, E... initial) {
-		ArraySet<E> result=new ArraySet<E>(c);
-		for(E i : initial) result.add(i);
+	/** Creates a new ArraySet from initial values; the runtime type of
+	 *  the returned array is that of the specified array. If the set 
+	 *  fits in the specified array, it is returned therein. Otherwise,
+	 *   a new array is allocated with the runtime type of the specified
+	 *    array and the size of this set.*/
+	public static <E> ArraySet<E> asSet(E... a) {
+		ArraySet<E> result = new ArraySet<E>(a);
 		return(result);
 	}
 
@@ -120,19 +141,22 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 		setTo(copy);
 	}
 
-	/** Creates a new ArraySet. Since Java 6 does not support type
-	 * inference, we have to parameterize the class in the constructor.
-	 * This is not needed in Java 7 */
-	public ArraySet(Class<E> c) {
-		this.c = c;
+	/** Creates a new ArraySet from an array. If the specified
+	 * array is not empty, it is used as data for the set, 
+	 * otherwise a new array object will be created with
+	 * runtime type equal to the specified array */
+	public ArraySet(E[] c) {
+		if (c == null) throw new NullPointerException();
+		this.c = c.getClass().getComponentType();
 		clear();
 	}
 
 	/** Creates a new ArraySet with an initial capacity. Since Java 6 does
 	 * not support type inference, we have to parameterize the class in the
 	 * constructor. This is not needed in Java 7 */
-	public ArraySet(Class<E> c, int capacity) {
-		this.c = c;
+	public ArraySet(E[] c, int capacity) {
+		if (c == null) throw new NullPointerException();
+		this.c = c.getClass().getComponentType();
 		clear(capacity);
 	}
 
@@ -207,6 +231,15 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 		}
 		return(returnValue);
 	}
+	
+	/** Adds all elements, assuming they are all unique */
+	public boolean addAllUnique(ArraySet<E> s) {
+		boolean returnValue=false;
+		for(int index=0;index<=s.lastIndex;index++) {
+			if(s.isThere.get(index)) returnValue|=addQuick(s.data[index]);
+		}
+		return(returnValue);
+	}
 
 	/** Removes all elements in c*/
 	public boolean removeAll(E[] c) {
@@ -252,8 +285,7 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 
 	@Override
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return (iterator != null) ? iterator : (iterator = new PrivateArrayIterator());
 	}
 
 	private final class PrivateArrayIterator implements Iterator<E> {
@@ -286,8 +318,15 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 
 		@Override
 		public void remove() {
-			// TODO Auto-generated method stub
-
+			if (cursor > lastIndex) 
+				throw new IndexOutOfBoundsException(" go off the set: " + cursor);
+			if (lastIndex == -1) 
+				throw new IndexOutOfBoundsException(" Set is empty: " + lastIndex);
+			if (isThere.get(cursor)) {
+				isThere.clear(cursor);
+				while (!isThere.get(--cursor)) {}
+			}
+			else throw new RuntimeException("item removed: " + cursor);
 		}
 
 	}

@@ -12,8 +12,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -142,38 +145,33 @@ public class FeatureExtractor {
 	 * Caveat: We must call this method separately from loadVocabulary(),
 	 * for the consistency of global dimension mappings
 	 */
-	public void exportWordDistribution(String outputFile, String contentField, int ascending) throws IOException {
+	public void exportWordDistribution(String outputFile, String contentField) throws IOException {
+
+		// load temporarily of word and its doc frequencies
+		Terms termsAtField = MultiFields.getTerms(index, contentField);
+		TermsEnum termsEnum = termsAtField.iterator(null);
+		BytesRef term;
+		ArrayList<TermFreq> tmpArray = new ArrayList<FeatureExtractor.TermFreq>();
+		while ((term = termsEnum.next()) != null) {
+			long docFreq = termsEnum.docFreq();
+			Term t = new Term(contentField, term.utf8ToString());
+			tmpArray.add(new TermFreq(t, term.utf8ToString(), docFreq));
+		}
+
+		// sort the freqMap based on doc frequencies
+		Collections.sort(tmpArray);
+
+		// load sorted vocabulary to memory and emit to file at the same time
+		int totalCnt = 0;
 		FileWriter writer = null;
 		try {
-			int totalCnt = 0;
 			writer = new FileWriter(outputFile);
 			vocabulary = new TObjectIntHashMap<String>();
-
-			// we load temporarily map of word and its doc frequencies
-			LongTreeMap<String> freqMap = new LongTreeMap<String>();
-
-			TermsEnum termsEnum = null;
-			Terms termsAtField = MultiFields.getTerms(index, contentField);
-			termsEnum = termsAtField.iterator(termsEnum);
-			BytesRef term;
-			while ((term = termsEnum.next()) != null) {
-				String termText = term.utf8ToString();
-
-				long docFreq = termsEnum.docFreq();
-				vocabulary.put(termText, totalCnt);
-				if (freqMap.contains(key))
-				freqMap.put(totalCnt, docFreq);
-				totalCnt++;
-				Term t;
-				
-				//Term t = new Term(contentField, term);
-				//long termFreq = index.totalTermFreq(t);
-				//writer.write(termText + "\t" + termFreq + "\t" + docFreq + "\n");
-
+			for (TermFreq tf : tmpArray) {
+				vocabulary.put(tf.term.text(), totalCnt++);
+				long termFreq = index.totalTermFreq(tf.term);
+				writer.write(tf.term + "\t" + termFreq + "\t" + tf.freq + "\n");
 			}
-
-			// sort the freqMap based on doc frequencies
-			freqMap.
 		} finally {
 			if (writer != null) writer.close();
 		}
@@ -243,8 +241,9 @@ public class FeatureExtractor {
 			Terms termsAtField = index.getTermVector(docNo, field);
 
 			// Ignore if the term vector is not indexed
-			// TODO: When this happens, we should find other ways to retrieve terms per document
-			// This should be added in next release of TermFeatureExtractor
+			// TODO: When this happens, we should find other ways to retrieve
+			// terms per document. This should be added in next release of 
+			// TermFeatureExtractor
 			if (termsAtField == null) continue;
 			TermsEnum termsEnum = termsAtField.iterator(null);
 
@@ -348,6 +347,7 @@ public class FeatureExtractor {
 						" frequency and the number of documents containing the terms. " +
 						"Input required: Paths of vocabulary file and output file ")
 						.hasArgs(2)
+						.withValueSeparator(' ')
 						.create();
 		optGrp.addOption(distribution);
 
@@ -356,6 +356,7 @@ public class FeatureExtractor {
 				.withDescription("extract tf-idf vectors for documents from lucene index." +
 						" Input required: paths of vocabulary file, output file")
 						.hasArgs(2)
+						.withValueSeparator(' ')
 						.create();
 		optGrp.addOption(tfidfs);
 
@@ -364,6 +365,7 @@ public class FeatureExtractor {
 				.withDescription("extract tf-idf vectors for a document from lucene index." +
 						" Input required: paths of vocabulary file, document id in the index")
 						.hasArgs(2)
+						.withValueSeparator(' ')
 						.create();
 		optGrp.addOption(tfidf);
 		opts.addOptionGroup(optGrp);
@@ -493,5 +495,34 @@ public class FeatureExtractor {
 		help.printHelp(msg, opts);
 	}
 
-	private static class 
+	private static class TermFreq implements Comparable<TermFreq> {
+
+		private String txt;
+		private Term term;
+		private long freq;
+
+		public TermFreq(Term term, String txt, long freq) {
+			this.term = term;
+			this.txt = txt;
+			this.freq = freq;
+		}
+
+		@Override
+		public int compareTo(TermFreq o) {
+			if (o == null) return -1;
+			else if (freq > o.freq) return -1;
+			else if (freq < o.freq) return 1;
+			else return (o.term.compareTo(term));
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o == this) return true;
+			if (o == null || !(o instanceof TermFreq)) return false;
+			TermFreq tf = (TermFreq)o;
+			boolean res = ((term == null &&  tf.term == null) || term.equals(tf.term));
+			res &= (freq == tf.freq);
+			return res;
+		}
+	}
 }

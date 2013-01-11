@@ -1,16 +1,15 @@
 package tuan.collections;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 
-/** This is the space-efficient red-black tree-based map as equivalent to TreeMap<K,V>,
- * but guarantee much less memory consumption due to un-boxing / boxing avoidance. This 
+/** A space-efficient red-black tree-based map as equivalent to TreeMap<K,V>.
+ * It guarantees much less memory consumption due to un-boxing / boxing avoidance. The 
  * implementation is adapted from the Java source code at "Algorithms", 4th Edition by
- * Robert Sedgewick and Kevin Wayne.
+ * Robert Sedgewick and Kevin Wayne and based on Java OpenJDK 6-b14
  * 
  * @author tuan
  *
@@ -19,21 +18,21 @@ import java.util.Set;
 public class IntTreeMap<V> {
 
 	// Node types
-	private static final boolean RED   = true;
+	private static final boolean RED = true;
 	private static final boolean BLACK = false;
 
 	// root of the BST
-	private transient IntObjectEntry root;     
+	private transient IntObjectEntry<V> root;     
 
 	// An pseudo-object that stores the most recently removed node
-	private int removedK;
+	private IntObjectEntry<V> removedNode;
 	private V removedVal;
 
 	// Basic data structure for the red-black tree
-	final class IntObjectEntry {
+	final static class IntObjectEntry<V> {
 		private int key;       
 		private V val;         
-		private IntObjectEntry left, right;
+		private IntObjectEntry<V> left, right;
 
 		// color of parent link
 		private boolean color;
@@ -47,34 +46,46 @@ public class IntTreeMap<V> {
 			this.color = color;
 			this.childCnt = subTreeCnt;
 		}
-		
+
 		@Override
 		public boolean equals(Object e) {
 			if (e == this) return true;
 			if (e == null || !(e instanceof IntTreeMap.IntObjectEntry)) return false;
-			
+
 			@SuppressWarnings("unchecked")
-			IntObjectEntry obj = (IntTreeMap<V>.IntObjectEntry)e;
-			
+			IntObjectEntry<V> obj = (IntTreeMap.IntObjectEntry<V>)e;
+
 			boolean equals = (key == obj.key);
 			if (val == null && obj.val == null) return equals;
 			else return equals && val.equals(obj.val); 
 		}
-		
+
 		@Override
 		public int hashCode() {
-			return key + ((val != null) ? val.hashCode() : 0);
+			return key*31 + ((val != null) ? val.hashCode() : 0);
+		}
+		
+		public int getKey() {
+			return key;
+		}
+		
+		public V getValue() {
+			return val;
+		}
+		
+		public void setValue(V val) {
+			this.val = val;
 		}
 	}
 
 	// true if node x is red; false if x is null ?
-	private boolean isRed(IntObjectEntry x) {
+	private boolean isRed(IntObjectEntry<V> x) {
 		if (x == null) return false;
 		return (x.color == RED);
 	}
 
 	// number of node in subtree rooted at x; 0 if x is null
-	private int size(IntObjectEntry x) {
+	private int size(IntObjectEntry<V> x) {
 		if (x == null) return 0;
 		return x.childCnt;
 	} 
@@ -93,7 +104,7 @@ public class IntTreeMap<V> {
 	public V get(int key) { return get(root, key); }
 
 	// value associated with the given key in subtree rooted at x; null if no such key
-	private V get(IntObjectEntry x, int key) {
+	private V get(IntObjectEntry<V> x, int key) {
 		while (x != null) {
 			if (key < x.key) x = x.left;
 			else if (key > x.key) x = x.right;
@@ -108,7 +119,7 @@ public class IntTreeMap<V> {
 	}
 
 	// is there a key-value pair with the given key in the subtree rooted at x?
-	private boolean contains(IntObjectEntry x, int key) {
+	public boolean containsKey(IntObjectEntry<V> x, int key) {
 		return (get(x, key) != null);
 	}
 
@@ -122,8 +133,8 @@ public class IntTreeMap<V> {
 	}
 
 	// insert the key-value pair in the subtree rooted at h
-	private IntObjectEntry put(IntObjectEntry h, int key, V val) { 
-		if (h == null) return new IntObjectEntry(key, val, RED, 1);
+	private IntObjectEntry<V> put(IntObjectEntry<V> h, int key, V val) { 
+		if (h == null) return new IntObjectEntry<V>(key, val, RED, 1);
 
 		if (key < h.key) h.left = put(h.left,  key, val); 
 		else if (key > h.key) h.right = put(h.right, key, val); 
@@ -143,7 +154,7 @@ public class IntTreeMap<V> {
 
 	/** Removes and returns a key-value mapping associated with the least key in
 	 * this map, or null if the map is empty. */
-	public IntObjectPair<V> pollFirstEntry() {
+	public IntObjectEntry<V> pollFirstEntry() {
 		if (isEmpty()) return null;
 
 		// if both children of root are black, set root to red
@@ -153,14 +164,13 @@ public class IntTreeMap<V> {
 		root = deleteMin(root);
 		if (!isEmpty()) root.color = BLACK;
 		assert check();
-		return new IntObjectPair<V>(removedK, removedVal);
+		return removedNode;
 	}
 
 	// delete the key-value pair with the minimum key rooted at h
-	private IntObjectEntry deleteMin(IntObjectEntry h) { 
+	private IntObjectEntry<V> deleteMin(IntObjectEntry<V> h) { 
 		if (h.left == null) {
-			removedK = h.key;
-			removedVal = h.val;
+			removedNode = h;
 			return null;
 		}
 
@@ -174,7 +184,7 @@ public class IntTreeMap<V> {
 
 	/** Removes and returns a key-value mapping associated with the greatest key in
 	 * this map, or null if the map is empty */
-	public IntObjectPair<V> pollLastEntry() {
+	public IntObjectEntry<V> pollLastEntry() {
 		if (isEmpty()) return null;
 
 		// if both children of root are black, set root to red
@@ -184,17 +194,16 @@ public class IntTreeMap<V> {
 		root = deleteMax(root);
 		if (!isEmpty()) root.color = BLACK;
 		assert check();
-		return new IntObjectPair<V>(removedK, removedVal);
+		return removedNode;
 	}
 
 	// delete the key-value pair with the maximum key rooted at h
-	private IntObjectEntry deleteMax(IntObjectEntry h) { 
+	private IntObjectEntry<V> deleteMax(IntObjectEntry<V> h) { 
 		if (isRed(h.left))
 			h = rotateRight(h);
 
 		if (h.right == null) {
-			removedK = h.key;
-			removedVal = h.val;
+			removedNode = h;
 			return null;
 		}
 
@@ -228,7 +237,7 @@ public class IntTreeMap<V> {
 	}
 
 	// delete the key-value pair with the given key rooted at h
-	private IntObjectEntry delete(IntObjectEntry h, int key) { 
+	private IntObjectEntry<V> delete(IntObjectEntry<V> h, int key) { 
 		//assert contains(h, key);
 
 		if (key < h.key)  {
@@ -259,9 +268,9 @@ public class IntTreeMap<V> {
 	}
 
 	// make a left-leaning link lean to the right
-	private IntObjectEntry rotateRight(IntObjectEntry h) {
+	private IntObjectEntry<V> rotateRight(IntObjectEntry<V> h) {
 		assert (h != null) && isRed(h.left);
-		IntObjectEntry x = h.left;
+		IntObjectEntry<V> x = h.left;
 		h.left = x.right;
 		x.right = h;
 		x.color = x.right.color;
@@ -272,9 +281,9 @@ public class IntTreeMap<V> {
 	}
 
 	// make a right-leaning link lean to the left
-	private IntObjectEntry rotateLeft(IntObjectEntry h) {
+	private IntObjectEntry<V> rotateLeft(IntObjectEntry<V> h) {
 		assert (h != null) && isRed(h.right);
-		IntObjectEntry x = h.right;
+		IntObjectEntry<V> x = h.right;
 		h.right = x.left;
 		x.left = h;
 		x.color = x.left.color;
@@ -285,7 +294,7 @@ public class IntTreeMap<V> {
 	}
 
 	// flip the colors of a node and its two children
-	private void flipColors(IntObjectEntry h) {
+	private void flipColors(IntObjectEntry<V> h) {
 		// h must have opposite color of its two children
 		assert (h != null) && (h.left != null) && (h.right != null);
 		assert (!isRed(h) &&  isRed(h.left) &&  isRed(h.right))
@@ -297,7 +306,7 @@ public class IntTreeMap<V> {
 
 	// Assuming that h is red and both h.left and h.left.left
 	// are black, make h.left or one of its children red.
-	private IntObjectEntry moveRedLeft(IntObjectEntry h) {
+	private IntObjectEntry<V> moveRedLeft(IntObjectEntry<V> h) {
 		assert (h != null);
 		assert isRed(h) && !isRed(h.left) && !isRed(h.left.left);
 
@@ -312,7 +321,7 @@ public class IntTreeMap<V> {
 
 	// Assuming that h is red and both h.right and h.right.left
 	// are black, make h.right or one of its children red.
-	private IntObjectEntry moveRedRight(IntObjectEntry h) {
+	private IntObjectEntry<V> moveRedRight(IntObjectEntry<V> h) {
 		assert (h != null);
 		assert isRed(h) && !isRed(h.right) && !isRed(h.right.left);
 		flipColors(h);
@@ -324,7 +333,7 @@ public class IntTreeMap<V> {
 	}
 
 	// restore red-black tree invariant
-	private IntObjectEntry balance(IntObjectEntry h) {
+	private IntObjectEntry<V> balance(IntObjectEntry<V> h) {
 		assert (h != null);
 
 		if (isRed(h.right)) h = rotateLeft(h);
@@ -340,7 +349,7 @@ public class IntTreeMap<V> {
 		return height(root); 
 	}
 
-	private int height(IntObjectEntry x) {
+	private int height(IntObjectEntry<V> x) {
 		if (x == null) return 0;
 		return 1 + Math.max(height(x.left), height(x.right));
 	}
@@ -353,7 +362,7 @@ public class IntTreeMap<V> {
 	} 
 
 	// the smallest key in subtree rooted at x; null if no such key
-	private IntObjectEntry min(IntObjectEntry x) { 
+	private IntObjectEntry<V> min(IntObjectEntry<V> x) { 
 		assert x != null;
 		if (x.left == null) return x; 
 		else return min(x.left); 
@@ -367,7 +376,7 @@ public class IntTreeMap<V> {
 	} 
 
 	// the largest key in the subtree rooted at x; null if no such key
-	private IntObjectEntry max(IntObjectEntry x) { 
+	private IntObjectEntry<V> max(IntObjectEntry<V> x) { 
 		assert x != null;
 		if (x.right == null) return x; 
 		else return max(x.right); 
@@ -376,18 +385,18 @@ public class IntTreeMap<V> {
 	/**  Returns the greatest key less than or equal to the given key, 
 	 * or Integer.MIN_VALUE if there is no such key. */	
 	public int floorKey(int key) {
-		IntObjectEntry x = floor(root, key);
+		IntObjectEntry<V> x = floor(root, key);
 		if (x == null) return Integer.MIN_VALUE;
 		else return x.key;
 	}    
 
 	// the largest node in the subtree rooted at x having key less than or equal
 	// to the given key
-	private IntObjectEntry floor(IntObjectEntry x, int key) {
+	private IntObjectEntry<V> floor(IntObjectEntry<V> x, int key) {
 		if (x == null) return null;
 		if (key == x.key) return x;
 		if (key < x.key)  return floor(x.left, key);
-		IntObjectEntry t = floor(x.right, key);
+		IntObjectEntry<V> t = floor(x.right, key);
 		if (t != null) return t; 
 		else return x;
 	}
@@ -395,17 +404,17 @@ public class IntTreeMap<V> {
 	/** Returns the least key greater than or equal to the given key, or Integer.MAX_VALUE
 	 * if there is no such key. */
 	public int ceilingKey(int key) {  
-		IntObjectEntry x = ceiling(root, key);
+		IntObjectEntry<V> x = ceiling(root, key);
 		if (x == null) return Integer.MAX_VALUE;
 		else return x.key;  
 	}
 
 	// the smallest key in the subtree rooted at x greater than or equal to the given key
-	private IntObjectEntry ceiling(IntObjectEntry x, int key) {  
+	private IntObjectEntry<V> ceiling(IntObjectEntry<V> x, int key) {  
 		if (x == null) return null;
 		if (key == x.key) return x;
 		if (key > x.key)  return ceiling(x.right, key);
-		IntObjectEntry t = ceiling(x.left, key);
+		IntObjectEntry<V> t = ceiling(x.left, key);
 		if (t != null) return t; 
 		else return x;
 	}
@@ -418,12 +427,12 @@ public class IntTreeMap<V> {
 	public int select(int k) {
 		if (k < 0)  return Integer.MAX_VALUE;
 		if (k >= size()) return Integer.MIN_VALUE;
-		IntObjectEntry x = select(root, k);
+		IntObjectEntry<V> x = select(root, k);
 		return x.key;
 	}
 
 	// the key of rank k in the subtree rooted at x
-	private IntObjectEntry select(IntObjectEntry x, int k) {
+	private IntObjectEntry<V> select(IntObjectEntry<V> x, int k) {
 		assert x != null;
 		assert k >= 0 && k < size(x);
 		int t = size(x.left); 
@@ -438,14 +447,14 @@ public class IntTreeMap<V> {
 	} 
 
 	// number of keys less than key in the subtree rooted at x
-	private int rank(int key, IntObjectEntry x) {
+	private int rank(int key, IntObjectEntry<V> x) {
 		if (x == null) return 0; 
 		if (key < x.key) return rank(key, x.left); 
 		else if (key > x.key) return 1 + size(x.left) + rank(key, x.right); 
 		else return size(x.left); 
 	} 
 
-	/** return the key array of this map */
+	/** return the key array of this map in ascending order */
 	public int[] keys() {
 		return keys(firstKey(), lastKey());
 	}
@@ -460,11 +469,43 @@ public class IntTreeMap<V> {
 
 	// add the keys between lo and hi in the subtree rooted at x
 	// to the queue
-	private void keys(IntObjectEntry x, IntArrayList queue, int lo, int hi) { 
+	private void keys(IntObjectEntry<V> x, IntArrayList queue, int lo, int hi) { 
 		if (x == null) return; 
 		if (lo < x.key) keys(x.left, queue, lo, hi); 
 		if (lo <= x.key && hi >= x.key) queue.add(x.key); 
 		if (hi > x.key) keys(x.right, queue, lo, hi); 
+	}
+
+	/** return the key array of this map in descending order */
+	public int[] descendingKeys() {
+		return descendingKeys(firstKey(), lastKey());
+	}
+
+	/** the keys between lo and hi, as a primitive array in 
+	 * descending order */
+	public int[] descendingKeys(int lo, int hi) {
+		IntArrayList queue = new IntArrayList(size());
+		// if (isEmpty() || lo.compareTo(hi) > 0) return queue;
+		descendingKeys(root, queue, lo, hi);
+		return queue.toArray();
+	}
+
+	// add the keys between lo and hi in the subtree rooted at x
+	// to the queue. Keys are added in descending order
+	private void descendingKeys(IntObjectEntry<V> x, IntArrayList queue,
+			int lo, int hi) { 
+		if (x == null) return; 
+		if (hi > x.key) keys(x.right, queue, lo, hi); 
+		if (lo <= x.key && hi >= x.key) queue.add(x.key); 
+		if (lo < x.key) keys(x.left, queue, lo, hi); 
+	}
+	
+	// traverse the tree rooted at h in left-first order and feed data to the buffer
+	private void traverseRightFirst(IntObjectEntry<V> h, ArrayList<V> buffer) {
+		if (h == null) return;
+		traverseRightFirst(h.right, buffer);
+		buffer.add(h.val);
+		traverseRightFirst(h.left, buffer);
 	}
 
 	/** Returns a Set view of the keys contained in this map. */
@@ -481,14 +522,15 @@ public class IntTreeMap<V> {
 
 	// add the keys between lo and hi in the subtree rooted at x
 	// to the queue
-	private void keys(IntObjectEntry x, IntSet queue, int lo, int hi) { 
+	private void keys(IntObjectEntry<V> x, IntSet queue, int lo, int hi) { 
 		if (x == null) return; 
 		if (lo < x.key) keys(x.left, queue, lo, hi); 
 		if (lo <= x.key && hi >= x.key) queue.add(x.key); 
 		if (hi > x.key) keys(x.right, queue, lo, hi); 
 	}
 
-	/** Returns an Collection view of the values contained in this map in ascending
+	/** 
+	 * Returns an Collection view of the values contained in this map in ascending
 	 * order of the corresponding keys, or null if the tree is empty. This method
 	 * is different from standard {@link Java.util.TreeMap.values()} implementation in
 	 * that it guarantees immutability, i.e. changes in the collection view are
@@ -502,7 +544,7 @@ public class IntTreeMap<V> {
 	}
 
 	// traverse the tree rooted at h in left-first order and feed data to the buffer
-	private void traverseLeftFirst(IntObjectEntry h, ArrayList<V> buffer) {
+	private void traverseLeftFirst(IntObjectEntry<V> h, ArrayList<V> buffer) {
 		if (h == null) return;
 		traverseLeftFirst(h.left, buffer);
 		buffer.add(h.val);
@@ -510,30 +552,56 @@ public class IntTreeMap<V> {
 	}
 
 	/** Returns an Iterator view of the values contained in this map in descending
-	 * order of the corresponding keys.  This method is different from standard
+	 *  order of the corresponding keys.  This method is different from standard
 	 *  {@link Java.util.TreeMap.values()} implementation in that it guarantees
 	 *  immutability, i.e. changes in the collection view are
 	 * not reflected back into the map
 	 * */
-	public Collection<V> reverseValues() {
+	public Collection<V> descendingValues() {
 		if (root == null) return null;
 		ArrayList<V> res = new ArrayList<V>(size());
 		traverseRightFirst(root, res);
 		return res;
 	}
-	
+
 	/** Returns a Set view of the mappings contained in this map. The set's iterator
-	 *  returns the entries in ascending key order.*/
-	public Set<IntObjectEntry> entrySet() {
-		
+	 *  returns the entries in descending key order. This method is different from standard
+	 *  {@link Java.util.TreeMap.entrySet()} implementation in that it guarantees
+	 *  immutability, i.e. changes in the collection view are
+	 *  not reflected back into the map */
+	public Set<IntObjectEntry<V>> descendingEntrySet() {
+		if (root == null) return null;
+		TreeSet<IntObjectEntry<V>> set = new TreeSet<IntObjectEntry<V>>();
+		traverseRightFirst(root, set);
+		return set;
 	}
 
 	// traverse the tree rooted at h in left-first order and feed data to the buffer
-	private void traverseRightFirst(IntObjectEntry h, ArrayList<V> buffer) {
+	private void traverseRightFirst(IntObjectEntry<V> h, TreeSet<IntObjectEntry<V>> buffer) {
 		if (h == null) return;
-		traverseLeftFirst(h.right, buffer);
-		buffer.add(h.val);
+		traverseRightFirst(h.right, buffer);
+		buffer.add(h);
+		traverseRightFirst(h.left, buffer);
+	}
+	
+	/** Returns a Set view of the mappings contained in this map. The set's iterator
+	 *  returns the entries in ascending key order. This method is different from standard
+	 *  {@link Java.util.TreeMap.entrySet()} implementation in that it guarantees
+	 *  immutability, i.e. changes in the collection view are
+	 *  not reflected back into the map */
+	public Set<IntObjectEntry<V>> entrySet() {
+		if (root == null) return null;
+		TreeSet<IntObjectEntry<V>> set = new TreeSet<IntObjectEntry<V>>();
+		traverseLeftFirst(root, set);
+		return set;
+	}
+
+	// traverse the tree rooted at h in left-first order and feed data to the buffer
+	private void traverseLeftFirst(IntObjectEntry<V> h, TreeSet<IntObjectEntry<V>> buffer) {
+		if (h == null) return;
 		traverseLeftFirst(h.left, buffer);
+		buffer.add(h);
+		traverseLeftFirst(h.right, buffer);
 	}
 
 	/** number keys between lo and hi */
@@ -556,7 +624,7 @@ public class IntTreeMap<V> {
 	// is the tree rooted at x a BST with all keys strictly between min and max
 	// (if min or max is null, treat as empty constraint)
 	// Credit: Bob Dondero's elegant solution
-	private boolean isBST(IntObjectEntry x, int min, int max) {
+	private boolean isBST(IntObjectEntry<V> x, int min, int max) {
 		if (x == null) return true;
 		if (min != Integer.MIN_VALUE && x.key <= min) return false;
 		if (max != Integer.MAX_VALUE && x.key >= max) return false;
@@ -565,7 +633,7 @@ public class IntTreeMap<V> {
 
 	// are the size fields correct?
 	private boolean isSizeConsistent() { return isSizeConsistent(root); }
-	private boolean isSizeConsistent(IntObjectEntry x) {
+	private boolean isSizeConsistent(IntObjectEntry<V> x) {
 		if (x == null) return true;
 		if (x.childCnt != size(x.left) + size(x.right) + 1) return false;
 		return isSizeConsistent(x.left) && isSizeConsistent(x.right);
@@ -583,7 +651,7 @@ public class IntTreeMap<V> {
 	// Does the tree have no red right links, and at most one (left)
 	// red links in a row on any path?
 	private boolean is23() { return is23(root); }
-	private boolean is23(IntObjectEntry x) {
+	private boolean is23(IntObjectEntry<V> x) {
 		if (x == null) return true;
 		if (isRed(x.right)) return false;
 		if (x != root && isRed(x) && isRed(x.left))
@@ -594,7 +662,7 @@ public class IntTreeMap<V> {
 	// do all paths from root to leaf have same number of black edges?
 	private boolean isBalanced() { 
 		int black = 0;     // number of black links on path from root to min
-		IntObjectEntry x = root;
+		IntObjectEntry<V> x = root;
 		while (x != null) {
 			if (!isRed(x)) black++;
 			x = x.left;
@@ -603,7 +671,7 @@ public class IntTreeMap<V> {
 	}
 
 	// does every path from the root to a leaf have the given number of black links?
-	private boolean isBalanced(IntObjectEntry x, int black) {
+	private boolean isBalanced(IntObjectEntry<V> x, int black) {
 		if (x == null) return black == 0;
 		if (!isRed(x)) black--;
 		return isBalanced(x.left, black) && isBalanced(x.right, black);

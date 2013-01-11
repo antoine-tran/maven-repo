@@ -18,6 +18,7 @@ package tuan.collections;
  * EE = relationship between end of first interval and end of second interval
  * @author Angel Chang
  */
+@SuppressWarnings("serial")
 public class Interval<E extends Comparable<E>> extends Pair<E,E> implements HasInterval<E> {
   /**
    * Flag indicating that an interval's begin point is not inclusive

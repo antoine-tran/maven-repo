@@ -49,7 +49,6 @@ public class Triple<T1, T2, T3> implements Serializable {
     third = o;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(Object o) {
 
@@ -61,7 +60,7 @@ public class Triple<T1, T2, T3> implements Serializable {
       return false;
     }
 
-    final Triple triple = (Triple) o;
+    final Triple<T1, T2, T3> triple = (Triple<T1, T2, T3>) o;
 
     if (first != null ? !first.equals(triple.first) : triple.first != null) {
       return false;

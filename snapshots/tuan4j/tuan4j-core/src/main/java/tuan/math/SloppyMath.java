@@ -38,7 +38,17 @@ public final class SloppyMath {
     double power = Math.pow(10.0, precision);
     return round(x * power) / power;
   }
-
+  
+  public static int nextPowerOfTwo (int value) {
+		if (value == 0) return 1;
+		value--;
+		value |= value >> 1;
+			value |= value >> 2;
+		value |= value >> 4;
+		value |= value >> 8;
+		value |= value >> 16;
+		return value + 1;
+	}
   /**
    * max() that works on three integers.  Like many of the other max() functions in this class,
    * doesn't perform special checks like NaN or -0.0f to save time.

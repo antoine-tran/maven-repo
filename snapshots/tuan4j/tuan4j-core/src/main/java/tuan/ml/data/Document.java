@@ -25,6 +25,7 @@ public class Document implements Comparable<Document>, Serializable {
 	protected Features features;
 	protected int dim;
 	
+	private String cachedString; 
 	/** Once we have calculated the hash code of a document, we cache it for 
 	 * subsequent references */
 	private int hashcode;
@@ -100,17 +101,18 @@ public class Document implements Comparable<Document>, Serializable {
 	}
 	
 	@Override
-	/** REMEMBER: Everytime this method is called, a new String object is 
-	 * created. So use it with high caution */
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0, j = 0; i < dim; i++) {
-			if (i == features.dimensionValue(j)) {
-				sb.append(features.featureValue(j));
-				j++;
-			} else sb.append("0.0");
-			sb.append("\t");
+		if (cachedString == null) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0, j = 0; i < dim; i++) {
+				if (i == features.dimensionValue(j)) {
+					sb.append(features.featureValue(j));
+					j++;
+				} else sb.append("0.0");
+				sb.append("\t");
+			}
+			cachedString = sb.toString();	
 		}
-		return sb.toString();
+		return cachedString;
 	} 
 }

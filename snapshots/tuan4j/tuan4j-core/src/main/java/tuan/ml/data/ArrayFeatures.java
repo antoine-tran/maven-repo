@@ -90,7 +90,7 @@ public class ArrayFeatures implements RandomAccessFeatures {
 	public int dimensionValue(int index) {
 		if (index >= dim)
 			throw new IndexOutOfBoundsException(
-					ErrorMessage.DIMENSION_INDEX_OUT_OF_BOUND.toString());
+					ErrorMessage.DIMENSION_INDEX_OUT_OF_BOUND.toString() + " " + dim);
 		return keys[index];
 	}
 
