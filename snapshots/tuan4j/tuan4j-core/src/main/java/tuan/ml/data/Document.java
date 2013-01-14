@@ -89,11 +89,11 @@ public class Document implements Comparable<Document>, Serializable {
 		int n = vals.length;
 		int[] dimIndex = new int[n / 2];
 		double[] featVal = new double[n / 2];
-		for (int i = 0, j = 0; i < dimIndex.length; i++) {
+		for (int i = 0, j = 0; i < n / 2; i++) {
 			dimIndex[i] = Integer.parseInt(vals[j++]);
 			featVal[i] = Double.parseDouble(vals[j++]);
 		}
-		Features feat = new ArrayFeatures(dimIndex, featVal, dim);
+		Features feat = new ArrayFeatures(dimIndex, featVal, n / 2);
 		String key = String.valueOf(System.currentTimeMillis());
 		Document doc = new Document(key, feat, dim);
 		return doc;
@@ -158,5 +158,9 @@ public class Document implements Comparable<Document>, Serializable {
 			cachedString = sb.toString();	
 		}
 		return cachedString;
-	} 
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(Document.fromString("0 1 1 1 2 1", " ", 9));
+	}
 }

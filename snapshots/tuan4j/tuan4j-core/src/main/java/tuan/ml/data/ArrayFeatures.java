@@ -39,8 +39,8 @@ public class ArrayFeatures implements RandomAccessFeatures {
 			throw new NullPointerException(ErrorMessage.DOC_KEY_NULL.toString());
 		if (vals == null) 
 			throw new NullPointerException(ErrorMessage.FEATURES_NULL.toString());
-		System.arraycopy(keys, 0, this.keys, 0, dim);
-		System.arraycopy(vals, 0, this.vals, 0, dim);
+		this.keys = Arrays.copyOf(keys, dim);
+		this.vals = Arrays.copyOf(vals, dim);
 		this.dim = dim;
 	}
 	
@@ -132,7 +132,7 @@ public class ArrayFeatures implements RandomAccessFeatures {
 		if (cachedString == null) {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < dim; i++) {
-				sb.append(keys[i]).append(":").append(vals[i]).append("\t");
+				sb.append(keys[i]).append("\t").append(vals[i]).append("\t");
 			}
 			cachedString = sb.toString();
 		}
