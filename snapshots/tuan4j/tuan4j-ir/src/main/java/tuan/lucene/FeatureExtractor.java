@@ -175,20 +175,21 @@ public class FeatureExtractor {
 
 	/** Extract features for all document, and push result to a stream 
 	 * @throws IOException */
-	public void extractTFIDF(String vocabularyFile, Writer output) throws IOException {
+	public void extractTFIDF(String vocabularyFile, Writer output, boolean compact) throws IOException {
 		loadVocabulary(vocabularyFile);
 		int n = index.numDocs();
-		extractTFIDF(output, 0, n);
+		extractTFIDF(output, 0, n, compact);
 	}
 
 	/** Extract features for all document, and push result to a stream 
 	 * @throws IOException */
-	private void extractTFIDF(Writer output, int start, int end) throws IOException {
+	private void extractTFIDF(Writer output, int start, int end, boolean compact) throws IOException {
 		Bits liveDocs = MultiFields.getLiveDocs(index);
 		for (int i = start; i < end; i++) {
 			if (liveDocs == null || liveDocs.get(i)) {
-				Document doc = tfidf(i);
-				if (doc != null) output.write(doc.key() + "\t" + doc.toString() + "\n");
+				Document doc = tfidf(i);				
+				if (doc != null) output.write(doc.key() + "\t" + 
+						((compact) ? doc.features().toString() : doc.toString()) + "\n");
 
 				// log the document having no extracted terms for analysis
 				// else Log.log("document ignored " + i);
@@ -236,10 +237,10 @@ public class FeatureExtractor {
 	 * a string. The input is document id in the index, the output is
 	 * of form "f1 f2 f3 ....." 
 	 * @throws IOException */
-	public String extractTFIDF(String vocabularyFile, int docNo) throws IOException {
+	public String extractTFIDF(String vocabularyFile, int docNo, boolean compact) throws IOException {
 		loadVocabulary(vocabularyFile);
-		Document doc = tfidf(docNo);
-		return doc.toString();
+		Document doc = tfidf(docNo);		
+		return (compact) ? doc.features().toString() : doc.toString();
 	}
 
 	/** Convenience method to extract tf-idf features for a document and output as 
@@ -270,7 +271,7 @@ public class FeatureExtractor {
 
 		// first run: calculate the idf's
 		int totalDocs = index.numDocs();
-		
+
 		// NOTE: Not all fields support term vecctor indexing 
 		Terms termsAtField = index.getTermVector(docNo, field);
 
@@ -301,7 +302,7 @@ public class FeatureExtractor {
 
 		// second run: update with the tf's
 		int totalFreq = tmpTerms.size();
-		
+
 		// If all terms in the document are not included in the index (e.g. document has
 		// only stop words), the null object will be returned
 		if (totalFreq == 0) return null;
@@ -397,7 +398,8 @@ public class FeatureExtractor {
 						.create();
 		optGrp.addOption(distribution);
 
-		// Option 5: extract tf-idf features to file
+		// Option 5: extract tf-idf features to file in form of sparse matrix. This
+		// task is suitable for small data
 		Option tfidfs = OptionBuilder.withArgName("t").withLongOpt("tfidfs")
 				.withDescription("extract tf-idf vectors for documents from lucene index." +
 						" Input required: paths of vocabulary file, output file")
@@ -406,7 +408,18 @@ public class FeatureExtractor {
 						.create();
 		optGrp.addOption(tfidfs);
 
-		// Option 6: extract tf-idf features for a specific document 
+		// Option 6: extract tf-idf features to file inf forms of adjacency matrix. This
+		// task is suitable for big data
+		Option tfidfb = OptionBuilder.withArgName("t").withLongOpt("tfidfb")
+				.withDescription("extract tf-idf vectors for documents from lucene index and" +
+						" output results in form of adjacency matrix. Input required: paths " +
+						"of vocabulary file, output file")
+						.hasArgs(2)
+						.withValueSeparator(' ')
+						.create();
+		optGrp.addOption(tfidfb);
+
+		// Option 7: extract tf-idf features for a specific document 
 		Option tfidf = OptionBuilder.withArgName("i").withLongOpt("tfidf")
 				.withDescription("extract tf-idf vectors for a document from lucene index." +
 						" Input required: paths of vocabulary file, document id in the index")
@@ -415,7 +428,7 @@ public class FeatureExtractor {
 						.create();
 		optGrp.addOption(tfidf);
 
-		// Option 7: extract tf-idf features for a specific document range 
+		// Option 8: extract tf-idf features for a specific document range 
 		Option tfidfr = OptionBuilder.withArgName("r").withLongOpt("tfidfr")
 				.withDescription("extract tf-idf vectors for a range of documents from lucene index." +
 						" Input required: paths of vocabulary file and output file, range start, range end")
@@ -424,7 +437,7 @@ public class FeatureExtractor {
 						.create();
 		optGrp.addOption(tfidfr);
 
-		// Option 8: test extracting tf-idf features for a specific document range 
+		// Option 9: test extracting tf-idf features for a specific document range 
 		Option tfidft = OptionBuilder.withArgName("s").withLongOpt("tfidft")
 				.withDescription("test extracting tf-idf vectors for a range of documents from lucene index." +
 						" Input required: paths of vocabulary file, document id in the index, range start, range end")
@@ -512,7 +525,29 @@ public class FeatureExtractor {
 				else {
 					Writer out = new FileWriter(inputs[1]);
 					try {
-						fe.extractTFIDF(inputs[0], out);
+						fe.extractTFIDF(inputs[0], out, false);
+					} 
+					catch (IOException e) {
+						e.printStackTrace();
+					}
+					finally {
+						out.close();
+					}
+				}				
+			} 
+
+			// extract tf-idfs for all
+			if (cmd.hasOption("tfidfb")) {
+				String[] inputs = cmd.getOptionValues("tfidfb");
+				if (inputs == null || inputs.length != 2) {
+					printHelp("tf-idf calculation task needs two inputs (vocabulary" +
+							" file path, output file path)", opts);
+					System.exit(-1);
+				}
+				else {
+					Writer out = new FileWriter(inputs[1]);
+					try {
+						fe.extractTFIDF(inputs[0], out, true);
 					} 
 					catch (IOException e) {
 						e.printStackTrace();
@@ -527,14 +562,20 @@ public class FeatureExtractor {
 			if (cmd.hasOption("tfidf")) {
 				String[] inputs = cmd.getOptionValues("tfidf");
 				if (inputs == null || inputs.length != 2) {
-					printHelp("document tf-idf calculation task needs two" +
-							" inputs (vocabulary file path & document id)", opts);
+					printHelp("document tf-idf calculation task needs three" +
+							" inputs (vocabulary file path, document id, output form (compact / full)", opts);
 					System.exit(-1);
 				}
 				else {
 					try {
 						int i = Integer.parseInt(inputs[1]);
-						System.out.println(fe.extractTFIDF(inputs[0], i));
+						boolean compact = false;
+						if ("compact".equalsIgnoreCase(inputs[2])) compact = true;
+						else if ("full".equalsIgnoreCase(inputs[2])) compact = false;
+						else {
+							printHelp("output form must be either 'compact' or 'full'", opts);
+						}
+						System.out.println(fe.extractTFIDF(inputs[0], i, compact));
 					}
 					catch (NumberFormatException e) {
 						System.err.println("document id must be an integer");

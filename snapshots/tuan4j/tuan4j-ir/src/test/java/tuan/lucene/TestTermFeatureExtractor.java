@@ -52,14 +52,14 @@ public class TestTermFeatureExtractor {
         }
 	}
 
-	@Test
+	//@Test
 	public void testFeatures() throws IOException {
 		FeatureExtractor extractor = 
 				new FeatureExtractor(LUCENE_DIR_DEBIAN, "text", "title");
 		FileWriter writer = null;
 		try {
 			writer = new FileWriter(LUCENE_OUT_FILE_DEBIAN);			
-			extractor.extractTFIDF(null, writer);
+			extractor.extractTFIDF(null, writer, false);
 			System.out.println("Vocabulary lists: ");
 			extractor.printVocabulary(System.out);
 		} finally {

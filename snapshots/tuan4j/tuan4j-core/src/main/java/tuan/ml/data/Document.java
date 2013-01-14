@@ -55,6 +55,50 @@ public class Document implements Comparable<Document>, Serializable {
 		this.dim = dim;
 	}
 	
+	/**
+	 * A convenience method that transforms a string of form "dimension:feature
+	 * <TAB>dimension:features"
+	 * into a Document object. The document's key is automatically generated.
+	 * Dimension size of the corpus has to be specified
+	 */
+	public static Document fromString(String features, int dim) {
+		if (features == null || features.isEmpty()) return null;
+		String[] vals = features.split("\t");
+		int n = vals.length;
+		int[] dimIndex = new int[n / 2];
+		double[] featVal = new double[n / 2];
+		for (int i = 0, j = 0; i < dimIndex.length; i++) {
+			dimIndex[i] = Integer.parseInt(vals[j++]);
+			featVal[i] = Double.parseDouble(vals[j++]);
+		}
+		Features feat = new ArrayFeatures(dimIndex, featVal, dim);
+		String key = String.valueOf(System.currentTimeMillis());
+		Document doc = new Document(key, feat, dim);
+		return doc;
+	}
+	
+	/**
+	 * A convenience method that transforms a string of form "dimension:feature
+	 * <SEPARATOR>dimension:features"
+	 * into a Document object. The document's key is automatically generated.
+	 * Dimension size of the corpus has to be specified
+	 */
+	public static Document fromString(String features, String delimiter, int dim) {
+		if (features == null || features.isEmpty()) return null;
+		String[] vals = features.split(delimiter);
+		int n = vals.length;
+		int[] dimIndex = new int[n / 2];
+		double[] featVal = new double[n / 2];
+		for (int i = 0, j = 0; i < dimIndex.length; i++) {
+			dimIndex[i] = Integer.parseInt(vals[j++]);
+			featVal[i] = Double.parseDouble(vals[j++]);
+		}
+		Features feat = new ArrayFeatures(dimIndex, featVal, dim);
+		String key = String.valueOf(System.currentTimeMillis());
+		Document doc = new Document(key, feat, dim);
+		return doc;
+	}
+	
 	@Override
 	/** sort documents by some indicator (e.g. signature length). CONVENTION: 
 	 * If a document is null, then always return Integer.MIN_VALUE (all non-null
