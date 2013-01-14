@@ -25,7 +25,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -40,7 +39,6 @@ import org.apache.lucene.util.BytesRef;
 import com.google.common.collect.HashMultiset;
 
 import tuan.io.FileUtility;
-import tuan.io.Log;
 import tuan.ml.data.ArrayFeatures;
 import tuan.ml.data.Document;
 
@@ -193,7 +191,7 @@ public class FeatureExtractor {
 				if (doc != null) output.write(doc.key() + "\t" + doc.toString() + "\n");
 
 				// log the document having no extracted terms for analysis
-				else Log.log("document ignored " + i);
+				// else Log.log("document ignored " + i);
 			}
 		}
 		output.flush();
@@ -211,7 +209,7 @@ public class FeatureExtractor {
 				if (doc != null) output.write(doc.key() + "\t" + doc.toString() + "\n");
 
 				// log the document having no extracted terms for analysis
-				else Log.log("document ignored " + i);
+				// else Log.log("document ignored " + i);
 			}
 		}
 		output.flush();
@@ -303,8 +301,7 @@ public class FeatureExtractor {
 
 		// second run: update with the tf's
 		int totalFreq = tmpTerms.size();
-		System.out.println(totalFreq);
-
+		
 		// If all terms in the document are not included in the index (e.g. document has
 		// only stop words), the null object will be returned
 		if (totalFreq == 0) return null;
