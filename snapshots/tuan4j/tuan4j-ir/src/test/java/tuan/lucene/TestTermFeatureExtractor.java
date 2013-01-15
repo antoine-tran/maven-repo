@@ -54,8 +54,8 @@ public class TestTermFeatureExtractor {
 
 	//@Test
 	public void testFeatures() throws IOException {
-		FeatureExtractor extractor = 
-				new FeatureExtractor(LUCENE_DIR_DEBIAN, "text", "title");
+		Extractor extractor = 
+				new Extractor(LUCENE_DIR_DEBIAN, "text", "title");
 		FileWriter writer = null;
 		try {
 			writer = new FileWriter(LUCENE_OUT_FILE_DEBIAN);			

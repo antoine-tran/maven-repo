@@ -42,7 +42,7 @@ import tuan.io.FileUtility;
 import tuan.ml.data.ArrayFeatures;
 import tuan.ml.data.Document;
 
-public class FeatureExtractor {
+public class Extractor {
 
 	/** Default field */
 	private static final String DEFAULT_FIELD = "text";
@@ -57,11 +57,11 @@ public class FeatureExtractor {
 
 	private IndexReader index;
 
-	public FeatureExtractor(String lucenePath) throws IOException {
+	public Extractor(String lucenePath) throws IOException {
 		this(lucenePath, (String[])null);
 	}
 
-	public FeatureExtractor(String luceneFilePath, String... inputFields) throws IOException {
+	public Extractor(String luceneFilePath, String... inputFields) throws IOException {
 		Directory dir = FSDirectory.open(new File(luceneFilePath));
 		index = DirectoryReader.open(dir);
 		if (inputFields != null) {
@@ -74,6 +74,11 @@ public class FeatureExtractor {
 		}
 	}
 
+	public void close() throws IOException {
+		if (index != null) index.close();
+	}
+	
+	/** load vocabulary from a file */
 	public void loadVocabulary(String vocabularyFile) throws IOException {
 		if (vocabularyFile != null) {
 			vocabulary = new TObjectIntHashMap<String>();
@@ -144,11 +149,11 @@ public class FeatureExtractor {
 		Terms termsAtField = MultiFields.getTerms(index, contentField);
 		TermsEnum termsEnum = termsAtField.iterator(null);
 		BytesRef term;
-		ArrayList<TermFreq> tmpArray = new ArrayList<FeatureExtractor.TermFreq>();
+		ArrayList<TermFreq> tmpArray = new ArrayList<Extractor.TermFreq>();
 		while ((term = termsEnum.next()) != null) {
 			long docFreq = termsEnum.docFreq();
 			Term t = new Term(contentField, term.utf8ToString());
-			tmpArray.add(new TermFreq(t, term.utf8ToString(), docFreq));
+			tmpArray.add(new TermFreq(t, docFreq));
 		}
 
 		// sort the freqMap based on doc frequencies
@@ -363,7 +368,7 @@ public class FeatureExtractor {
 		opts.addOption(errStr);
 
 		// Option 1: load input lucene path
-		Option lucenePath = OptionBuilder.withArgName("p").withLongOpt("lucene")
+		Option lucenePath = OptionBuilder.withArgName("l").withLongOpt("lucene")
 				.withDescription("Register lucene index path")
 				.isRequired(true)
 				.hasArg()				
@@ -448,7 +453,7 @@ public class FeatureExtractor {
 
 		opts.addOptionGroup(optGrp);
 
-		FeatureExtractor fe = null;
+		Extractor extractor = null;
 		String luceneLoc = null;
 		String[] fields = null;
 
@@ -494,13 +499,13 @@ public class FeatureExtractor {
 				System.exit(-1);
 			}
 
-			fe = new FeatureExtractor(luceneLoc, fields);
+			extractor = new Extractor(luceneLoc, fields);
 
-			// do the demanded tasks
+			// do the individual tasks
 			// export vocabulary
 			if (cmd.hasOption("vocabulary")) {
 				String input = cmd.getOptionValue("vocabulary");
-				fe.exportVocabulary(input);
+				extractor.exportVocabulary(input);
 			}
 
 			// export word distribution
@@ -511,7 +516,7 @@ public class FeatureExtractor {
 							" file & field)", opts);
 					System.exit(-1);
 				}
-				else fe.exportWordDistribution(inputs[0], inputs[1]);
+				else extractor.exportWordDistribution(inputs[0], inputs[1]);
 			}
 
 			// extract tf-idfs for all
@@ -525,7 +530,7 @@ public class FeatureExtractor {
 				else {
 					Writer out = new FileWriter(inputs[1]);
 					try {
-						fe.extractTFIDF(inputs[0], out, false);
+						extractor.extractTFIDF(inputs[0], out, false);
 					} 
 					catch (IOException e) {
 						e.printStackTrace();
@@ -547,7 +552,7 @@ public class FeatureExtractor {
 				else {
 					Writer out = new FileWriter(inputs[1]);
 					try {
-						fe.extractTFIDF(inputs[0], out, true);
+						extractor.extractTFIDF(inputs[0], out, true);
 					} 
 					catch (IOException e) {
 						e.printStackTrace();
@@ -575,10 +580,9 @@ public class FeatureExtractor {
 						else {
 							printHelp("output form must be either 'compact' or 'full'", opts);
 						}
-						System.out.println(fe.extractTFIDF(inputs[0], i, compact));
+						System.out.println(extractor.extractTFIDF(inputs[0], i, compact));
 					}
 					catch (NumberFormatException e) {
-						System.err.println("document id must be an integer");
 						printHelp("document id must be an integer", opts);
 						System.exit(-1);
 					}
@@ -599,10 +603,9 @@ public class FeatureExtractor {
 						out = new FileWriter(inputs[1]);
 						int start = Integer.parseInt(inputs[2]);
 						int end = Integer.parseInt(inputs[3]);
-						fe.extractTFIDF(inputs[0], out, start, end);
+						extractor.extractTFIDF(inputs[0], out, start, end);
 					}
 					catch (NumberFormatException e) {
-						System.err.println("document id must be an integer");
 						printHelp("document id must be an integer", opts);
 						System.exit(-1);
 					}
@@ -623,23 +626,28 @@ public class FeatureExtractor {
 				else {
 					try {
 						int i = Integer.parseInt(inputs[1]);
-						System.out.println(fe.testExtractTFIDF(inputs[0], i));
+						System.out.println(extractor.testExtractTFIDF(inputs[0], i));
 					}
 					catch (NumberFormatException e) {
-						System.err.println("document id must be an integer");
 						printHelp("document id must be an integer", opts);
 						System.exit(-1);
 					}
 				}
 			}
-			/*else {
+			else {
 				printHelp("command line syntax", opts);
 				System.exit(-1);
-			}*/
+			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				extractor.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -650,13 +658,11 @@ public class FeatureExtractor {
 
 	private static class TermFreq implements Comparable<TermFreq> {
 
-		private String txt;
 		private Term term;
 		private long freq;
 
-		public TermFreq(Term term, String txt, long freq) {
+		public TermFreq(Term term, long freq) {
 			this.term = term;
-			this.txt = txt;
 			this.freq = freq;
 		}
 

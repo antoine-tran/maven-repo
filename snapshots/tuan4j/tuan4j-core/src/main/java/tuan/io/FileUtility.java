@@ -46,39 +46,51 @@ import tuan.core.ExceptionHandler;
  *
  */
 public class FileUtility {
-	
+
 	/**
 	 * Serialize an object into a file if the file does not exist yet
 	 */
 	public static boolean serialize(Object object, String fileName) throws IOException {
-		
+
 		File file = new File(fileName);
-		
 		if (file.exists()) return false;
 		else {
+			FileOutputStream fos = null;
+			BufferedOutputStream bos = null;
+			ObjectOutputStream oos = null;
 			try {
-				ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+				fos = new FileOutputStream(file);
+				bos = new BufferedOutputStream(fos);
+				oos = new ObjectOutputStream(bos);
 				oos.writeObject(object);
 				oos.flush();
-				oos.close();
 				return true;
 			}
 			catch (IOException e) {
 				file.delete();
 				throw e;
 			}
+			finally {
+				if (oos != null) oos.close();
+				if (bos != null) bos.close();
+				if (fos != null) fos.close();
+			}
 		}
 	}
-	
+
 	/**
 	 * Serialize an object into a file even if the file does exist.
 	 */
 	public static boolean forcedSerialize(Object object, String fileName) throws IOException {
-		
+
 		File file = new File(fileName);
-		
+		FileOutputStream fos = null;
+		BufferedOutputStream bos = null;
+		ObjectOutputStream oos = null;
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file,false)));
+			fos = new FileOutputStream(file,false);
+			bos = new BufferedOutputStream(fos);
+			oos = new ObjectOutputStream(bos);
 			oos.writeObject(object);
 			oos.flush();
 			oos.close();
@@ -88,8 +100,13 @@ public class FileUtility {
 			file.delete();
 			throw e;
 		}
+		finally {
+			if (oos != null) oos.close();
+			if (bos != null) bos.close();
+			if (fos != null) fos.close();			
+		}
 	}
-	
+
 	/**
 	 * Read and return object from an input stream, or return SerializableNull
 	 * @param fileName name of the object file
@@ -99,12 +116,14 @@ public class FileUtility {
 	 */
 	public static Object read(String fileName) throws IOException, ClassNotFoundException {
 		File file = new File(fileName);
+		FileInputStream fis = null;
 		ObjectInputStream ois = null;
-		
+
 		if (!file.exists()) return SerializableNull.obj();
 		else {
 			try {
-				ois = new ObjectInputStream(new FileInputStream(file));
+				fis = new FileInputStream(file);
+				ois = new ObjectInputStream(fis);
 				return ois.readObject();
 			} 
 			catch (IOException e) {
@@ -112,11 +131,12 @@ public class FileUtility {
 				return null;
 			}			
 			finally {
-				ois.close();
+				if (ois != null) ois.close();
+				if (fis != null) fis.close();
 			}
 		}
 	}
-	
+
 	/**
 	 * This class open a stream to a text file and read it line by line. It accepts
 	 * a customized exception handler
@@ -124,17 +144,17 @@ public class FileUtility {
 	public static Iterable<String> readLines(String inputFileName, ExceptionHandler handler) {
 		return new LineIterator(inputFileName, handler);	
 	}
-	
+
 	static class LineIterator implements Iterator<String>, Iterable<String> {
-		
+
 		private BufferedReader reader;
 		private ExceptionHandler handler;
 		private String line;
 		private boolean initialized = false;
-		
+
 		public LineIterator(String fileName, ExceptionHandler exceptionHandler) {
 			this.handler = (exceptionHandler == null) ? new FileExceptionHandler() : exceptionHandler;
-			
+
 			try {
 				Reader fileReader = new FileReader(fileName);
 				reader = new BufferedReader(fileReader);
@@ -143,11 +163,11 @@ public class FileUtility {
 				handler.handle(e);
 			}
 		}
-		
+
 		@Override
 		public boolean hasNext() {
 			if (!initialized) line = internalNext();
-			
+
 			if (line == null) {
 				try {
 					close(reader);
@@ -159,7 +179,7 @@ public class FileUtility {
 			}
 			return (line != null);
 		}
-		
+
 		@Override
 		public String next() {
 			if (hasNext()) {
@@ -169,7 +189,7 @@ public class FileUtility {
 			}
 			else throw new NoSuchElementException();
 		}
-		
+
 		private String internalNext() {
 			try {
 				String item = reader.readLine();
@@ -183,79 +203,89 @@ public class FileUtility {
 				return null;
 			}			
 		}
-		
+
 		@Override
 		public void remove() {
 		}	
-		
+
 		private void close(Reader reader) throws IOException {
 			reader.close();
 		}
-		
+
 		@Override
 		public Iterator<String> iterator() {
 			return this;
 		}
 	}
-	
+
 	/**
 	 * Merge many text file in a given directory that have names matching some patterns into one single file. 
 	 */
 	public static boolean mergeTextFiles(String dirName, FilenameFilter filter, String outputFile) throws IOException {
-		
-		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF8"));
+
+		FileOutputStream fos = new FileOutputStream(outputFile);
+		OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF8");
+		BufferedWriter out = new BufferedWriter(osw);
 		File dir = new File(dirName);
-		
+
 		if (!dir.exists()) return false;
 		if (!dir.isDirectory()) return false;
-		
+
 		String[] files = dir.list(filter);
-		BufferedReader bReader;
-		InputStreamReader reader;
-		FileInputStream fis;
+		BufferedReader bReader = null;
+		InputStreamReader reader = null;
+		FileInputStream fis = null;
 		String tmp;
-		
-		for (String name : files) {
-			
-			fis = new FileInputStream(dirName + File.separator + name);
-			
-			reader = new InputStreamReader(fis);
-			bReader = new BufferedReader(reader);
-			
-			while ((tmp = bReader.readLine()) != null) {
-				out.write(tmp);
-				out.write("\n");
+
+		try {
+			for (String name : files) {
+				try {
+					fis = new FileInputStream(dirName + File.separator + name);
+
+					reader = new InputStreamReader(fis);
+					bReader = new BufferedReader(reader);
+
+					while ((tmp = bReader.readLine()) != null) {
+						out.write(tmp);
+						out.write("\n");
+					}
+					out.flush();
+				}
+				finally {
+					if (bReader != null) bReader.close();
+					if (reader != null) reader.close();
+					if (fis != null) fis.close();
+				}
 			}
-			out.flush();
-			
-			bReader.close();
-			reader.close();
-			fis.close();
 		}
-		out.close();
+		finally {
+			if (out != null) out.close();
+			if (osw != null) osw.close();
+			if (fos != null) fos.close();
+		}
 		return true;
 	}
-	
+
 	/** efficiently copy content of a given file to another file. After that, close
 	 * both file pointers */
 	public static void copy( File fromFile, File toFile)
 			throws IOException, FileNotFoundException, IllegalAccessException {
-		
+
 		if (fromFile == null || toFile == null) return;
-		
+
 		String fromFileName = fromFile.getName();
 		String toFileName = toFile.getName();
-		
+
 		if (!fromFile.exists())
 			throw new FileNotFoundException(fromFileName);
 		if (!fromFile.isFile())
 			throw new FileNotFoundException(fromFileName);
 		if (!fromFile.canRead())
 			throw new IllegalAccessException(fromFileName);
-		
+
 		if (toFile.isDirectory())
 			toFile = new File(toFile, fromFile.getName());
-		
+
 		if (toFile.exists()) {
 			if (!toFile.canWrite())
 				throw new IllegalAccessException( toFileName);
@@ -272,7 +302,7 @@ public class FileUtility {
 			if (!dir.canWrite())
 				throw new IllegalAccessException(parent);
 		}
-		
+
 		FileInputStream from = null;
 		FileOutputStream to = null;
 		try {
@@ -280,7 +310,7 @@ public class FileUtility {
 			to = new FileOutputStream(toFile);
 			byte[] buffer = new byte[4096];
 			int bytesRead;
-			
+
 			while ((bytesRead = from.read(buffer)) != -1)
 				to.write(buffer, 0, bytesRead); // write
 		} finally {
@@ -288,11 +318,11 @@ public class FileUtility {
 			to.close();
 		}
 	}
-	
+
 	protected static class FileExceptionHandler implements ExceptionHandler {
-		
+
 		public FileExceptionHandler() {}
-		
+
 		@Override
 		public void handle(Throwable e) {
 			e.printStackTrace();

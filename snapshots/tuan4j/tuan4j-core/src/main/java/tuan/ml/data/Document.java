@@ -61,8 +61,8 @@ public class Document implements Comparable<Document>, Serializable {
 	 * into a Document object. The document's key is automatically generated.
 	 * Dimension size of the corpus has to be specified
 	 */
-	public static Document fromString(String features, int dim) {
-		if (features == null || features.isEmpty()) return null;
+	public Document(String features, int dim) {
+		if (features == null || features.isEmpty()) throw new NullPointerException();
 		String[] vals = features.split("\t");
 		int n = vals.length;
 		int[] dimIndex = new int[n / 2];
@@ -71,10 +71,9 @@ public class Document implements Comparable<Document>, Serializable {
 			dimIndex[i] = Integer.parseInt(vals[j++]);
 			featVal[i] = Double.parseDouble(vals[j++]);
 		}
-		Features feat = new ArrayFeatures(dimIndex, featVal, dim);
-		String key = String.valueOf(System.currentTimeMillis());
-		Document doc = new Document(key, feat, dim);
-		return doc;
+		this.features = new ArrayFeatures(dimIndex, featVal, dim);
+		this.key = String.valueOf(System.currentTimeMillis());
+		this.dim = dim;
 	}
 	
 	/**
@@ -83,8 +82,8 @@ public class Document implements Comparable<Document>, Serializable {
 	 * into a Document object. The document's key is automatically generated.
 	 * Dimension size of the corpus has to be specified
 	 */
-	public static Document fromString(String features, String delimiter, int dim) {
-		if (features == null || features.isEmpty()) return null;
+	public Document(String features, String delimiter, int dim) {
+		if (features == null || features.isEmpty()) throw new NullPointerException();
 		String[] vals = features.split(delimiter);
 		int n = vals.length;
 		int[] dimIndex = new int[n / 2];
@@ -93,10 +92,9 @@ public class Document implements Comparable<Document>, Serializable {
 			dimIndex[i] = Integer.parseInt(vals[j++]);
 			featVal[i] = Double.parseDouble(vals[j++]);
 		}
-		Features feat = new ArrayFeatures(dimIndex, featVal, n / 2);
-		String key = String.valueOf(System.currentTimeMillis());
-		Document doc = new Document(key, feat, dim);
-		return doc;
+		this.features = new ArrayFeatures(dimIndex, featVal, n / 2);
+		this.key = String.valueOf(System.currentTimeMillis());
+		this.dim = dim;
 	}
 	
 	@Override
@@ -158,9 +156,5 @@ public class Document implements Comparable<Document>, Serializable {
 			cachedString = sb.toString();	
 		}
 		return cachedString;
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(Document.fromString("0 1 1 1 2 1", " ", 9));
 	}
 }
