@@ -132,7 +132,7 @@ public class Explorer {
 			// Run the individual task
 			explorer = new Explorer(luceneLoc);
 
-			// read document info
+			// read document infoE
 			if (cmd.hasOption("document")) {
 				String docNo = cmd.getOptionValue("document");
 				try {

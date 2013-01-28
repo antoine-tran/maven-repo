@@ -1,4 +1,4 @@
-package tuan.ml.data;
+package tuan.ml;
 
 import javax.annotation.Nullable;
 

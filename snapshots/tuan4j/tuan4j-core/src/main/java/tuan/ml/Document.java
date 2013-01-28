@@ -1,7 +1,7 @@
 /**
  * 
  */
-package tuan.ml.data;
+package tuan.ml;
 
 import java.io.Serializable;
 

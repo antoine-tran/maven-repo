@@ -15,7 +15,7 @@
  * the project, feel free to write to the above email. Also, we would like
  * to get feedbacks from all of you
  */
-package tuan.stats;
+package tuan.math;
 
 /**
  * A random number generator that is based on the geometric

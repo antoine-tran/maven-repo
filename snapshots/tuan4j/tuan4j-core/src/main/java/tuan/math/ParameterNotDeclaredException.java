@@ -15,18 +15,15 @@
  * the project, feel free to write to the above email. Also, we would like
  * to get feedbacks from all of you
  */
-package tuan.stats;
+package tuan.math;
 
 /**
- * this exception is thrown when attempting parameterizing a distribution
- * that is already parameterized.
- * 
+ * This exception is thrown when a distribution is registered,
+ * but the parameters are not fully declared
  * @author tuan
- * @version 0.1
- * @since 27.04.2012
  *
  */
 @SuppressWarnings("serial")
-public class ParameterAlreadyDeclaredException extends Exception {
+public class ParameterNotDeclaredException extends Exception {
 
 }

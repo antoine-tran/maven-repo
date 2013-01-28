@@ -15,15 +15,14 @@
  * the project, feel free to write to the above email. Also, we would like
  * to get feedbacks from all of you
  */
-package tuan.stats;
+package tuan.math;
 
 /**
- * This exception is thrown when a distribution is registered,
- * but the parameters are not fully declared
+ * This exception is thrown when a false paramter is set
  * @author tuan
  *
  */
 @SuppressWarnings("serial")
-public class ParameterNotDeclaredException extends Exception {
+public class InvalidParameterException extends Exception {
 
 }

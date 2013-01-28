@@ -1,7 +1,7 @@
 /**
  * 
  */
-package tuan.ml.data;
+package tuan.ml;
 
 /**
  * This class contains all error message constants
