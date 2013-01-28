@@ -68,6 +68,7 @@ public class CategoricalRandom extends DiscreteRandom {
 	 * from 1 to k). IMPORTANT NOTE: The performance of the genration 
 	 * is highly sensitive to the order of the probabilities. It is 
 	 * fastest when the probabilities are sorted in descendant order */
+	@Override
 	public void parameterize(double... par) 
 			throws ParameterAlreadyDeclaredException, InvalidParameterException{
 		if (f != null && f.length > 0)
@@ -83,6 +84,7 @@ public class CategoricalRandom extends DiscreteRandom {
 	 *  1 to k). IMPORTANT NOTE: The performance of the genration is highly
 	 *  sensitive to the order of the probabilities. It is fastest when the 
 	 * probabilities are sorted in descendant order */
+	@Override
 	public void parameterize(float... par) 
 			throws ParameterAlreadyDeclaredException, InvalidParameterException{
 		if (d != null && d.length > 0)

@@ -68,11 +68,13 @@ public class SGDToQNMinimizer implements Minimizer<DiffFunction>, Serializable  
     return "SGD2QN" + bSize + "_g" + g;
   }
 
-  public double[] minimize(DiffFunction function, double functionTolerance, double[] initial) {
+  @Override
+public double[] minimize(DiffFunction function, double functionTolerance, double[] initial) {
     return minimize(function,functionTolerance,initial,-1);
   }
 
-  public double[] minimize(DiffFunction function, double functionTolerance, double[] initial, int maxIterations) {
+  @Override
+public double[] minimize(DiffFunction function, double functionTolerance, double[] initial, int maxIterations) {
     sayln("SGDToQNMinimizer called on function of " + function.domainDimension() + " variables;");
 
     // check for stochastic derivatives

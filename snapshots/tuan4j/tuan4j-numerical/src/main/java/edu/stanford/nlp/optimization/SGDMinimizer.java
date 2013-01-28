@@ -1,6 +1,6 @@
 package edu.stanford.nlp.optimization;
 
-import tuan.collections.Pair;
+import tuan.collections.IntDoublePair;
 
 
 /**
@@ -76,16 +76,16 @@ public class SGDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
   }
  
   
-  public Pair <Integer,Double> tune(DoubleValuedFunction function, double[] initial,long msPerTest,double gainLow,double gainHigh){
+  public IntDoublePair tune(DoubleValuedFunction function, double[] initial,long msPerTest,double gainLow,double gainHigh){
     this.quiet = true;
     StochasticMinimizer.gain = tuneGain(function, initial, msPerTest, gainLow,gainHigh);
     StochasticMinimizer.bSize = tuneBatch(function,initial,msPerTest,1);
     
-    return new Pair<Integer,Double>(StochasticMinimizer.bSize , StochasticMinimizer.gain);
+    return new IntDoublePair(StochasticMinimizer.bSize , StochasticMinimizer.gain);
   }
   
   @Override
-  public Pair<Integer,Double> tune(DoubleValuedFunction function,double[] initial, long msPerTest){
+  public IntDoublePair tune(DoubleValuedFunction function,double[] initial, long msPerTest){
     return this.tune(function, initial, msPerTest, 1e-7,1.0);
 
   }
@@ -120,7 +120,8 @@ public class SGDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
     final double[] grads = new double[dim];
 
     final DiffFunction f = new DiffFunction() {
-      public double[] derivativeAt(double[] x) {
+      @Override
+	public double[] derivativeAt(double[] x) {
         double val = Math.PI * valuePow(x, Math.PI - 1);
         for (int i = 0; i < dim; i++) {
           grads[i] = x[i] * var[i] * val;
@@ -128,7 +129,8 @@ public class SGDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
         return grads;
       }
 
-      public double valueAt(double[] x) {
+      @Override
+	public double valueAt(double[] x) {
         return 1.0 + valuePow(x, Math.PI);
       }
 
@@ -140,7 +142,8 @@ public class SGDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
         return Math.pow(val * 0.5, pow);
       }
 
-      public int domainDimension() {
+      @Override
+	public int domainDimension() {
         return dim;
       }
     };

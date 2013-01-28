@@ -1,16 +1,16 @@
 package edu.stanford.nlp.optimization;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import tuan.collections.Pair;
-import tuan.core.Function;
+import edu.stanford.nlp.math.ArrayMath;
+import edu.stanford.nlp.util.Function;
+
+import tuan.collections.IntDoublePair;
 import tuan.io.FileUtility;
-import tuan.math.ArrayMath;
 /**
  * <p>
  * Stochastic Gradient Descent To Quasi Newton Minimizer
@@ -38,7 +38,7 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
   private double aMax = 1e6;
 
 
-  public double tuneFixedGain(edu.stanford.nlp.optimization.DoubleValuedFunction function, double[] initial, long msPerTest,double fixedStart){
+  public double tuneFixedGain(DoubleValuedFunction function, double[] initial, long msPerTest,double fixedStart){
 
     double[] xtest = new double[initial.length];
     double fOpt = 0.0;
@@ -99,14 +99,15 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
 
     public SetFixedGain(ScaledSGDMinimizer min){parent = min;}
 
-    public void set(Double in){
+    @Override
+	public void set(Double in){
       parent.fixedGain = in ;
     }
   }
 
 
   @Override
-  public Pair<Integer,Double> tune( edu.stanford.nlp.optimization.DoubleValuedFunction function,double[] initial, long msPerTest){
+  public IntDoublePair tune( edu.stanford.nlp.optimization.DoubleValuedFunction function,double[] initial, long msPerTest){
 
     this.quiet = true;
 
@@ -117,7 +118,7 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
       System.err.println("Results:  fixedGain: " + nf.format(this.fixedGain) + "  gain: " + nf.format(StochasticMinimizer.gain) + "  batch " + StochasticMinimizer.bSize );
     }
 
-    return new Pair<Integer,Double>(StochasticMinimizer.bSize,StochasticMinimizer.gain);
+    return new IntDoublePair(StochasticMinimizer.bSize,StochasticMinimizer.gain);
   }
 
   @Override
@@ -188,7 +189,7 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
     System.arraycopy(dfunction.derivativeAt(newX,bSize),0,y,0,grad.length);
     
     ArrayMath.pairwiseSubtractInPlace(y,newGrad);  // newY = newY-newGrad
-    double[] comp = new double[x.length];
+    // double[] comp = new double[x.length];
     
     sList.add(s);
     yList.add(y);
@@ -267,7 +268,7 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
     say(" alpha " + nf.format(alpha));
     high = Math.sqrt(high)/(2*alpha);
 
-    Function<Double,Double> func = new Lagrange(s,y,diag,alpha);
+    Lagrange func = new Lagrange(s,y,diag,alpha);
 
     double lamStar;
     if( func.apply(low) > 0 ){
@@ -290,7 +291,7 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
 
 
 
-  private double getRoot(Function<Double,Double> func, double lower, double upper){
+  private double getRoot(Lagrange func, double lower, double upper){
     double mid = 0.5*(lower + upper);
     double fval = 0.0;
     double TOL = 1e-8;
@@ -321,7 +322,7 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
   }
 
 
-  class Lagrange implements tuan.core.Function<Double,Double>  {
+  class Lagrange implements Function<Double,Double>  {
     double[] s;
     double[] y;
     double[] d;
@@ -336,7 +337,8 @@ public class ScaledSGDMinimizer extends StochasticMinimizer {
       this.a = a;
     }
 
-    public Double apply(Double lam) {
+    @Override
+	public Double apply(Double lam) {
 
       double val = 0.0;
       for(int i=0;i<s.length;i++){

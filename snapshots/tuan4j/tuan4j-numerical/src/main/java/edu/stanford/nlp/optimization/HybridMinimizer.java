@@ -25,7 +25,8 @@ public class HybridMinimizer implements Minimizer<DiffFunction>, HasEvaluators {
     this.iterationCutoff = iterationCutoff;
   }
 
-  public void setEvaluators(int iters, Evaluator[] evaluators) {
+  @Override
+public void setEvaluators(int iters, Evaluator[] evaluators) {
     if (firstMinimizer instanceof HasEvaluators) {
       ((HasEvaluators) firstMinimizer).setEvaluators(iters, evaluators);
     }
@@ -35,12 +36,14 @@ public class HybridMinimizer implements Minimizer<DiffFunction>, HasEvaluators {
   }
 
 
-  public double[] minimize(DiffFunction function, double functionTolerance, double[] initial) {
+  @Override
+public double[] minimize(DiffFunction function, double functionTolerance, double[] initial) {
     return minimize(function, functionTolerance, initial, -1);
   }
 
 
-  public double[] minimize(DiffFunction function, double functionTolerance, double[] initial, int maxIterations) {
+  @Override
+public double[] minimize(DiffFunction function, double functionTolerance, double[] initial, int maxIterations) {
     double[] x = firstMinimizer.minimize(function,functionTolerance,initial,iterationCutoff);
     return secondMinimizer.minimize(function,functionTolerance,x,maxIterations);
   }

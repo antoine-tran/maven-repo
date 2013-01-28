@@ -32,6 +32,7 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	protected PrivateArrayIterator iterator;
 
 	/** Adds the element*/
+	@Override
 	public boolean add(E v) {
 		// Use contains() also to set the addIndex
 		if(contains(v)) return(false);  
@@ -168,6 +169,7 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	}
 
 	/** Removes one element, returns TRUE if the set was modified*/
+	@Override
 	public boolean remove(Object i) {
 		if (i == null) return false;
 		try {
@@ -193,6 +195,7 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 
 	/** Returns an array of the elements of this set
 	 * NOTE: This will create a new array to protect underlying data*/
+	@Override
 	public E[] toArray() {
 		E[] result = (E[]) Array.newInstance(c, numElements);
 		int j=0;
@@ -212,6 +215,7 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 		return res.append("]").toString();
 	}    
 
+	@Override
 	public int size() {
 		return numElements;
 	}
@@ -274,11 +278,13 @@ public class ArraySet<E> extends AbstractSet<E> implements Serializable {
 	}
 
 	/** TRUE if the set is empty*/
+	@Override
 	public boolean isEmpty() {
 		return numElements==0;
 	}
 
 	/** Removes all elements*/
+	@Override
 	public void clear() {
 		clear(10);
 	} 

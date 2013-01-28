@@ -67,6 +67,7 @@ public class GeometricRandom extends DiscreteRandom {
 	 * specify the parameter c of the distribution at the double precision 
 	 * scale
 	 */
+	@Override
 	public void parameterize(double... par)
 			throws ParameterAlreadyDeclaredException, InvalidParameterException{
 		if (fc >= 0f) 
@@ -80,6 +81,7 @@ public class GeometricRandom extends DiscreteRandom {
 	 * specify the parameter c of the distribution at the float precision 
 	 * scale
 	 */
+	@Override
 	public void parameterize(float... par)
 			throws ParameterAlreadyDeclaredException, InvalidParameterException{
 		if (dc >= 0d)

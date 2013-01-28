@@ -4,8 +4,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
 
-import tuan.math.LogPrior;
-import tuan.monitor.Timing;
+import edu.stanford.nlp.math.LogPrior;
+import edu.stanford.nlp.util.Timing;
 
 /**
  * In place Stochastic Gradient Descent Minimizer.
@@ -87,7 +87,8 @@ public class StochasticInPlaceMinimizer<T extends DoubleValuedFunction> implemen
     return "SGD_InPlace_b" + bSize + "_lambda" + nf.format(lambda);
   }
 
-  public void setEvaluators(int iters, Evaluator[] evaluators)
+  @Override
+public void setEvaluators(int iters, Evaluator[] evaluators)
   {
     this.evaluateIters = iters;
     this.evaluators = evaluators;
@@ -230,11 +231,13 @@ public class StochasticInPlaceMinimizer<T extends DoubleValuedFunction> implemen
     }
   }
 
-  public double[] minimize(DoubleValuedFunction function, double functionTolerance, double[] initial) {
+  @Override
+public double[] minimize(DoubleValuedFunction function, double functionTolerance, double[] initial) {
     return minimize(function, functionTolerance, initial, -1);
   }
 
-  public double[] minimize(DoubleValuedFunction f, double functionTolerance, double[] initial, int maxIterations) {
+  @Override
+public double[] minimize(DoubleValuedFunction f, double functionTolerance, double[] initial, int maxIterations) {
     if (!(f instanceof AbstractStochasticCachingDiffUpdateFunction)) {
       throw new UnsupportedOperationException();
     }

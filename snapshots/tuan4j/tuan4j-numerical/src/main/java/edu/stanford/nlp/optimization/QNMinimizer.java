@@ -8,8 +8,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import tuan.math.ArrayMath;
-
+import edu.stanford.nlp.math.ArrayMath;
 
 /**
  *
@@ -181,7 +180,8 @@ public class QNMinimizer implements Minimizer<DiffFunction>, HasEvaluators {
     scaleOpt = eScaling.DIAGONAL;
   }
 
-  public void setEvaluators(int iters, Evaluator[] evaluators)
+  @Override
+public void setEvaluators(int iters, Evaluator[] evaluators)
   {
     this.evaluateIters = iters;
     this.evaluators = evaluators;
@@ -816,12 +816,14 @@ public class QNMinimizer implements Minimizer<DiffFunction>, HasEvaluators {
     return null;
   }
 
-  public double[] minimize(DiffFunction function, double functionTolerance,
+  @Override
+public double[] minimize(DiffFunction function, double functionTolerance,
       double[] initial) {
     return minimize(function, functionTolerance, initial, -1);
   }
 
-  public double[] minimize(DiffFunction dfunction, double functionTolerance,
+  @Override
+public double[] minimize(DiffFunction dfunction, double functionTolerance,
       double[] initial, int maxFunctionEvaluations) {
     return minimize(dfunction, functionTolerance, initial,
         maxFunctionEvaluations, null);

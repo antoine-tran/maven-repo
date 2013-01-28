@@ -3,8 +3,9 @@ package edu.stanford.nlp.optimization;
 import java.util.ArrayList;
 import java.util.List;
 
-import tuan.collections.Pair;
-import tuan.math.ArrayMath;
+import edu.stanford.nlp.math.ArrayMath;
+
+import tuan.collections.IntDoublePair;
 
 /**
  * Online Limited-Memory Quasi-Newton BFGS implementation based on the algorithms in
@@ -95,9 +96,9 @@ public class SQNMinimizer<T extends DoubleValuedFunction> extends StochasticMini
   }
 
   @Override
-  public Pair<Integer,Double> tune( edu.stanford.nlp.optimization.DoubleValuedFunction function,double[] initial, long msPerTest){
+  public IntDoublePair tune( edu.stanford.nlp.optimization.DoubleValuedFunction function,double[] initial, long msPerTest){
     System.err.println("No tuning set yet");
-    return new Pair<Integer,Double>(StochasticMinimizer.bSize,StochasticMinimizer.gain);
+    return new IntDoublePair(StochasticMinimizer.bSize,StochasticMinimizer.gain);
   }
 
   private void computeDir(double[] dir, double[] fg) throws SQNMinimizer.SurpriseConvergence {

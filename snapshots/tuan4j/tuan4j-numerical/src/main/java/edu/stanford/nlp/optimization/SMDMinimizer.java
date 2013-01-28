@@ -3,8 +3,10 @@ package edu.stanford.nlp.optimization;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import tuan.collections.Pair;
-import tuan.math.ArrayMath;
+import edu.stanford.nlp.math.ArrayMath;
+
+import tuan.collections.IntDoublePair;
+
 
 /**
  * <p>
@@ -102,7 +104,8 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
 
     public setMu(SMDMinimizer<T> smd){parent = smd;}
     
-    public void set(Double in){
+    @Override
+	public void set(Double in){
       parent.mu = in ;
     }
   }
@@ -112,7 +115,8 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
 
     public setLam(SMDMinimizer<T> smd){parent = smd;}
     
-    public void set(Double in){
+    @Override
+	public void set(Double in){
       parent.lam = in ;
     }
   }
@@ -120,7 +124,7 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
 
   
   @Override
-  public Pair<Integer,Double> tune( edu.stanford.nlp.optimization.DoubleValuedFunction function,double[] initial, long msPerTest){
+  public IntDoublePair tune( edu.stanford.nlp.optimization.DoubleValuedFunction function,double[] initial, long msPerTest){
 
     this.quiet = true;
     this.lam = 0.9;
@@ -131,7 +135,7 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
     
     System.err.println("Results:  gain: " + nf.format(StochasticMinimizer.gain) + "  batch " + StochasticMinimizer.bSize  + "   mu" + nf.format(this.mu) + "  lam" + nf.format(this.lam));
     
-    return new Pair<Integer,Double>(StochasticMinimizer.bSize,StochasticMinimizer.gain);
+    return new IntDoublePair(StochasticMinimizer.bSize,StochasticMinimizer.gain);
   }
   
   
@@ -210,7 +214,8 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
     final double[] grads = new double[dim];
 
     final DiffFunction f = new DiffFunction() {
-      public double[] derivativeAt(double[] x) {
+      @Override
+	public double[] derivativeAt(double[] x) {
         double val = Math.PI * valuePow(x, Math.PI - 1);
         for (int i = 0; i < dim; i++) {
           grads[i] = x[i] * var[i] * val;
@@ -218,7 +223,8 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
         return grads;
       }
 
-      public double valueAt(double[] x) {
+      @Override
+	public double valueAt(double[] x) {
         return 1.0 + valuePow(x, Math.PI);
       }
 
@@ -230,7 +236,8 @@ public class SMDMinimizer<T extends DoubleValuedFunction> extends StochasticMini
         return Math.pow(val * 0.5, pow);
       }
 
-      public int domainDimension() {
+      @Override
+	public int domainDimension() {
         return dim;
       }
     };

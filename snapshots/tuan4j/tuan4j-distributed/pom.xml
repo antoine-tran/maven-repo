@@ -6,7 +6,7 @@
   <artifactId>tuan4j-distributed</artifactId>
   <name>Tuan4J Distributed</name>
   <description>This library provides utility methods for distributed computing, including Map-Reduce algorithms, popular web service API clients, etc.</description>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1-beta1</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -58,7 +58,6 @@
 	  <groupId>org.apache.hadoop</groupId>
 	  <artifactId>hadoop-core</artifactId>
 	  <version>1.1.1</version>
-	  <optional>true</optional>
 	  <exclusions>
 	    <exclusion>
           <groupId>ant</groupId>
@@ -167,11 +166,13 @@
   	  <artifactId>httpcore</artifactId>
       <version>4.2.2</version>
       <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
 	<dependency>
 	  <groupId>org.apache.httpcomponents</groupId>
 	  <artifactId>httpclient</artifactId>
 	  <version>4.1</version>
+	  <optional>true</optional>
 	</dependency>           
   </dependencies>
 

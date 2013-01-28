@@ -445,11 +445,13 @@ public class CGMinimizer implements Minimizer<DiffFunction> {
     return oneDim.vectorOf(xmin);
   }
 
-  public double[] minimize(DiffFunction function, double functionTolerance, double[] initial) {
+  @Override
+public double[] minimize(DiffFunction function, double functionTolerance, double[] initial) {
     return minimize(function, functionTolerance, initial, ITMAX);
   }
 
-  public double[] minimize(DiffFunction dfunction, double functionTolerance, double[] initial, int maxIterations) {
+  @Override
+public double[] minimize(DiffFunction dfunction, double functionTolerance, double[] initial, int maxIterations) {
     // check for derivatives
 
     int dimension = dfunction.domainDimension();

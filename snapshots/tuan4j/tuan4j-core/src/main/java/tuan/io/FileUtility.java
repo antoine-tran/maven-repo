@@ -40,9 +40,15 @@ import tuan.core.ExceptionHandler;
 
 /**
  * Set of small utility methods that handle frequent Java I/O operations
- * and help developers focus on algorithmic logic
+ * and help developers focus on algorithmic logic. It imports slurp methods
+ * from Berkeley NLP util package
  * 
  * @author tuan
+ * @author Dan Klein
+ * @author Christopher Manning
+ * @author Tim Grow (grow@stanford.edu)
+ * @author Chris Cox
+ * @version 2003/02/03
  *
  */
 public class FileUtility {
@@ -333,4 +339,110 @@ public class FileUtility {
 			throw e;
 		}		
 	}
+	
+    private static final int SLURPBUFFSIZE = 16000;
+	
+	/**
+     * Returns all the text in the given File.
+     */
+    public static String slurpFile(File file) throws IOException {
+            Reader r = new FileReader(file);
+            return slurpReader(r);
+    }
+
+    public static String slurpGBFileNoExceptions(String filename) {
+            return slurpFileNoExceptions(filename, "GB18030");
+    }
+
+    /**
+     * Returns all the text in the given file with the given encoding.
+     */
+    public static String slurpFile(String filename, String encoding)
+                    throws IOException {
+            Reader r = new InputStreamReader(new FileInputStream(filename),
+                            encoding);
+            return slurpReader(r);
+    }
+
+    /**
+     * Returns all the text in the given file with the given encoding. If the
+     * file cannot be read (non-existent, etc.), then and only then the method
+     * returns <code>null</code>.
+     */
+    public static String slurpFileNoExceptions(String filename, String encoding) {
+            try {
+                    return slurpFile(filename, encoding);
+            } catch (Exception e) {
+                    throw new RuntimeException();
+            }
+    }
+
+    public static String slurpGBFile(String filename) throws IOException {
+            return slurpFile(filename, "GB18030");
+    }
+
+    /**
+     * Returns all the text from the given Reader.
+     * 
+     * @return The text in the file.
+     */
+    public static String slurpReader(Reader reader) {
+            BufferedReader r = new BufferedReader(reader);
+            StringBuffer buff = new StringBuffer();
+            try {
+                    char[] chars = new char[SLURPBUFFSIZE];
+                    while (true) {
+                            int amountRead = r.read(chars, 0, SLURPBUFFSIZE);
+                            if (amountRead < 0) {
+                                    break;
+                            }
+                            buff.append(chars, 0, amountRead);
+                    }
+                    r.close();
+            } catch (Exception e) {
+                    throw new RuntimeException();
+            }
+            return buff.toString();
+    }
+
+    /**
+     * Returns all the text in the given file
+     * 
+     * @return The text in the file.
+     */
+    public static String slurpFile(String filename) throws IOException {
+            return slurpReader(new FileReader(filename));
+    }
+
+    /**
+     * Returns all the text in the given File.
+     * 
+     * @return The text in the file. May be an empty string if the file is
+     *         empty. If the file cannot be read (non-existent, etc.), then and
+     *         only then the method returns <code>null</code>.
+     */
+    public static String slurpFileNoExceptions(File file) {
+            try {
+                    return slurpReader(new FileReader(file));
+            } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+            }
+    }
+
+    /**
+     * Returns all the text in the given File.
+     * 
+     * @return The text in the file. May be an empty string if the file is
+     *         empty. If the file cannot be read (non-existent, etc.), then and
+     *         only then the method returns <code>null</code>.
+     */
+    public static String slurpFileNoExceptions(String filename) {
+            try {
+                    return slurpFile(filename);
+            } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+            }
+    }
 }

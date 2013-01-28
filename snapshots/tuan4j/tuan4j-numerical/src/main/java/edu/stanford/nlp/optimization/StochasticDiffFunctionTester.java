@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import tuan.math.ArrayMath;
+import edu.stanford.nlp.math.ArrayMath;
 
 /**
  * @author Alex Kleeman

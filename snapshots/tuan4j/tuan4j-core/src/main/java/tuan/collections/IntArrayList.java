@@ -236,6 +236,7 @@ public class IntArrayList {
 		return array;
 	}
 
+	@Override
 	public String toString () {
 		if (size == 0) return "[]";
 		int[] items = this.items;
