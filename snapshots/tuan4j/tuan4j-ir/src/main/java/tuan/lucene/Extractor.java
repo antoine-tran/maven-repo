@@ -39,8 +39,8 @@ import org.apache.lucene.util.BytesRef;
 import com.google.common.collect.HashMultiset;
 
 import tuan.io.FileUtility;
-import tuan.ml.data.ArrayFeatures;
-import tuan.ml.data.Document;
+import tuan.ml.ArrayFeatures;
+import tuan.ml.Document;
 
 public class Extractor {
 
