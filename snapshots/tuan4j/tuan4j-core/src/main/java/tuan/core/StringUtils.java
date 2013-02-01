@@ -27,11 +27,16 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
 
-	private static final Pattern pattern = Pattern.compile("-?\\d+(.\\d+)?");
+	private static final Pattern NUMERIC_PATTERN = Pattern.compile("-?\\d+(.\\d+)?");
+	private static final Pattern WHITE_SPACE_PATTERN = Pattern.compile("\\s+");
 	
 	/** An efficient method to check if a string is about a number */
 	public static boolean isNumeric(String string) {
-		return pattern.matcher(string).matches();
+		return NUMERIC_PATTERN.matcher(string).matches();
+	}
+	
+	public static boolean isWhiteSpace(String string) {
+		return WHITE_SPACE_PATTERN.matcher(string).matches();
 	}
 	
 	/** Some tasks need extract number-like information from a text, such as extracting number
