@@ -105,4 +105,8 @@ public class Inserter extends Database.Inserter {
 		}
 		if (batchCounter++ % this.batchSize == 0) flush();
 	}
+	
+	public String toString() {
+		return preparedStatement.toString();
+	}
 }

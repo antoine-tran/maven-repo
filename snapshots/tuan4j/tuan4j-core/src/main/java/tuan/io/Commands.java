@@ -32,9 +32,7 @@ public class Commands {
 					} else {
 						result.put(key, null);
 					}
-				} else {
-					result.put(key, null);
-				}
+				} else result.put(key, null);
 			}
 		}
 		return result;
