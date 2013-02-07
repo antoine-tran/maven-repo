@@ -41,15 +41,6 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
-import org.apache.commons.dbcp.PoolingDataSource;
-import org.apache.commons.pool.KeyedObjectPoolFactory;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
-
 import javatools.administrative.Announce;
 import javatools.database.ResultIterator;
 import javatools.filehandlers.CSVLines;
@@ -66,76 +57,28 @@ import javatools.filehandlers.CSVLines;
 public class Database extends javatools.database.Database {
 
 	/** The timeout for connection valid */
-	private static final int TIME_OUT = 3;
+	// private static final int TIME_OUT = 0;
 
-	/** Connection pool manager. Current version (0.0.1) makes use of the Apache Commons DBCP library */
-	protected DataSource dataSource;
+	/** Connection pool manager */
+	//protected DataSource dataSource;
 
 	/** Holds the String by which the connection can be reset*/
 	protected String connectionString;
 
-	/**
-	 * This method is borrowed from <a href="http://svn.apache.org/viewvc/commons/proper/dbcp/trunk/doc/">
-	 * Apache Commons DBCP Example</a> - PoolingDataSourceExample.java
-	 */
-
-	public static DataSource setupDataSource(String connectURI, String user, String pwd, int maxActive) {
-		//
-		// First, we'll create a ConnectionFactory that the
-		// pool will use to create Connections.
-		// We'll use the DriverManagerConnectionFactory,
-		// using the connect string passed in the command line
-		// arguments.
-		//
-		ConnectionFactory connectionFactory =
-				new DriverManagerConnectionFactory(connectURI, user, pwd);
-
-		//
-		// Next we'll create the PoolableConnectionFactory, which wraps
-		// the "real" Connections created by the ConnectionFactory with
-		// the classes that implement the pooling functionality.
-		//
-		ObjectPool objectPool = new GenericObjectPool();
-		KeyedObjectPoolFactory stmtPool = new GenericKeyedObjectPoolFactory(null, maxActive);
-
-		PoolableConnectionFactory poolableConnectionFactory =
-				new PoolableConnectionFactory(connectionFactory, objectPool, stmtPool, null, 0, false, true);
-
-		//
-		// Now we'll need a ObjectPool that serves as the
-		// actual pool of connections.
-		//
-		// We'll use a GenericObjectPool instance, although
-		// any ObjectPool implementation will suffice.
-		//
-		ObjectPool connectionPool = new GenericObjectPool(poolableConnectionFactory);
-
-		//
-		// Finally, we create the PoolingDriver itself,
-		// passing in the object pool we created.
-		//
-		PoolingDataSource dataSource = new PoolingDataSource(connectionPool);
-
-		return dataSource;
-	}	
-
-	/** Get new / existing connection from the pool */
-	public void fetchConnection(String user, String password, Properties props) throws SQLException {
-		try {
-			connection = dataSource.getConnection();	
-		} catch (SQLException e) {
-			close(connection);
-			if (props == null) connection = DriverManager.getConnection(connectionString);
-			else connection = DriverManager.getConnection(connectionString, props);
-			connection.setAutoCommit(true);
-		}		
-	}
-
 	/** Resets the connection. */
-	public void resetConnection(Properties props) throws SQLException {
+	public void resetConnection(String user, String password, Properties props) throws SQLException {
 		close(connection);
-		if (props == null) connection = DriverManager.getConnection(connectionString);
-		else connection = DriverManager.getConnection(connectionString, props);
+		initConnection(user, password, props);
+	}
+	
+	/** Resets the connection. */
+	public void initConnection(String user, String password, Properties props) throws SQLException {
+		if (props == null) connection = DriverManager.getConnection(connectionString, user, password);
+		else {
+			if (!props.containsKey("user")) props.setProperty("user", user);
+			if (!props.containsKey("password")) props.setProperty("password", password);
+			connection = DriverManager.getConnection(connectionString, props);
+		}
 		connection.setAutoCommit(true);
 	}
 
@@ -978,7 +921,7 @@ public class Database extends javatools.database.Database {
 		return getConnection().isClosed();
 	}
 
-	public boolean isConnectionActive() throws SQLException {
-		return getConnection().isValid(TIME_OUT);	
-	}
+//	public boolean isConnectionActive() throws SQLException {
+//		return getConnection().isValid(TIME_OUT);	
+//	}
 }

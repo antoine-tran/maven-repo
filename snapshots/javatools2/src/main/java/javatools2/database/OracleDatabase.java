@@ -75,20 +75,15 @@ public class OracleDatabase extends Database {
 	public OracleDatabase(String user, String password, String host, String port) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		this(user, password, host, null, null, null);
 	}
-
-	/** Constructs a new OracleDatabase from a user, a password and a host*/
-	public OracleDatabase(String user, String password, String host, String port, String inst, Properties extraProps) throws SQLException {
-		this(user, password, host, port, inst, extraProps, 8);
-	}
 	
 	/** Constructs a new OracleDatabase from a user, a password and a host*/
-	public OracleDatabase(String user, String password, String host, String port, String inst, Properties extraProps, int maxActive) throws SQLException {
+	public OracleDatabase(String user, String password, String host, String port, String inst, Properties extraProps) throws SQLException {
 		this();
 		if (password == null) password = "";
 		if (host == null) host = "localhost";
 		if (port == null) port = "1521";
 		if (inst == null) inst = "oracle";
-		connectionString = "jdbc:oracle:thin:/@" + host + ":" + port + ":" + inst;
+		connectionString = "jdbc:oracle:thin:@" + host + ":" + port + ":" + inst;
 		Driver driver;
 		try {
 			driver = (Driver) Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
@@ -100,8 +95,7 @@ public class OracleDatabase extends Database {
 			throw new SQLException(e);
 		}
 		DriverManager.registerDriver(driver);
-		dataSource = setupDataSource(connectionString, user, password, maxActive);		
-		fetchConnection(user, password, extraProps);
+		initConnection(user, password, extraProps);
 		description = "ORACLE database " + user + "/" + password + " at " + host + ":" + port + " instance " + inst;
 	}
 

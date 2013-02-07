@@ -59,9 +59,8 @@ public class MySQLDatabase extends Database {
 		else charset = "&useUnicode=true&characterEncoding=" + charset + "&characterSetResults=" + charset;
 		if (collate == null) collate = "";
 		else collate = "&connectionCollation=" + collate;
-		dataSource = setupDataSource(connectionString, user, password, maxActive);		
 		connectionString = String.format("jdbc:mysql://%s%s/%s?user=%s&password=%s%s%s", host, port, database, user, password, charset, collate);
-		fetchConnection(user, password, null);
+		initConnection(user, password, null);
 	}
 	
 	/** Constructs a new EMBEDDED MySQLDatabase from a user and a password 
