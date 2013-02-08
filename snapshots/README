@@ -2,13 +2,10 @@
    Java basic operations (I/O executions, logging)
    
    License: GNU Lesser GPL v2.1
-   Current version: 0.1-beta1
+   Current version: 0.2-beta1
 
-2. Javatools2 - An extended version of Max-Planck Institute for Informatics's
-   Javatools with many new features:
-   - OSGi wrapper methods
-   - Optimized database interactions of primitive data
-   - Flexible logging methods
+2. Javatools - An extended version of Max-Planck Institute for Informatics's
+   Javatools with optimized database interactions of primitive data
 
    License: GNU Lesser GPL v2.1
    Current version: 1.0 
@@ -18,3 +15,5 @@
    
    License:  GNU General Public License v2.x
    Current version: 0.1
+
+4. Stanford NLP Tools: Extracted tools from Stanford CoreNLP that can be reused in standard Java applications
