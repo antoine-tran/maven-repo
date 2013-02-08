@@ -79,7 +79,6 @@
 		</testResources>
 	</build>
 
-
 	<repositories>
         <repository>
            <id>antoine-tran-github-releases</id>

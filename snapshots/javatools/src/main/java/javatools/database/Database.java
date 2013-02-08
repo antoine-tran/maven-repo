@@ -1615,22 +1615,26 @@ public abstract class Database {
 
 		/** Creates a bulk loader for partial insert statements with column types and names */
 		public Inserter(String table, Column...columns) throws SQLException {
+			if (columns == null || columns.length == 0) throw new IllegalArgumentException("column must not empty");
 			columnTypes = new SQLType[columns.length];
 			tableName = table;
 			StringBuilder sb = new StringBuilder("INSERT INTO ");
+			StringBuilder tb = new StringBuilder(" VALUES(");
 			sb.append(table);
 			sb.append("(");
-			for (int i = 0; i < columnTypes.length; i++) {
+			int n = columnTypes.length;
+			for (int i = 0; i < columnTypes.length - 1; i++) {
 				columnTypes[i] = getSQLType(columns[i].getType());
 				sb.append(columns[i].getName());
-				if (i < columnTypes.length - 1) sb.append(",");
-				else sb.append(")");
-			}
-			sb.append(" VALUES(");
-			for (int i = 0; i < columnTypes.length - 1; i++)
-				table = table + "?, ";
-			table += "?)";
-			preparedStatement = connection.prepareStatement(table);
+				sb.append(",");
+				tb.append("?, ");				
+			}	
+			columnTypes[n - 1] = getSQLType(columns[n - 1].getType());
+			sb.append(columns[n - 1].getName());
+			sb.append(")");
+			tb.append("?)");
+			sb.append(tb);
+			preparedStatement = connection.prepareStatement(sb.toString());
 			inserters.add(this);
 		}
 
