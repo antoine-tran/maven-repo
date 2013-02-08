@@ -1,6 +1,17 @@
-This maven repository hosts three kinds of artifacts:
-- Popular open-source Java software libraries that do not have official maven
-repositories (up to 11.12.2011)
-- OSGi wrappers for those popular open-source tools
-- Personally developed tools
-     
+A github-based maven repositories for many artifacts that are useful, but are to date (08.02.2013) not yet available in public repositories (to the best of my knowledge). They includes:
+
+1. Javatools: 
+A lightweight library that has many convenience Java classes for a variety of small tasks, such as parsing, database interaction or file handling. They were developed by Fabian M. Suchanek for the YAGO-NAGA project at Max-Planck Institut for Informatics. The Javatools are licensed under a Creative Commons Attribution 3.0 License by the YAGO-NAGA team. More details can be found at: http://www.mpi-inf.mpg.de/yago-naga/javatools/
+
+This maven artifact redistributes the Javatools under the Creative Commons Attribution 3.0 License. It also extends the library by providing extra primitive data type supports for database handling. 
+
+2. Stanford NLP small maven artifacts: 
+STanford NLP (http://nlp.stanford.edu/software/index.shtml) is a famous Java suite for NLP tasks such as POS tagging, named entity recognition, CRF word segmenter,… There are many libraries developed within the Stanford NLP frameworks which are very well written and highly reusable in several non NLP-related tasks as well. For example, the StringUtils class contains over 80 different utility methods for handling strings, or the optimization package provides many implementations of numerical minimizer: Stochastic Gradient Descent Minimizer, Online Limited-Memory Quasi-Newton BFGS. Unfortunately, these libraries are not well known in Java community, and from time to time, I have seen many duplicated implementations in several frameworks, meaning hundreds hours have been wasted to re-invent one small thing.
+
+In a hope to support Java developers to build efficient algorithms quicker, I  decided to re-distribute those universally useful tools in maven style. I tried my best to keep track of the development of the original libraries, as well as to resolve the different versions of the library in different frameworks (for example, in Berkeley parser), however it is surely not always at its latest updates. Any contribution are welcome here.
+
+3. Tuan4j:
+Working with Java for years, I have been collecting a number of small programs useful in many tasks, including those developed by me as well as by the Java community and are freely published elsewhere. I bundled them into one lightweight library, called tuan4j-core, tested them and optimized the components, making them highly reusable for any standard Java applications. As compared with Javatools, tuan4j emphasizes on small footprint, efficient primitive data type supports and standard JSRs compliance. Tuan4j also includes the Apache Ant's Bzip2 files handling (the tool that is extremely helpful, but not visible to the Java community, simply because it was bundled within a non-related library).
+
+4. Likelike:
+Likelike (http://code.google.com/p/likelike/) is an implementation of LSH (locality sensitive hashing) on Hadoop. It is public under the Apache License 2.0, and here you can find the refactored maven artifacts of the tool. Dependencies has been updated with newer versions of third-party libraries with several bug fixes and optimization, and it was engineered to consume less memory and better tailored to Hadoop stable versions 1.x
