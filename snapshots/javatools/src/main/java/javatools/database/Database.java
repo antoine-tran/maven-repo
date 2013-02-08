@@ -940,15 +940,16 @@ public abstract class Database {
 	 * Executes an SQL generic query  
 	 * This is an extension of a corresponding query method in Fabian's Database class 
 	 * with a number of integer parameters */
-	public void execute(CharSequence sqlcs, int... param) throws SQLException {
+	public boolean execute(CharSequence sqlcs, int... param) throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			int n = param.length;
 			for (int i = 1; i <= n; i++)
 				ps.setInt(i, param[i - 1]);
-			ps.execute();
+			boolean result = ps.execute();
 			close(ps);
+			return result;
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -1725,6 +1726,10 @@ public abstract class Database {
 	/** Returns an inserter for a table with specific column types given as java.sql.Type constants*/
 	public Inserter newInserter(String table, int... argumentTypes) throws SQLException {
 		return (new Inserter(table, argumentTypes));
+	}
+	
+	public Inserter newInserter(String table, Column... cols) throws SQLException {
+		return (new Inserter(table, cols));
 	}
 
 	/** Produces a CSV version of the table*/
