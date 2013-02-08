@@ -3,8 +3,6 @@ package tuan.ml;
 import java.util.Arrays;
 import java.util.BitSet;
 
-import javax.annotation.Nullable;
-
 /**
  * This is the basic implementation of Features where data are stored in 
  * primitive arrays. It sorts the dimension ids so that the access to
@@ -98,7 +96,7 @@ public class ArrayFeatures implements RandomAccessFeatures {
 	}
 
 	@Override
-	public @Nullable Object feature(int index) {
+	public Object feature(int index) {
 		if (index >= dim)
 			throw new IndexOutOfBoundsException(
 					ErrorMessage.DIMENSION_INDEX_OUT_OF_BOUND.toString());

@@ -1,7 +1,5 @@
 package tuan.ml;
 
-import javax.annotation.Nullable;
-
 /** This contains features of a document where access to
  * a feature values at a specific dimension is guaranteed
  * to be (pseudo-) random access*/
@@ -13,5 +11,5 @@ public interface RandomAccessFeatures extends Features {
 	
 	/** get feature values of a document at a speficic dimension. Note that not
 	 * all implementations support this operation */
-	public @Nullable Object featureAtDimension(int dimension);
+	public Object featureAtDimension(int dimension);
 }

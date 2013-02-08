@@ -3,8 +3,6 @@
  */
 package tuan.ml;
 
-import javax.annotation.Nullable;
-
 /**
  * This contains features of a document in all dimension
  * @author tuan
@@ -29,7 +27,7 @@ public interface Features {
 	
 	/** get feature values of a document at a position. Note that not
 	 * all implementations support this operation */
-	public @Nullable Object feature(int idex);
+	public Object feature(int idex);
 	
 	@Override
 	public int hashCode();

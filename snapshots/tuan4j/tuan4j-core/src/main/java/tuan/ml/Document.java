@@ -5,8 +5,6 @@ package tuan.ml;
 
 import java.io.Serializable;
 
-import javax.annotation.Nullable;
-
 /**
  * This is a generic document in high-dimensional space. 
  * Every document is uniquely identified by one key of String type (key
@@ -101,7 +99,7 @@ public class Document implements Comparable<Document>, Serializable {
 	/** sort documents by some indicator (e.g. signature length). CONVENTION: 
 	 * If a document is null, then always return Integer.MIN_VALUE (all non-null
 	 * documents are sorted before null document) */
-	public int compareTo(@Nullable Document doc) {
+	public int compareTo(Document doc) {
 		if (doc == null) {
 			return Integer.MIN_VALUE;
 		} 

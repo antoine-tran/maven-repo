@@ -1,6 +1,7 @@
 package tuan.collections;
 
 import java.util.Arrays;
+
 /**
  * This code is redistributed from the project Kryo under license Apache 2.0 (below)
  * All copyrights reserved.
@@ -187,6 +188,10 @@ public class IntArrayList {
 	public void clear () {
 		size = 0;
 	}
+	
+	public int size() {
+		return size;
+	}
 
 	/** Reduces the size of the backing array to the size of the actual items. This is useful to release memory when many items have
 	 * been removed, or if it is known that more items will not be added. */
@@ -261,5 +266,90 @@ public class IntArrayList {
 			buffer.append(items[i]);
 		}
 		return buffer.toString();
+	}
+	
+	public static int intersect(IntArrayList list1, IntArrayList list2) {
+		if (list1 == null || list2 == null)
+			return 0;
+		list1.sort();
+		list2.sort();
+		int intersect = 0;
+		for (int i = 0; i < list1.size; i++) {
+			if (list2.indexOf(list1.get(i)) >= 0)
+				++intersect;
+		}
+		return intersect;
+	}
+
+	/**
+	 * Return the list of common values between two sets
+	 * @param list1 the list of distinctive integers
+	 * @param list2the list of distinctive integers
+	 * @return the number of common integers
+	 */
+	public static IntArrayList intersectList(IntArrayList list1, IntArrayList list2) {
+		IntArrayList resLst = null;
+		if (list1 != null && list2 != null) {
+			resLst = new IntArrayList();
+			list1.sort();
+			list2.sort();
+			for (int i = 0; i < list1.size; i++) {
+				if (list2.indexOf(list1.get(i)) >= 0)
+					resLst.add(list1.get(i));
+			}	
+		}					
+		return resLst;
+	}
+
+	/**
+	 * Return the number of common values between an arbitrary number of  sets
+	 * @return the number of common integers, -1 if the argument is invalid
+	 */
+	public static int intersect(IntArrayList... list) {
+		int intersect = 0;
+		int n = list.length;
+		if (n <= 1) return -1;
+		for (IntArrayList listElem : list)
+			listElem.sort();
+		IntArrayList arr1 = list[0];
+		boolean found;		
+		for (int i = 0; i < arr1.size; i++) {
+			found = true;
+			for (int j = 1; j < n; j++)  
+				if (list[j].indexOf(arr1.get(i)) >= 0) {
+					found = false;
+					break;
+				}
+			if (found) ++intersect;
+
+		}
+		return intersect;
+	}
+
+	/**
+	 * Return the dice's similarity between an arbitrary number of  sets 
+	 * @param the double value of dice's similarity
+	 */
+	public static double dice(IntArrayList... list) {
+		int n = list.length;
+		int sum = 0;
+		for (IntArrayList listElem : list)
+			sum += listElem.size();
+		return (double)(n * intersect(list)) / (double)sum; 
+	}
+
+	/**
+	 * Return the extended dice's similarity between an arbitrary number of sets
+	 * with specified intersection size
+	 * @param intersect the size of the sets' intersection
+	 * @param list list of sets
+	 * @return
+	 */
+	public static double dice(int intersect, IntArrayList... list) {
+		int n = list.length;
+		int sum = 0;
+		for (IntArrayList listElem : list)
+			sum += listElem.size();
+		return (double)(n * intersect) / (double)sum; 
 	}
 }

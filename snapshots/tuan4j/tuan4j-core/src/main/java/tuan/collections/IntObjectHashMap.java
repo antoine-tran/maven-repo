@@ -2,7 +2,7 @@ package tuan.collections;
 
 import java.util.Random;
 
-import edu.stanford.nlp.math.SloppyMath;
+import tuan.math.SloppyMath;
 
 
 /**
