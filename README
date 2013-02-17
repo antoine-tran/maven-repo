@@ -15,3 +15,6 @@ Working with Java for years, I have been collecting a number of small programs u
 
 4. Likelike:
 Likelike (http://code.google.com/p/likelike/) is an implementation of LSH (locality sensitive hashing) on Hadoop. It is public under the Apache License 2.0, and here you can find the refactored maven artifacts of the tool. Dependencies have been updated with newer versions of third-party libraries with several bug fixes and optimization, and it was engineered to consume less memory and better tailored to Hadoop stable versions 1.x
+
+5. Hark-tweet-NLP:
+The public maven artifact of Hark-tweet-NLP (https://github.com/antoine-tran/hark-tweet-nlp), the Hadoop extension of CMU's ArkTweet (http://www.ark.cs.cmu.edu/TweetNLP/) is also put here.
