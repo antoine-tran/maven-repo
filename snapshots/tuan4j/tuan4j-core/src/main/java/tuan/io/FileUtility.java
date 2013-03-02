@@ -150,6 +150,14 @@ public class FileUtility {
 	public static Iterable<String> readLines(String inputFileName, ExceptionHandler handler) {
 		return new LineIterator(inputFileName, handler);	
 	}
+	
+	/**
+	 * This class open a stream to a text file and read it line by line. It accepts
+	 * a customized exception handler
+	 */
+	public static Iterable<String> readLines(File file, ExceptionHandler handler) {
+		return new LineIterator(file, handler);	
+	}
 
 	static class LineIterator implements Iterator<String>, Iterable<String> {
 
@@ -163,6 +171,17 @@ public class FileUtility {
 
 			try {
 				Reader fileReader = new FileReader(fileName);
+				reader = new BufferedReader(fileReader);
+			} 
+			catch (FileNotFoundException e) {				
+				handler.handle(e);
+			}
+		}
+		
+		public LineIterator(File file, ExceptionHandler exceptionHandler) {
+			this.handler = (exceptionHandler == null) ? new FileExceptionHandler() : exceptionHandler;
+			try {
+				Reader fileReader = new FileReader(file);
 				reader = new BufferedReader(fileReader);
 			} 
 			catch (FileNotFoundException e) {				
