@@ -1,4 +1,4 @@
-package tuan.collections;
+package javatools.util;
 
 import java.util.Arrays;
 /**
@@ -28,42 +28,42 @@ import java.util.Arrays;
  * avoids a memory copy when removing elements (the last element is moved to the removed element's position).
  * @author Nathan Sweet */
 
-public class ByteArrayList {
-	public byte[] items;
+public class IntArrayList {
+	public int[] items;
 	public int size;
 	public boolean ordered;
 
 	/** Creates an ordered array with a capacity of 16. */
-	public ByteArrayList () {
+	public IntArrayList () {
 		this(true, 16);
 	}
 
 	/** Creates an ordered array with the specified capacity. */
-	public ByteArrayList (int capacity) {
+	public IntArrayList (int capacity) {
 		this(true, capacity);
 	}
 
 	/** @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
 	 *           memory copy.
 	 * @param capacity Any elements added beyond this will cause the backing array to be grown. */
-	public ByteArrayList (boolean ordered, int capacity) {
+	public IntArrayList (boolean ordered, int capacity) {
 		this.ordered = ordered;
-		items = new byte[capacity];
+		items = new int[capacity];
 	}
 
 	/** Creates a new array containing the elements in the specific array. The new array will be ordered if the specific array is
 	 * ordered. The capacity is set to the number of elements, so any subsequent elements added will cause the backing array to be
 	 * grown. */
-	public ByteArrayList (ByteArrayList array) {
+	public IntArrayList (IntArrayList array) {
 		this.ordered = array.ordered;
 		size = array.size;
-		items = new byte[size];
+		items = new int[size];
 		System.arraycopy(array.items, 0, items, 0, size);
 	}
 
 	/** Creates a new ordered array containing the elements in the specified array. The capacity is set to the number of elements,
 	 * so any subsequent elements added will cause the backing array to be grown. */
-	public ByteArrayList (byte[] array) {
+	public IntArrayList (int[] array) {
 		this(true, array);
 	}
 
@@ -71,52 +71,52 @@ public class ByteArrayList {
 	 * subsequent elements added will cause the backing array to be grown.
 	 * @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
 	 *           memory copy. */
-	public ByteArrayList (boolean ordered, byte[] array) {
+	public IntArrayList (boolean ordered, int[] array) {
 		this(ordered, array.length);
 		size = array.length;
 		System.arraycopy(array, 0, items, 0, size);
 	}
 
-	public void add (byte value) {
-		byte[] items = this.items;
+	public void add (int value) {
+		int[] items = this.items;
 		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
 		items[size++] = value;
 	}
 
-	public void addAll (ByteArrayList array) {
+	public void addAll (IntArrayList array) {
 		addAll(array, 0, array.size);
 	}
 
-	public void addAll (ByteArrayList array, int offset, int length) {
+	public void addAll (IntArrayList array, int offset, int length) {
 		if (offset + length > array.size)
 			throw new IllegalArgumentException("offset + length must be <= size: " + offset + " + " + length + " <= " + array.size);
 		addAll(array.items, offset, length);
 	}
 
-	public void addAll (byte[] array) {
+	public void addAll (int[] array) {
 		addAll(array, 0, array.length);
 	}
 
-	public void addAll (byte[] array, int offset, int length) {
-		byte[] items = this.items;
+	public void addAll (int[] array, int offset, int length) {
+		int[] items = this.items;
 		int sizeNeeded = size + length - offset;
 		if (sizeNeeded >= items.length) items = resize(Math.max(8, (int)(sizeNeeded * 1.75f)));
 		System.arraycopy(array, offset, items, size, length);
 		size += length;
 	}
 
-	public byte get (int index) {
+	public int get (int index) {
 		if (index >= size) throw new IndexOutOfBoundsException(String.valueOf(index));
 		return items[index];
 	}
 
-	public void set (int index, byte value) {
+	public void set (int index, int value) {
 		if (index >= size) throw new IndexOutOfBoundsException(String.valueOf(index));
 		items[index] = value;
 	}
 
-	public void insert (int index, byte value) {
-		byte[] items = this.items;
+	public void insert (int index, int value) {
+		int[] items = this.items;
 		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
 		if (ordered)
 			System.arraycopy(items, index, items, index + 1, size - index);
@@ -129,29 +129,29 @@ public class ByteArrayList {
 	public void swap (int first, int second) {
 		if (first >= size) throw new IndexOutOfBoundsException(String.valueOf(first));
 		if (second >= size) throw new IndexOutOfBoundsException(String.valueOf(second));
-		byte[] items = this.items;
-		byte firstValue = items[first];
+		int[] items = this.items;
+		int firstValue = items[first];
 		items[first] = items[second];
 		items[second] = firstValue;
 	}
 
-	public boolean contains (byte value) {
+	public boolean contains (int value) {
 		int i = size - 1;
-		byte[] items = this.items;
+		int[] items = this.items;
 		while (i >= 0)
 			if (items[i--] == value) return true;
 		return false;
 	}
 
-	public int indexOf (byte value) {
-		byte[] items = this.items;
+	public int indexOf (int value) {
+		int[] items = this.items;
 		for (int i = 0, n = size; i < n; i++)
 			if (items[i] == value) return i;
 		return -1;
 	}
 
-	public boolean removeValue (byte value) {
-		byte[] items = this.items;
+	public boolean removeValue (int value) {
+		int[] items = this.items;
 		for (int i = 0, n = size; i < n; i++) {
 			if (items[i] == value) {
 				removeIndex(i);
@@ -162,10 +162,10 @@ public class ByteArrayList {
 	}
 
 	/** Removes and returns the item at the specified index. */
-	public byte removeIndex (int index) {
+	public int removeIndex (int index) {
 		if (index >= size) throw new IndexOutOfBoundsException(String.valueOf(index));
-		byte[] items = this.items;
-		byte value = items[index];
+		int[] items = this.items;
+		int value = items[index];
 		size--;
 		if (ordered)
 			System.arraycopy(items, index + 1, items, index, size - index);
@@ -175,23 +175,23 @@ public class ByteArrayList {
 	}
 
 	/** Removes and returns the last item. */
-	public byte pop () {
+	public int pop () {
 		return items[--size];
 	}
 
 	/** Returns the last item. */
-	public byte peek () {
+	public int peek () {
 		return items[size - 1];
 	}
 
 	public void clear () {
 		size = 0;
 	}
-
+	
 	public int size() {
 		return size;
 	}
-	
+
 	/** Reduces the size of the backing array to the size of the actual items. This is useful to release memory when many items have
 	 * been removed, or if it is known that more items will not be added. */
 	public void shrink () {
@@ -201,15 +201,15 @@ public class ByteArrayList {
 	/** Increases the size of the backing array to acommodate the specified number of additional items. Useful before adding many
 	 * items to avoid multiple backing array resizes.
 	 * @return {@link #items} */
-	public byte[] ensureCapacity (int additionalCapacity) {
+	public int[] ensureCapacity (int additionalCapacity) {
 		int sizeNeeded = size + additionalCapacity;
 		if (sizeNeeded >= items.length) resize(Math.max(8, sizeNeeded));
 		return items;
 	}
 
-	protected byte[] resize (int newSize) {
-		byte[] newItems = new byte[newSize];
-		byte[] items = this.items;
+	protected int[] resize (int newSize) {
+		int[] newItems = new int[newSize];
+		int[] items = this.items;
 		System.arraycopy(items, 0, newItems, 0, Math.min(items.length, newItems.length));
 		this.items = newItems;
 		return newItems;
@@ -222,7 +222,7 @@ public class ByteArrayList {
 	public void reverse () {
 		for (int i = 0, lastIndex = size - 1, n = size / 2; i < n; i++) {
 			int ii = lastIndex - i;
-			byte temp = items[i];
+			int temp = items[i];
 			items[i] = items[ii];
 			items[ii] = temp;
 		}
@@ -234,8 +234,8 @@ public class ByteArrayList {
 		if (size > newSize) size = newSize;
 	}
 
-	public byte[] toArray () {
-		byte[] array = new byte[size];
+	public int[] toArray () {
+		int[] array = new int[size];
 		System.arraycopy(items, 0, array, 0, size);
 		return array;
 	}
@@ -243,7 +243,7 @@ public class ByteArrayList {
 	@Override
 	public String toString () {
 		if (size == 0) return "[]";
-		byte[] items = this.items;
+		int[] items = this.items;
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append('[');
 		buffer.append(items[0]);
@@ -257,7 +257,7 @@ public class ByteArrayList {
 
 	public String toString (String separator) {
 		if (size == 0) return "";
-		byte[] items = this.items;
+		int[] items = this.items;
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append(items[0]);
 		for (int i = 1; i < size; i++) {

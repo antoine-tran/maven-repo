@@ -23,18 +23,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tuan.collections.ByteArrayList;
-import tuan.collections.DoubleArrayList;
-import tuan.collections.FloatArrayList;
-import tuan.collections.IntArrayList;
-import tuan.collections.LongArrayList;
-import tuan.collections.ShortArrayList;
 
 import javatools.administrative.Announce;
 import javatools.administrative.D;
 import javatools.filehandlers.CSVFile;
 import javatools.filehandlers.CSVLines;
 import javatools.filehandlers.UTF8Writer;
+import javatools.util.ByteArrayList;
+import javatools.util.DoubleArrayList;
+import javatools.util.FloatArrayList;
+import javatools.util.IntArrayList;
+import javatools.util.LongArrayList;
+import javatools.util.ShortArrayList;
 
 /** 
 This class is part of the Java Tools (see http://mpii.de/yago-naga/javatools).

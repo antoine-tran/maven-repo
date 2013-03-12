@@ -1,4 +1,4 @@
-package tuan.collections;
+package javatools.util;
 
 import java.util.Arrays;
 /**
@@ -28,42 +28,42 @@ import java.util.Arrays;
  * avoids a memory copy when removing elements (the last element is moved to the removed element's position).
  * @author Nathan Sweet */
 
-public class DoubleArrayList {
-	public double[] items;
+public class ShortArrayList {
+	public short[] items;
 	public int size;
 	public boolean ordered;
 
 	/** Creates an ordered array with a capacity of 16. */
-	public DoubleArrayList () {
+	public ShortArrayList () {
 		this(true, 16);
 	}
 
 	/** Creates an ordered array with the specified capacity. */
-	public DoubleArrayList (int capacity) {
+	public ShortArrayList (int capacity) {
 		this(true, capacity);
 	}
 
 	/** @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
 	 *           memory copy.
 	 * @param capacity Any elements added beyond this will cause the backing array to be grown. */
-	public DoubleArrayList (boolean ordered, int capacity) {
+	public ShortArrayList (boolean ordered, int capacity) {
 		this.ordered = ordered;
-		items = new double[capacity];
+		items = new short[capacity];
 	}
 
 	/** Creates a new array containing the elements in the specific array. The new array will be ordered if the specific array is
 	 * ordered. The capacity is set to the number of elements, so any subsequent elements added will cause the backing array to be
 	 * grown. */
-	public DoubleArrayList (DoubleArrayList array) {
+	public ShortArrayList (ShortArrayList array) {
 		this.ordered = array.ordered;
 		size = array.size;
-		items = new double[size];
+		items = new short[size];
 		System.arraycopy(array.items, 0, items, 0, size);
 	}
 
 	/** Creates a new ordered array containing the elements in the specified array. The capacity is set to the number of elements,
 	 * so any subsequent elements added will cause the backing array to be grown. */
-	public DoubleArrayList (double[] array) {
+	public ShortArrayList (short[] array) {
 		this(true, array);
 	}
 
@@ -71,52 +71,52 @@ public class DoubleArrayList {
 	 * subsequent elements added will cause the backing array to be grown.
 	 * @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
 	 *           memory copy. */
-	public DoubleArrayList (boolean ordered, double[] array) {
+	public ShortArrayList (boolean ordered, short[] array) {
 		this(ordered, array.length);
 		size = array.length;
 		System.arraycopy(array, 0, items, 0, size);
 	}
 
-	public void add (double value) {
-		double[] items = this.items;
+	public void add (short value) {
+		short[] items = this.items;
 		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
 		items[size++] = value;
 	}
 
-	public void addAll (DoubleArrayList array) {
+	public void addAll (ShortArrayList array) {
 		addAll(array, 0, array.size);
 	}
 
-	public void addAll (DoubleArrayList array, int offset, int length) {
+	public void addAll (ShortArrayList array, int offset, int length) {
 		if (offset + length > array.size)
 			throw new IllegalArgumentException("offset + length must be <= size: " + offset + " + " + length + " <= " + array.size);
 		addAll(array.items, offset, length);
 	}
 
-	public void addAll (double[] array) {
+	public void addAll (short[] array) {
 		addAll(array, 0, array.length);
 	}
 
-	public void addAll (double[] array, int offset, int length) {
-		double[] items = this.items;
+	public void addAll (short[] array, int offset, int length) {
+		short[] items = this.items;
 		int sizeNeeded = size + length - offset;
 		if (sizeNeeded >= items.length) items = resize(Math.max(8, (int)(sizeNeeded * 1.75f)));
 		System.arraycopy(array, offset, items, size, length);
 		size += length;
 	}
 
-	public double get (int index) {
+	public short get (int index) {
 		if (index >= size) throw new IndexOutOfBoundsException(String.valueOf(index));
 		return items[index];
 	}
 
-	public void set (int index, double value) {
+	public void set (int index, short value) {
 		if (index >= size) throw new IndexOutOfBoundsException(String.valueOf(index));
 		items[index] = value;
 	}
 
-	public void insert (int index, double value) {
-		double[] items = this.items;
+	public void insert (int index, short value) {
+		short[] items = this.items;
 		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
 		if (ordered)
 			System.arraycopy(items, index, items, index + 1, size - index);
@@ -129,29 +129,29 @@ public class DoubleArrayList {
 	public void swap (int first, int second) {
 		if (first >= size) throw new IndexOutOfBoundsException(String.valueOf(first));
 		if (second >= size) throw new IndexOutOfBoundsException(String.valueOf(second));
-		double[] items = this.items;
-		double firstValue = items[first];
+		short[] items = this.items;
+		short firstValue = items[first];
 		items[first] = items[second];
 		items[second] = firstValue;
 	}
 
-	public boolean contains (double value) {
+	public boolean contains (short value) {
 		int i = size - 1;
-		double[] items = this.items;
+		short[] items = this.items;
 		while (i >= 0)
 			if (items[i--] == value) return true;
 		return false;
 	}
 
-	public int indexOf (double value) {
-		double[] items = this.items;
+	public int indexOf (short value) {
+		short[] items = this.items;
 		for (int i = 0, n = size; i < n; i++)
 			if (items[i] == value) return i;
 		return -1;
 	}
 
-	public boolean removeValue (double value) {
-		double[] items = this.items;
+	public boolean removeValue (short value) {
+		short[] items = this.items;
 		for (int i = 0, n = size; i < n; i++) {
 			if (items[i] == value) {
 				removeIndex(i);
@@ -162,10 +162,10 @@ public class DoubleArrayList {
 	}
 
 	/** Removes and returns the item at the specified index. */
-	public double removeIndex (int index) {
+	public short removeIndex (int index) {
 		if (index >= size) throw new IndexOutOfBoundsException(String.valueOf(index));
-		double[] items = this.items;
-		double value = items[index];
+		short[] items = this.items;
+		short value = items[index];
 		size--;
 		if (ordered)
 			System.arraycopy(items, index + 1, items, index, size - index);
@@ -175,23 +175,23 @@ public class DoubleArrayList {
 	}
 
 	/** Removes and returns the last item. */
-	public double pop () {
+	public short pop () {
 		return items[--size];
 	}
 
 	/** Returns the last item. */
-	public double peek () {
+	public short peek () {
 		return items[size - 1];
 	}
 
 	public void clear () {
 		size = 0;
 	}
-	
+
 	public int size() {
 		return size;
 	}
-
+	
 	/** Reduces the size of the backing array to the size of the actual items. This is useful to release memory when many items have
 	 * been removed, or if it is known that more items will not be added. */
 	public void shrink () {
@@ -201,15 +201,15 @@ public class DoubleArrayList {
 	/** Increases the size of the backing array to acommodate the specified number of additional items. Useful before adding many
 	 * items to avoid multiple backing array resizes.
 	 * @return {@link #items} */
-	public double[] ensureCapacity (int additionalCapacity) {
+	public short[] ensureCapacity (int additionalCapacity) {
 		int sizeNeeded = size + additionalCapacity;
 		if (sizeNeeded >= items.length) resize(Math.max(8, sizeNeeded));
 		return items;
 	}
 
-	protected double[] resize (int newSize) {
-		double[] newItems = new double[newSize];
-		double[] items = this.items;
+	protected short[] resize (int newSize) {
+		short[] newItems = new short[newSize];
+		short[] items = this.items;
 		System.arraycopy(items, 0, newItems, 0, Math.min(items.length, newItems.length));
 		this.items = newItems;
 		return newItems;
@@ -222,7 +222,7 @@ public class DoubleArrayList {
 	public void reverse () {
 		for (int i = 0, lastIndex = size - 1, n = size / 2; i < n; i++) {
 			int ii = lastIndex - i;
-			double temp = items[i];
+			short temp = items[i];
 			items[i] = items[ii];
 			items[ii] = temp;
 		}
@@ -234,8 +234,8 @@ public class DoubleArrayList {
 		if (size > newSize) size = newSize;
 	}
 
-	public double[] toArray () {
-		double[] array = new double[size];
+	public short[] toArray () {
+		short[] array = new short[size];
 		System.arraycopy(items, 0, array, 0, size);
 		return array;
 	}
@@ -243,7 +243,7 @@ public class DoubleArrayList {
 	@Override
 	public String toString () {
 		if (size == 0) return "[]";
-		double[] items = this.items;
+		short[] items = this.items;
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append('[');
 		buffer.append(items[0]);
@@ -257,7 +257,7 @@ public class DoubleArrayList {
 
 	public String toString (String separator) {
 		if (size == 0) return "";
-		double[] items = this.items;
+		short[] items = this.items;
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append(items[0]);
 		for (int i = 1; i < size; i++) {

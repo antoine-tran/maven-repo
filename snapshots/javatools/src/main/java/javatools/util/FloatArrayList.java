@@ -1,4 +1,4 @@
-package tuan.collections;
+package javatools.util;
 
 import java.util.Arrays;
 /**
