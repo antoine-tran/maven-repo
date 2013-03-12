@@ -1,13 +1,13 @@
-package tuan.collections;
+package edu.stanford.nlp.util;
 
 import java.io.Serializable;
 
-public class DoubleDoublePair implements Serializable {
-
-	private double first;
+public class IntDoublePair implements Serializable {
+	
+	private int first;
 	private double second;
 	
-	public double first() {
+	public int first() {
 		return first;
 	}
 	
@@ -15,22 +15,19 @@ public class DoubleDoublePair implements Serializable {
 		return second;
 	}
 	
-	public void setFirst(double f) {
-		this.first = f;
-	}
-	
-	public void setSecond(double d) {
-		this.second = d;
-	}
-	
-	public DoubleDoublePair(double f, double s) {
+	public IntDoublePair(int f, double s) {
 		this.first = f;
 		this.second = s;
 	}
 	
-	public DoubleDoublePair() {
+	public void setFirst(int f) {
+		this.first = f;
 	}
-
+	
+	public void setSecond(double s) {
+		this.second = s;
+	}
+	
 	@Override
 	public String toString() {
 		return first + "=" + second;
@@ -40,8 +37,8 @@ public class DoubleDoublePair implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
 		if (obj == null) return false;
-		if (!(obj instanceof DoubleDoublePair)) return false;
-		DoubleDoublePair iop = (DoubleDoublePair)obj;
+		if (!(obj instanceof IntDoublePair)) return false;
+		IntDoublePair iop = (IntDoublePair)obj;
 		return ((first == iop.first) && (second == iop.second));
 	}
 	
@@ -49,5 +46,4 @@ public class DoubleDoublePair implements Serializable {
 	public int hashCode() {
 		return (int) (first * 31 + second);
 	}
-	
 }

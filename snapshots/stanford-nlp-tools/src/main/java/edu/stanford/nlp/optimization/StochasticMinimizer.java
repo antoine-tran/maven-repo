@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
-import tuan.collections.DoubleDoublePair;
-import tuan.collections.IntDoublePair;
 
 import edu.stanford.nlp.math.ArrayMath;
+import edu.stanford.nlp.util.DoubleDoublePair;
+import edu.stanford.nlp.util.IntDoublePair;
 import edu.stanford.nlp.util.Timing;
 
 /**

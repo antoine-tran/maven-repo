@@ -35,7 +35,8 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import tuan.core.SerializableNull;
+import edu.stanford.nlp.io.SerializableNull;
+
 
 /**
  * Set of small utility methods that handle frequent Java I/O operations

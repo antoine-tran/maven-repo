@@ -1,6 +1,6 @@
 package edu.stanford.nlp.optimization;
 
-import tuan.collections.IntDoublePair;
+import edu.stanford.nlp.util.IntDoublePair;
 
 
 /**

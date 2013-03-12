@@ -4,8 +4,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import edu.stanford.nlp.math.ArrayMath;
+import edu.stanford.nlp.util.IntDoublePair;
 
-import tuan.collections.IntDoublePair;
 
 
 /**

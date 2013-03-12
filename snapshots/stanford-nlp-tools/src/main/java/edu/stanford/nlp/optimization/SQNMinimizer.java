@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.stanford.nlp.math.ArrayMath;
+import edu.stanford.nlp.util.IntDoublePair;
 
-import tuan.collections.IntDoublePair;
 
 /**
  * Online Limited-Memory Quasi-Newton BFGS implementation based on the algorithms in

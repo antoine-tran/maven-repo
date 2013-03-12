@@ -9,8 +9,8 @@ import java.util.List;
 import edu.stanford.nlp.math.ArrayMath;
 import edu.stanford.nlp.util.FileUtility;
 import edu.stanford.nlp.util.Function;
+import edu.stanford.nlp.util.IntDoublePair;
 
-import tuan.collections.IntDoublePair;
 /**
  * <p>
  * Stochastic Gradient Descent To Quasi Newton Minimizer
