@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -142,6 +143,14 @@ public class FileUtility {
 			}
 		}
 	}
+	
+	/**
+	 * This class open a stream to a text file and read it line by line. It accepts
+	 * a customized exception handler
+	 */
+	public static Iterable<String> readLines(String inputFileName) {
+		return new LineIterator(inputFileName, null);	
+	}
 
 	/**
 	 * This class open a stream to a text file and read it line by line. It accepts
@@ -149,6 +158,14 @@ public class FileUtility {
 	 */
 	public static Iterable<String> readLines(String inputFileName, ExceptionHandler handler) {
 		return new LineIterator(inputFileName, handler);	
+	}
+	
+	/**
+	 * This class open a stream to a text file and read it line by line. It accepts
+	 * a customized exception handler
+	 */
+	public static Iterable<String> readLines(InputStream file, ExceptionHandler handler) {
+		return new LineIterator(file, handler);	
 	}
 
 	static class LineIterator implements Iterator<String>, Iterable<String> {
@@ -166,6 +183,16 @@ public class FileUtility {
 				reader = new BufferedReader(fileReader);
 			} 
 			catch (FileNotFoundException e) {				
+				handler.handle(e);
+			}
+		}
+		
+		public LineIterator(InputStream file, ExceptionHandler exceptionHandler) {
+			this.handler = (exceptionHandler == null) ? new FileExceptionHandler() : exceptionHandler;
+			try {
+				Reader fileReader = new BufferedReader(new InputStreamReader(file));
+				reader = new BufferedReader(fileReader);	
+			} catch (Exception e) {
 				handler.handle(e);
 			}
 		}
