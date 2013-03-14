@@ -24,6 +24,7 @@ public class Document implements Comparable<Document>, Serializable {
 	protected int dim;
 	
 	private String cachedString; 
+	
 	/** Once we have calculated the hash code of a document, we cache it for 
 	 * subsequent references */
 	private int hashcode;
@@ -47,6 +48,25 @@ public class Document implements Comparable<Document>, Serializable {
 		this.features = features;
 	}
 	
+	/** Create a document without features, update it afterwards. In this case,
+	 * an ArrayFeatures is created, and all the dimensions will be assumed to
+	 * have features (dense space) */
+	public Document(String key, int dim) {
+		this.key = key;
+		this.dim = dim;
+		this.features = new ArrayFeatures(dim);
+	}
+	
+	/** Create a document without features, update it afterwards. In this case,
+	 * an ArrayFeatures is created with only a number of active dimensions 
+	 * (sparse space) */
+	public Document(String key, int dim, int positiveDim) {
+		this.key = key;
+		this.dim = dim;
+		this.features = new ArrayFeatures(positiveDim);
+	}
+	
+	/** Default constructor */
 	public Document(String key, Features features, int dim) {
 		this.key = key;
 		this.features = features;
@@ -59,7 +79,7 @@ public class Document implements Comparable<Document>, Serializable {
 	 * into a Document object. The document's key is automatically generated.
 	 * Dimension size of the corpus has to be specified
 	 */
-	public Document(String features, int dim) {
+	public static Document load(String features, int dim) {
 		if (features == null || features.isEmpty()) throw new NullPointerException();
 		String[] vals = features.split("\t");
 		int n = vals.length;
@@ -69,9 +89,10 @@ public class Document implements Comparable<Document>, Serializable {
 			dimIndex[i] = Integer.parseInt(vals[j++]);
 			featVal[i] = Double.parseDouble(vals[j++]);
 		}
-		this.features = new ArrayFeatures(dimIndex, featVal, dim);
-		this.key = String.valueOf(System.currentTimeMillis());
-		this.dim = dim;
+		ArrayFeatures f = new ArrayFeatures(dimIndex, featVal, dim);
+		String key = String.valueOf(System.currentTimeMillis());
+		int d = dim;
+		return new Document(key, f, d);
 	}
 	
 	/**

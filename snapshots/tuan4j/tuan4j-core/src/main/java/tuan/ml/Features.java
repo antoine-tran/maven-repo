@@ -29,6 +29,14 @@ public interface Features {
 	 * all implementations support this operation */
 	public Object feature(int idex);
 	
+	/** update the feature value at a specific dim. The index here is the 
+	 * global index, not the local one */
+	public void updateFeature(int dim, double value);
+		
+	/** update a feature at a dimension and update the local index at the same time.
+	 * Note that not all implementations support this operation */
+	public void addFeatures(int dim, double value) throws UnsupportedOperationException;
+		
 	@Override
 	public int hashCode();
 }

@@ -11,5 +11,9 @@ public interface RandomAccessFeatures extends Features {
 	
 	/** get feature values of a document at a speficic dimension. Note that not
 	 * all implementations support this operation */
-	public Object featureAtDimension(int dimension);
+	public Object featureAtDimension(int dimension) throws UnsupportedOperationException;
+	
+	/** update the feature value at a specific index. The index here is the 
+	 * local index, not the local one */
+	public void updateLocalFeature(int index, double value);
 }
