@@ -22,7 +22,6 @@ public class MultiWordStringMatcher {
    * <br>if <code>matchType</code> is <code>REGEX</code>: interprets string as regex already
    */
   public static enum MatchType { EXCT, EXCTWS, LWS, LNRM, REGEX };
-  private boolean caseInsensitiveMatch = false;
   MatchType matchType = MatchType.EXCTWS;
 
   public MultiWordStringMatcher(MatchType matchType)
@@ -41,7 +40,6 @@ public class MultiWordStringMatcher {
   public void setMatchType(MatchType matchType)
   {
     this.matchType = matchType;
-    caseInsensitiveMatch = (matchType != MatchType.EXCT && matchType != MatchType.EXCTWS);
     targetStringPatternCache.clear();
   }
 
@@ -208,7 +206,7 @@ public class MultiWordStringMatcher {
 
   private static Pattern whitespacePattern = Pattern.compile("\\s+");
   private static final Pattern punctWhitespacePattern = Pattern.compile("\\s*(\\p{Punct})\\s*");
-  public String getExctWsRegex(String targetString)
+  public static String getExctWsRegex(String targetString)
   {
     StringBuilder sb = new StringBuilder();
     String[] fields = whitespacePattern.split(targetString);
@@ -231,7 +229,7 @@ public class MultiWordStringMatcher {
     return sb.toString();
   }
 
-  public String getLWsRegex(String targetString)
+  public static String getLWsRegex(String targetString)
   {
     StringBuilder sb = new StringBuilder("(?u)(?i)");
     sb.append(getExctWsRegex(targetString));
@@ -240,7 +238,7 @@ public class MultiWordStringMatcher {
 
   private static final Pattern lnrmDelimPatternAny = Pattern.compile("(?:\\p{Punct}|\\s)*");
   private static final Pattern lnrmDelimPattern = Pattern.compile("(?:\\p{Punct}|\\s)+");
-  public String getLnrmRegex(String targetString)
+  public static String getLnrmRegex(String targetString)
   {
     StringBuilder sb = new StringBuilder("(?u)(?i)");
     String[] fields = lnrmDelimPattern.split(targetString);
@@ -356,4 +354,12 @@ public class MultiWordStringMatcher {
     }
   }
 
+  
+  public static void main(String[] args) {
+	  String s = getLnrmRegex("Alice movie'");
+	  Pattern p = Pattern.compile(s);
+	  Matcher m = p.matcher("alice_(movie)");
+	  System.out.println(m.matches());
+	  System.out.println(m.find());
+  }
 }
