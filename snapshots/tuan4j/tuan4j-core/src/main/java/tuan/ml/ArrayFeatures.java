@@ -206,7 +206,7 @@ public class ArrayFeatures implements RandomAccessFeatures {
 	}
 	
 	@Override
-	public void updateFeature(int dimension, double value) {
+	public void update(int dimension, double value) {
 		if (!sorted) sort();
 		int key = Arrays.binarySearch(this.keys, dimension);
 		if (key >= 0) vals[key] = value;
@@ -226,7 +226,7 @@ public class ArrayFeatures implements RandomAccessFeatures {
 	}
 
 	@Override
-	public void addFeatures(int dim, double value)
+	public void add(int dim, double value)
 			throws UnsupportedOperationException {		
 		if (mappedDim == dim)
 			throw new IndexOutOfBoundsException(

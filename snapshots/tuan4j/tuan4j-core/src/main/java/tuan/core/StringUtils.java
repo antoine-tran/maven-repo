@@ -18,6 +18,7 @@
 package tuan.core;
 
 import java.io.UnsupportedEncodingException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -171,5 +172,13 @@ public class StringUtils {
 			}
 		}
 		return ostr.toString(); //Return the stringbuffer cast as a string.
+	}
+	
+	/** count the number of words in a string */
+	public static int wordCnt(String str) {
+		int cnt = 0;
+		Matcher m = WHITE_SPACE_PATTERN.matcher(str.trim());
+		while (m.find()) cnt++;
+		return cnt;
 	}
 }
