@@ -18,12 +18,14 @@
 package tuan.core;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Provide a list of utility methods for strings
  * @author Tuan Tran
+ * @author Niket Tandon
  *
  */
 public class StringUtils {
@@ -180,5 +182,92 @@ public class StringUtils {
 		Matcher m = WHITE_SPACE_PATTERN.matcher(str.trim());
 		while (m.find()) cnt++;
 		return cnt;
+	}
+	
+	/** The following code is contributed by Niket Tandon - ntandon@mail.mpi-inf.mpg.de */
+	/**
+	 * <br>
+	 * Either sequentially parse characters and apply lookahead. or use java
+	 * regex as below in split. <br>
+	 * Some requirements are listed here:<br>
+	 * <br>
+	 * (1) these 7 should be sentence separators and be also removed from text:
+	 * \n \r \f \t . ! ? <br>
+	 * (2) these 9 don't affect anything and should be removed from text: \' \"
+	 * , ; : ( ) [ ] <br>
+	 * (2.5) space " " is the word separator and should remain in the text. <br>
+	 * (3) things like u.k. and u.s.a. should remain in one sentence. <br>
+	 * (4) mr., mrs. ms. rev. prof. should remain in one sentence. <br>
+	 * (5) things like "j. k. rowling" should remain in one sentence.
+	 */
+	public static String[] extractSentencesFromText(String inputText) {
+
+		// replace some ignored characters
+		inputText = replaceIgnoreList(inputText);
+
+		// The regex pattern that splits text into sentences.
+		String[] testCorrectForCaseInsensitive = inputText
+				.split("(?<=[\\p{Alnum}]{2,}( )?[\\.\\?\\!\\n\\r\\f\\t])");
+
+		String[] sentences = new String[testCorrectForCaseInsensitive.length];
+
+		// compute the final sentences with sentence separators cleaned.
+		for (int i = 0; i < testCorrectForCaseInsensitive.length; i++) {
+			// removing \n \r \f \t . ! ? by removing last character of the
+			// sentence and removes any leading spaces.
+			sentences[i] = testCorrectForCaseInsensitive[i].substring(0,
+					testCorrectForCaseInsensitive[i].length() - 1).replaceAll("[\\?\\!]", replacementForIgnoredChar).trim();
+		}
+
+		return sentences;
+
+	}
+
+	/**
+	 * These are the salutations or other words that are not denoting end of
+	 * sentence word. <br>
+	 * This list is appendable.
+	 */
+	public static HashMap<String, String> exceptionToReplaceWith = new HashMap<String, String>() {
+		{
+			//Notice space in key and value, it is necessary for exact match otherwise, Isaac krurev. will also match rev.
+			//If its a new sentence, then also there will be space. The only case missed here is when the text itself starts with a Salutation.
+			//It is covered by inserting space in the first line of text
+			//Note that: mr\\. is a regex hence we need to have \\. to represent a dot.
+			put(" mr\\. ", " mr ");
+			put(" mrs\\. ", " mrs ");
+			put(" dr\\. ", " dr ");
+			put(" prof\\. ", " prof ");
+			put(" rev\\. ", " rev ");
+		}
+	};
+
+	/**
+	 * List of character that could be ignored and replaced. <br>
+	 * Customized, not generic.
+	 */
+	public static String ignoredCharRegex = "'|\"|,|;|:|\\(|\\)|\\[|\\]";
+
+	/**
+	 * String to replace the ignored characters.
+	 */
+	public static String replacementForIgnoredChar = "";
+
+	/**
+	 * Replaces the ignored characters.
+	 * 
+	 * @param Input
+	 *            text
+	 * @return Cleaned text
+	 */
+	public static String replaceIgnoreList(String text) {
+		text =" "+text;
+		for (String exception : exceptionToReplaceWith.keySet()) {
+			text = text.replaceAll(exception,
+					exceptionToReplaceWith.get(exception));
+		}
+		
+		text = text.replaceAll(ignoredCharRegex, replacementForIgnoredChar);
+		return text;
 	}
 }
