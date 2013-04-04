@@ -14,5 +14,7 @@ snapshots/tuan4j/*/target
 snapshots/tuan4j/*/.fatjar
 snapshots/javatools2/.settings
 snapshots/tuan4j/*/.settings
+snapshots/burstdetection/*/.settings
+snapshots/burstdetection/*/.classpath
 */.DS_Store
 .DS_Store
