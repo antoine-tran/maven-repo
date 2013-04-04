@@ -11,10 +11,20 @@ STanford NLP (http://nlp.stanford.edu/software/index.shtml) is a famous Java sui
 In a hope to support Java developers to build efficient algorithms quicker, I  decided to re-distribute those universally useful tools in a public maven repository. I tried my best to keep track of the development of the original libraries, as well as to resolve the different versions of the library in different frameworks (for example, in Berkeley parser), however it is surely not always at its latest updates. Any contribution are welcome here.
 
 3. Tuan4j:
-Working with Java for years, I have been collecting a number of small programs useful in many tasks, including those developed by me as well as by the Java community and are freely published elsewhere. I bundled them into one lightweight library, called tuan4j-core, tested them and optimized the components, making them highly reusable for any standard Java applications. As compared with Javatools, tuan4j emphasizes on small footprint, efficient primitive data type supports and standard JSRs compliance. Tuan4j also includes the Apache Ant's Bzip2 files handling (the tool that is extremely helpful, but not visible to the Java community, simply because it was bundled within a misleading library name).
+Working with Java for years, I have been collecting a number of small programs useful in many tasks, including those developed by me as well as by the Java community and are freely published elsewhere. I bundled them into one lightweight library, called tuan4j-core, tested them and optimized the components, making them highly reusable for any standard Java applications. As compared with Javatools, tuan4j emphasizes on small footprint, efficient primitive data type supports and standard JSRs compliance. Some libraries bundled in Tuan4j:
+
+- Apache Ant's Bzip2 files handling (the tool that is extremely helpful, but not visible to the Java community, simply because it was bundled within a misleading library name).
+- Collections with primitive data-type support: List, Pair, (Hash / Tree)Map (backed on Red-black tree implementation)
+- IO utilities: Serializable Null, convert streamed text file to an Iterator using non-block operators, lightweight command argument handler (in lieu of Apache Commons-util)
+- Memory-efficient generic data structure for machine learning algorithms: Feature set, data point in (very) high dimensional spaces
+- XML: JAXB marshalling / de-marshalling utilities
+- Math: Lightweight implementations of popular distributions (categorical, geometric, binomial, hypergeometric…), common algebraic operators (logarithmic operators,…), chi-square, sigmoid functions,…
 
 4. Likelike:
 Likelike (http://code.google.com/p/likelike/) is an implementation of LSH (locality sensitive hashing) on Hadoop. It is public under the Apache License 2.0, and here you can find the refactored maven artifacts of the tool. Dependencies have been updated with newer versions of third-party libraries with several bug fixes and optimization, and it was engineered to consume less memory and better tailored to Hadoop stable versions 1.x
 
 5. Hark-tweet-NLP:
 The public maven artifact of Hark-tweet-NLP (https://github.com/antoine-tran/hark-tweet-nlp), the Hadoop extension of CMU's ArkTweet (http://www.ark.cs.cmu.edu/TweetNLP/) is also put here.
+
+6. Burstdetecion:
+A modified version of the Java implementation of Kleinberg's burst detection algorithm in text streams (J. Kleinberg. Bursty and Hierarchical Structure in Streams. Proc. 8th ACM SIGKDD Intl. Conf. on Knowledge Discovery and Data Mining, 2002), as originally developed by Aretha Alencar et al. at at CNS group, University of Indiana (http://wiki.cns.iu.edu/display/CISHELL/Burst+Detection), and later on by my colleagues Gerhard Gossen at L3S Research Center (scm:git:ssh://git@bitbucket.org/GerhardGossen/burstdetection.git). I have added the two new features: Conversion of a time series from continuous values to binary values based on burst period checks, and the support of detecting disconnected bursts and return the ones with highest confidence (original implementation can result in overlapped burst depending on the configuration of input states / gamma / density scaling parameters).

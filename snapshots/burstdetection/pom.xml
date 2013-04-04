@@ -28,7 +28,11 @@
 		  <artifactId>utils</artifactId>
 		  <version>0.2-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+		  <groupId>tuan4j</groupId>
+		  <artifactId>tuan4j-core</artifactId>
+		  <version>0.2-beta1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
