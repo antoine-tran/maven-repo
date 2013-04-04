@@ -305,7 +305,7 @@ public class KleinbergBurstDetector extends GenericBurstDetector {
 		return transCost;
 	}
 
-	private static double computeExpected(int[] entry, int[] binBase) {
+	private static double computeExpected(int[] entry, int[] binBase)  {
 		int binN = 0;
 		int binK = 0;
 
