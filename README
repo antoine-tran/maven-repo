@@ -1,4 +1,13 @@
-A github-based maven repositories for many artifacts that are useful, but are to date (03 April 2013) not yet available in public repositories (to the best of my knowledge). They include:
+A github-based maven repositories for many artifacts that are useful, but are to date (03 April 2013) not yet available in public repositories (to the best of my knowledge). To depend on artifacts in this repo, please use:
+
+<repository>
+  <id>antoine-tran-github-releases</id>
+  <name>Tuan Tran's Personal Repository for Maven</name>
+  <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+</repository>
+
+
+The artifacts included are:
 
 1. Javatools: 
 A lightweight library that has many convenience Java classes for a variety of small tasks, such as parsing, database interaction or file handling. They were developed by Fabian M. Suchanek for the YAGO-NAGA project at Max-Planck Institut for Informatics. The Javatools are licensed under a Creative Commons Attribution 3.0 License by the YAGO-NAGA team. More details can be found at: http://www.mpi-inf.mpg.de/yago-naga/javatools/
