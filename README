@@ -25,7 +25,7 @@ Working with Java for years, I have been collecting a number of small programs u
 - Apache Ant's Bzip2 files handling (the tool that is extremely helpful, but not visible to the Java community, simply because it was bundled within a misleading library name).
 - Collections with primitive data-type support: List, Pair, (Hash / Tree)Map (backed on Red-black tree implementation)
 - IO utilities: Serializable Null, convert streamed text file to an Iterator using non-block operators, lightweight command argument handler (in lieu of Apache Commons-util)
-- Memory-efficient generic data structure for machine learning algorithms: Feature set, data point in (very) high dimensional spaces
+- Memory-efficient generic data structures for machine learning algorithms: Feature set, data point in (very) high dimensional spaces
 - XML: JAXB marshalling / de-marshalling utilities
 - Math: Lightweight implementations of popular distributions (categorical, geometric, binomial, hypergeometric…), common algebraic operators (logarithmic operators,…), chi-square, sigmoid functions,…
 
