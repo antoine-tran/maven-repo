@@ -45,8 +45,7 @@
                     </goals>
                     <configuration>
                       <sources>
-                          <source>${project.basedir}/src/main/java</source>
-                          <source>${project.basedir}/src/main/resources</source>
+                          <source>${project.basedir}/src/main</source>
                       </sources>
                     </configuration>
                   </execution>
@@ -125,7 +124,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>13.0.1</version>            
+            <version>14.0.1</version>            
         </dependency>
         <dependency>
 	        <groupId>net.sf.trove4j</groupId>
