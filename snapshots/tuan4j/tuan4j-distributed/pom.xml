@@ -52,7 +52,6 @@
   	  <artifactId>tuan4j-core</artifactId>
       <version>0.2-beta1</version>
       <type>jar</type>
-      <scope>compile</scope>
     </dependency>
 	<dependency>
 	  <groupId>org.apache.hadoop</groupId>
@@ -165,7 +164,6 @@
 	  <groupId>org.apache.httpcomponents</groupId>
   	  <artifactId>httpcore</artifactId>
       <version>4.2.2</version>
-      <scope>compile</scope>
       <optional>true</optional>
     </dependency>
 	<dependency>

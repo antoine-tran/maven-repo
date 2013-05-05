@@ -155,7 +155,6 @@
   			<groupId>tuan4j</groupId>
   			<artifactId>tuan4j-distributed</artifactId>
   			<version>0.1-beta1</version>
-  			<scope>compile</scope>
   		</dependency>
 		
         <!-- START testing dependecies -->
