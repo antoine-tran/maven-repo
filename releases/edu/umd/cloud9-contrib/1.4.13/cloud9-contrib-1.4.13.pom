@@ -95,7 +95,6 @@
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
 			<version>6.5.4</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -113,6 +112,7 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.1.2</version>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>info.bliki.wiki</groupId>
@@ -131,6 +131,11 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<id>antoine-tran-github-releases</id>
+			<name>Tuan Tran's Personal Repository for Maven</name>
+			<url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
 		</repository>
 	</repositories>
 </project>
