@@ -6,7 +6,7 @@ import tuan.collections.DoubleObjectTreeMap;
 import tuan.collections.DoubleObjectTreeMap.DoubleObjectEntry;
 
 /**
- * An iterator that is backed by a tree map. It suppo
+ * An iterator that is backed by a tree map
  */
 public class  TreeResultIterator<T> implements Iterator<Result<T>> {
 
