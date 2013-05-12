@@ -136,9 +136,9 @@
 	</plugins>
     <sourceDirectory>src/main/java</sourceDirectory>
 	<testSourceDirectory>src/test/java</testSourceDirectory>
+	<outputDirectory>bin/classes</outputDirectory>
 	<testOutputDirectory>bin/test-classes</testOutputDirectory>
 	<finalName>${articfactId}-${project.version}</finalName>
-	<outputDirectory>bin/classes</outputDirectory>
   </build>
   
 </project>

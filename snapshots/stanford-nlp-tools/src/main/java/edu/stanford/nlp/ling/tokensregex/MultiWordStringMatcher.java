@@ -356,7 +356,10 @@ public class MultiWordStringMatcher {
 
   
   public static void main(String[] args) {
-	  String s = getLnrmRegex("Alice movie'");
+	  String s = getLnrmRegex("Alice MOVIE, '");
+	  System.out.println(s);
+	  String x = getLnrmRegex("alice_(movie)");
+	  System.out.println(x);
 	  Pattern p = Pattern.compile(s);
 	  Matcher m = p.matcher("alice_(movie)");
 	  System.out.println(m.matches());
