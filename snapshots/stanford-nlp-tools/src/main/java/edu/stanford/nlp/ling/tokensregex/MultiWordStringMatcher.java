@@ -356,13 +356,24 @@ public class MultiWordStringMatcher {
 
   
   public static void main(String[] args) {
-	  String s = getLnrmRegex("Alice MOVIE, '");
-	  System.out.println(s);
+	  String s = getLnrmRegex("Alice MOVIE, hello world oh yeah oh yeah");
 	  String x = getLnrmRegex("alice_(movie)");
+	  
+	  System.out.println(s);
 	  System.out.println(x);
+
 	  Pattern p = Pattern.compile(s);
+	  Pattern t = Pattern.compile(x);
+	  
+	  int i = s.toLowerCase().hashCode();
+	  int j = x.toLowerCase().hashCode();
+	  
+	  System.out.println(i + " " + j);
+	  
 	  Matcher m = p.matcher("alice_(movie)");
+	  Matcher n = t.matcher("Alice MOVIE, w");
 	  System.out.println(m.matches());
 	  System.out.println(m.find());
+	  System.out.println(n.find());
   }
 }
