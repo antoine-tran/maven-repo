@@ -18,6 +18,7 @@
 package tuan.core;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -269,5 +270,23 @@ public class StringUtils {
 		
 		text = text.replaceAll(ignoredCharRegex, replacementForIgnoredChar);
 		return text;
+	}
+	
+	/** Wikipedia uses a different URL percent-encoding scheme. This method
+	 *  accepts an arbitrary string, and convert it into a mediawiki HTTP
+	 *  compatible path fragment
+	 */
+	public static String mediawikiEncode(String s) {
+		String encoded;
+		try {
+			encoded = URLEncoder.encode(s, "UTF-8");
+			encoded = encoded.replaceAll("%28", "(");
+			encoded = encoded.replaceAll("%29", ")");
+			encoded = encoded.replaceAll("%2C", ",");
+			encoded = encoded.replaceAll("%3A", ":");
+			return encoded;
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

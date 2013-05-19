@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import javatools.administrative.Announce;
 import javatools.administrative.D;
 import javatools.filehandlers.CSVFile;
@@ -36,11 +35,11 @@ import javatools.util.IntArrayList;
 import javatools.util.LongArrayList;
 import javatools.util.ShortArrayList;
 
-/** 
-This class is part of the Java Tools (see http://mpii.de/yago-naga/javatools).
-It is licensed under the Creative Commons Attribution License 
-(see http://creativecommons.org/licenses/by/3.0) by 
-the YAGO-NAGA team (see http://mpii.de/yago-naga).
+/**
+ * This class is part of the Java Tools (see
+ * http://mpii.de/yago-naga/javatools). It is licensed under the Creative
+ * Commons Attribution License (see http://creativecommons.org/licenses/by/3.0)
+ * by the YAGO-NAGA team (see http://mpii.de/yago-naga).
  * 
  * This abstract class provides a simple Wrapper for an SQL data base. It is
  * implemented by OracleDatabase, PostgresDatabase and MySQLDatabase. <BR>
@@ -54,8 +53,9 @@ the YAGO-NAGA team (see http://mpii.de/yago-naga).
  * } 
  * -> Pizza Spaghetti Saltimbocca
  * </PRE>
- *  
- * It is possible to execute multiple INSERT statements by a bulk loader: 
+ * 
+ * It is possible to execute multiple INSERT statements by a bulk loader:
+ * 
  * <PRE>
  *   d=new OracleDatabase(...);
  *   Database.Inserter i=d.newInserter(tableName);
@@ -102,7 +102,6 @@ the YAGO-NAGA team (see http://mpii.de/yago-naga).
  * facilitate modifying the ANSI types for subclasses, the getSQLType-method is
  * non-static. Implementations of this class should have a noarg-constructor to
  * enable calls to getSQLType without establishing a database connection.
-
  */
 public abstract class Database {
 
@@ -118,9 +117,11 @@ public abstract class Database {
 	/** The concurrency type of the resultSet (read only by default) */
 	protected int resultSetConcurrency = ResultSet.CONCUR_READ_ONLY;
 
-	/** The Driver registered for this database instance
-	 * TODO: it may be more reasonable to share the same driver instance for all database insances
-	 *       of the same type...check that and adapt */
+	/**
+	 * The Driver registered for this database instance TODO: it may be more
+	 * reasonable to share the same driver instance for all database insances of
+	 * the same type...check that and adapt
+	 */
 	protected Driver driver = null;
 
 	/** Returns the connection */
@@ -134,7 +135,7 @@ public abstract class Database {
 	/** keep track of original transaction mode setting */
 	private int originalTransactionMode;
 
-	/** Holds all active inserters to close them in the end*/
+	/** Holds all active inserters to close them in the end */
 	protected List<Inserter> inserters = new ArrayList<Inserter>();
 
 	/** tells whether the database is already closed */
@@ -206,30 +207,37 @@ public abstract class Database {
 		this.resultSetType = resultSetType;
 	}
 
-	/** TRUE if the required JAR is there*/
+	/** TRUE if the required JAR is there */
 	public boolean jarAvailable() {
 		return (true);
 	}
 
 	/**
-	 * Returns the results for a query as a ResultSet with given type, concurrency and
-	 * fetchsize. The preferred way to execute a query is by the query(String,
-	 * ResultIterator) method, because it ensures that the statement is closed
-	 * afterwards. If the query is an update query (i.e. INSERT/DELETE/UPDATE) the
-	 * method calls executeUpdate and returns null. The preferred way to execute
-	 * an update query is via the executeUpdate method, because it does not create
-	 * an open statement.
+	 * Returns the results for a query as a ResultSet with given type,
+	 * concurrency and fetchsize. The preferred way to execute a query is by the
+	 * query(String, ResultIterator) method, because it ensures that the
+	 * statement is closed afterwards. If the query is an update query (i.e.
+	 * INSERT/DELETE/UPDATE) the method calls executeUpdate and returns null.
+	 * The preferred way to execute an update query is via the executeUpdate
+	 * method, because it does not create an open statement.
 	 */
-	public ResultSet query(int fetchsize, CharSequence sqlcs, int resultSetType, int resultSetConcurrency) throws SQLException {
+	public ResultSet query(int fetchsize, CharSequence sqlcs,
+			int resultSetType, int resultSetConcurrency) throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
-		if (sql.toUpperCase().startsWith("INSERT") || sql.toUpperCase().startsWith("UPDATE") || sql.toUpperCase().startsWith("DELETE") || sql.toUpperCase().startsWith("CREATE") || sql.toUpperCase().startsWith("DROP")
+		if (sql.toUpperCase().startsWith("INSERT")
+				|| sql.toUpperCase().startsWith("UPDATE")
+				|| sql.toUpperCase().startsWith("DELETE")
+				|| sql.toUpperCase().startsWith("CREATE")
+				|| sql.toUpperCase().startsWith("DROP")
 				|| sql.toUpperCase().startsWith("ALTER")) {
 			executeUpdate(sql);
 			return (null);
 		}
 		try {
-			Statement stmnt = connection.createStatement(resultSetType, resultSetConcurrency);
-			if (fetchsize != Integer.MIN_VALUE) stmnt.setFetchSize(fetchsize);
+			Statement stmnt = connection.createStatement(resultSetType,
+					resultSetConcurrency);
+			if (fetchsize != Integer.MIN_VALUE)
+				stmnt.setFetchSize(fetchsize);
 			return (stmnt.executeQuery(sql));
 		} catch (SQLException e) {
 			throw e;
@@ -240,13 +248,15 @@ public abstract class Database {
 	 * Returns the results for a query as a ResultSet with given type and
 	 * concurrency. The preferred way to execute a query is by the query(String,
 	 * ResultIterator) method, because it ensures that the statement is closed
-	 * afterwards. If the query is an update query (i.e. INSERT/DELETE/UPDATE) the
-	 * method calls executeUpdate and returns null. The preferred way to execute
-	 * an update query is via the executeUpdate method, because it does not create
-	 * an open statement.
+	 * afterwards. If the query is an update query (i.e. INSERT/DELETE/UPDATE)
+	 * the method calls executeUpdate and returns null. The preferred way to
+	 * execute an update query is via the executeUpdate method, because it does
+	 * not create an open statement.
 	 */
-	public ResultSet query(CharSequence sqlcs, int resultSetType, int resultSetConcurrency) throws SQLException {
-		return query(Integer.MIN_VALUE, sqlcs, resultSetType, resultSetConcurrency);
+	public ResultSet query(CharSequence sqlcs, int resultSetType,
+			int resultSetConcurrency) throws SQLException {
+		return query(Integer.MIN_VALUE, sqlcs, resultSetType,
+				resultSetConcurrency);
 	}
 
 	/**
@@ -255,71 +265,97 @@ public abstract class Database {
 	 * the query(String, ResultWrapper) method, because it ensures that the
 	 * statement is closed afterwards. If you use the query(String) method
 	 * instead, be sure to call Database.close(ResultSet) on the result set,
-	 * because this ensures that the underlying statement is closed. The preferred
-	 * way to execute an update query (i.e. INSERT/DELETE/UPDATE) is via the
-	 * executeUpdate method, because it does not create an open statement. If
-	 * query(String) is called with an update query, this method calls
-	 * executeUpdate automatically and returns null.
+	 * because this ensures that the underlying statement is closed. The
+	 * preferred way to execute an update query (i.e. INSERT/DELETE/UPDATE) is
+	 * via the executeUpdate method, because it does not create an open
+	 * statement. If query(String) is called with an update query, this method
+	 * calls executeUpdate automatically and returns null.
 	 */
 	public ResultSet query(CharSequence sql) throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency));
 	}
-	
-	/** Returns the results for a query as a ResultIterator. This is an 
-	 * extension of corresponding query method in Fabian's Database class 
-	 * with a single string parameter */
-	public <T> ResultIterator<T> query(CharSequence sql, ResultIterator.ResultWrapper<T> rc, String... param) throws SQLException {
-		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, param), rc));
+
+	/**
+	 * Returns the results for a query as a ResultIterator. This is an extension
+	 * of corresponding query method in Fabian's Database class with a single
+	 * string parameter
+	 */
+	public <T> ResultIterator<T> query(CharSequence sql,
+			ResultIterator.ResultWrapper<T> rc, String... param)
+			throws SQLException {
+		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY,
+				ResultSet.CONCUR_READ_ONLY, param), rc));
 	}
 
-	/** Returns the results for a query as a ResultIterator. This is an 
-	 * extension of corresponding query method in Fabian's Database class 
-	 * with a byte array parameter */
-	public <T> ResultIterator<T> query(CharSequence sql, ResultIterator.ResultWrapper<T> rc, byte[] param) throws SQLException {
-		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, param), rc));
+	/**
+	 * Returns the results for a query as a ResultIterator. This is an extension
+	 * of corresponding query method in Fabian's Database class with a byte
+	 * array parameter
+	 */
+	public <T> ResultIterator<T> query(CharSequence sql,
+			ResultIterator.ResultWrapper<T> rc, byte[] param)
+			throws SQLException {
+		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY,
+				ResultSet.CONCUR_READ_ONLY, param), rc));
 	}
 
-	/** Returns the results for a query as a ResultIterator. This is an 
-	 * extension of corresponding query method in Fabian's Database class 
-	 * with a single integer parameter */
-	public <T> ResultIterator<T> query(CharSequence sql, ResultIterator.ResultWrapper<T> rc, int... param) throws SQLException {
-		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, param), rc));
+	/**
+	 * Returns the results for a query as a ResultIterator. This is an extension
+	 * of corresponding query method in Fabian's Database class with a single
+	 * integer parameter
+	 */
+	public <T> ResultIterator<T> query(CharSequence sql,
+			ResultIterator.ResultWrapper<T> rc, int... param)
+			throws SQLException {
+		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY,
+				ResultSet.CONCUR_READ_ONLY, param), rc));
 	}
 
-	/** Returns a single value (or null). This is an extension of corresponding 
-	 * query method in Fabian's Database class with a single string parameter */
-	public <T> T queryValue(CharSequence sql, ResultIterator.ResultWrapper<T> rc, String... param) throws SQLException {
+	/**
+	 * Returns a single value (or null). This is an extension of corresponding
+	 * query method in Fabian's Database class with a single string parameter
+	 */
+	public <T> T queryValue(CharSequence sql,
+			ResultIterator.ResultWrapper<T> rc, String... param)
+			throws SQLException {
 		ResultIterator<T> results = new ResultIterator<T>(query(sql, param), rc);
 		T result = results.nextOrNull();
 		results.close();
-		//close();
-		return (result);
-	}
-
-	/** Returns a single value (or null). This is an extension of corresponding 
-	 * query method in Fabian's Database class with a single integer parameter */
-	public <T> T queryValue(CharSequence sql, int param, ResultIterator.ResultWrapper<T> rc) throws SQLException {
-		ResultIterator<T> results = new ResultIterator<T>(query(sql, param), rc);
-		T result = results.nextOrNull();
-		results.close();
-		//close();
-		return (result);
-	}
-
-	/** Returns a single value (or null). This is an extension of corresponding 
-	 * query method in Fabian's Database class with a single integer parameter */
-	public <T> T queryValue(CharSequence sql, ResultIterator.ResultWrapper<T> rc, int... param) throws SQLException {
-		ResultIterator<T> results = new ResultIterator<T>(query(sql, param), rc);
-		T result = results.nextOrNull();
-		results.close();
-		//close();
+		// close();
 		return (result);
 	}
 
 	/**
-	 * This is an int-primitive version of queryValue without parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * Returns a single value (or null). This is an extension of corresponding
+	 * query method in Fabian's Database class with a single integer parameter
+	 */
+	public <T> T queryValue(CharSequence sql, int param,
+			ResultIterator.ResultWrapper<T> rc) throws SQLException {
+		ResultIterator<T> results = new ResultIterator<T>(query(sql, param), rc);
+		T result = results.nextOrNull();
+		results.close();
+		// close();
+		return (result);
+	}
+
+	/**
+	 * Returns a single value (or null). This is an extension of corresponding
+	 * query method in Fabian's Database class with a single integer parameter
+	 */
+	public <T> T queryValue(CharSequence sql,
+			ResultIterator.ResultWrapper<T> rc, int... param)
+			throws SQLException {
+		ResultIterator<T> results = new ResultIterator<T>(query(sql, param), rc);
+		T result = results.nextOrNull();
+		results.close();
+		// close();
+		return (result);
+	}
+
+	/**
+	 * This is an int-primitive version of queryValue without parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 	public int queryIntValue(CharSequence sql) throws SQLException {
@@ -327,32 +363,31 @@ public abstract class Database {
 		if (rs.next()) {
 			int i = rs.getInt(1);
 			close(rs);
-			//close();
+			// close();
 			return i;
-		}
-		else {
+		} else {
 			close(rs);
 			return Integer.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an int-primitive version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an int-primitive version of queryValue with parameter. It returns
+	 * the value of a resultset if it has data, Integer.MAX_VALUE if the result
+	 * set doesn't have data
 	 * 
 	 */
-	public int queryIntValue(CharSequence sql, String... param) throws SQLException {
+	public int queryIntValue(CharSequence sql, String... param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			int i = rs.getInt(1);
 			close(rs.getStatement());
 			close(rs);
 			rs.close();
-			//close();
+			// close();
 			return i;
-		}
-		else {
+		} else {
 			close(rs.getStatement());
 			close(rs);
 			rs.close();
@@ -361,21 +396,21 @@ public abstract class Database {
 	}
 
 	/**
-	 * This is an varbinary version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an varbinary version of queryValue with parameter. It returns the
+	 * value of a resultset if it has data, Integer.MAX_VALUE if the result set
+	 * doesn't have data
 	 * 
 	 */
-	public int queryIntValue(CharSequence sql, byte[] param) throws SQLException {
+	public int queryIntValue(CharSequence sql, byte[] param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			int i = rs.getInt(1);
 			close(rs.getStatement());
 			close(rs);
-			//close();
+			// close();
 			return i;
-		}
-		else {
+		} else {
 			close(rs.getStatement());
 			close(rs);
 			return Integer.MAX_VALUE;
@@ -383,50 +418,50 @@ public abstract class Database {
 	}
 
 	/**
-	 * This is an int-primitive version of queryValue with parameters. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an int-primitive version of queryValue with parameters. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
-	public int queryIntValue(CharSequence sql, int... param) throws SQLException {
+	public int queryIntValue(CharSequence sql, int... param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			int i = rs.getInt(1);
 			close(rs.getStatement());
 			close(rs);
-			//close();
+			// close();
 			return i;
-		}
-		else {
+		} else {
 			close(rs);
 			return Integer.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an float-primitive version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an float-primitive version of queryValue with parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
-	public float queryFloatValue(CharSequence sql, String param) throws SQLException {
+	public float queryFloatValue(CharSequence sql, String param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			float f = rs.getFloat(1);
 			close(rs);
-			//close();
+			// close();
 			return f;
-		}
-		else {
+		} else {
 			close(rs);
 			return Float.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an float-primitive version of queryValue without parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an float-primitive version of queryValue without parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 	public float queryFloatValue(CharSequence sql) throws SQLException {
@@ -434,39 +469,38 @@ public abstract class Database {
 		if (rs.next()) {
 			float f = rs.getFloat(1);
 			close(rs);
-			//close();
+			// close();
 			return f;
-		}
-		else {
+		} else {
 			close(rs);
 			return Float.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an double-primitive version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an double-primitive version of queryValue with parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
-	 */	
-	public double queryDoubleValue(CharSequence sql, String param) throws SQLException {
+	 */
+	public double queryDoubleValue(CharSequence sql, String param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			double d = rs.getDouble(1);
 			close(rs);
-			//close();
+			// close();
 			return d;
-		}
-		else {
+		} else {
 			close(rs);
 			return Double.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an double-primitive version of queryValue without parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an double-primitive version of queryValue without parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 	public double queryDoubleValue(CharSequence sql) throws SQLException {
@@ -474,39 +508,38 @@ public abstract class Database {
 		if (rs.next()) {
 			double d = rs.getDouble(1);
 			close(rs);
-			//close();
+			// close();
 			return d;
-		}
-		else {
+		} else {
 			close(rs);
 			return Double.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an long-primitive version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an long-primitive version of queryValue with parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
-	public long queryLongValue(CharSequence sql, String param) throws SQLException {
+	public long queryLongValue(CharSequence sql, String param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			long l = rs.getLong(1);
 			close(rs);
-			//close();
+			// close();
 			return l;
-		}
-		else {
+		} else {
 			close(rs);
 			return Long.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an long-primitive version of queryValue without parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an long-primitive version of queryValue without parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 	public long queryLongValue(CharSequence sql) throws SQLException {
@@ -514,39 +547,38 @@ public abstract class Database {
 		if (rs.next()) {
 			long l = rs.getLong(1);
 			close(rs);
-			//close();
+			// close();
 			return l;
-		}
-		else {
+		} else {
 			close(rs);
 			return Long.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an short-primitive version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an short-primitive version of queryValue with parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
-	public short queryShortValue(CharSequence sql, String param) throws SQLException {
+	public short queryShortValue(CharSequence sql, String param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			short s = rs.getShort(1);
 			close(rs);
-			//close();
+			// close();
 			return s;
-		}
-		else {
+		} else {
 			close(rs);
 			return Short.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an short-primitive version of queryValue without parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an short-primitive version of queryValue without parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 	public short queryShortValue(CharSequence sql) throws SQLException {
@@ -554,40 +586,39 @@ public abstract class Database {
 		if (rs.next()) {
 			short s = rs.getShort(1);
 			close(rs);
-			//close();
+			// close();
 			return s;
-		}
-		else {
+		} else {
 			close(rs);
 			return Short.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an byte-primitive version of queryValue with parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an byte-primitive version of queryValue with parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 
-	public byte queryByteValue(CharSequence sql, String param) throws SQLException {
+	public byte queryByteValue(CharSequence sql, String param)
+			throws SQLException {
 		ResultSet rs = query(sql, param);
 		if (rs.next()) {
 			byte b = rs.getByte(1);
 			close(rs);
-			//close();
+			// close();
 			return b;
-		}
-		else {
+		} else {
 			close(rs);
 			return Byte.MAX_VALUE;
 		}
 	}
 
 	/**
-	 * This is an byte-primitive version of queryValue without parameter. It returns 
-	 * the value of a resultset if it has data, Integer.MAX_VALUE if 
-	 * the result set doesn't have data
+	 * This is an byte-primitive version of queryValue without parameter. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
 	 * 
 	 */
 	public byte queryByteValue(CharSequence sql) throws SQLException {
@@ -595,10 +626,9 @@ public abstract class Database {
 		if (rs.next()) {
 			byte b = rs.getByte(1);
 			close(rs);
-			//close();
+			// close();
 			return b;
-		}
-		else {
+		} else {
 			close(rs);
 			return Byte.MAX_VALUE;
 		}
@@ -616,15 +646,17 @@ public abstract class Database {
 			list.add(rs.getInt(1));
 		}
 		close(rs);
-		//close();
+		// close();
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive int with parameters, or null if the resultset is empty
+	 * Return the list of primitive int with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public int[] queryIntsValue(CharSequence sql, String... param) throws SQLException {
+	public int[] queryIntsValue(CharSequence sql, String... param)
+			throws SQLException {
 		IntArrayList list = new IntArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -632,15 +664,17 @@ public abstract class Database {
 			list.add(rs.getInt(1));
 		}
 		close(rs);
-		//close();
+		// close();
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive int with parameters, or null if the resultset is empty
+	 * Return the list of primitive int with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public int[] queryIntsValue(CharSequence sql, byte[] param) throws SQLException {
+	public int[] queryIntsValue(CharSequence sql, byte[] param)
+			throws SQLException {
 		IntArrayList list = new IntArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -648,16 +682,17 @@ public abstract class Database {
 			list.add(rs.getInt(1));
 		}
 		close(rs);
-		//close();
+		// close();
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive int with parameters, or null if the resultset is empty
-	 * Variant with integer arguments
+	 * Return the list of primitive int with parameters, or null if the
+	 * resultset is empty Variant with integer arguments
 	 * 
 	 */
-	public int[] queryIntsValue(CharSequence sql, int... param) throws SQLException {
+	public int[] queryIntsValue(CharSequence sql, int... param)
+			throws SQLException {
 		IntArrayList list = new IntArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -665,16 +700,18 @@ public abstract class Database {
 			list.add(rs.getInt(1));
 		}
 		close(rs);
-		//close();
+		// close();
 
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive double with parameters, or null if the resultset is empty
+	 * Return the list of primitive double with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public double[] queryDoublesValue(CharSequence sql, String... param) throws SQLException {
+	public double[] queryDoublesValue(CharSequence sql, String... param)
+			throws SQLException {
 		DoubleArrayList list = new DoubleArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -682,16 +719,18 @@ public abstract class Database {
 			list.add(rs.getDouble(1));
 		}
 		close(rs);
-		//close();
+		// close();
 
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive byte with parameters, or null if the resultset is empty
+	 * Return the list of primitive byte with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public byte[] queryBytesValue(CharSequence sql, String... param) throws SQLException {
+	public byte[] queryBytesValue(CharSequence sql, String... param)
+			throws SQLException {
 		ByteArrayList list = new ByteArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -699,16 +738,18 @@ public abstract class Database {
 			list.add(rs.getByte(1));
 		}
 		close(rs);
-		//close();
+		// close();
 
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive float with parameters, or null if the resultset is empty
+	 * Return the list of primitive float with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public float[] queryFloatsValue(CharSequence sql, String... param) throws SQLException {
+	public float[] queryFloatsValue(CharSequence sql, String... param)
+			throws SQLException {
 		FloatArrayList list = new FloatArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -716,16 +757,18 @@ public abstract class Database {
 			list.add(rs.getFloat(1));
 		}
 		close(rs);
-		//close();
+		// close();
 
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive long with parameters, or null if the resultset is empty
+	 * Return the list of primitive long with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public long[] queryLongsValue(CharSequence sql, String... param) throws SQLException {
+	public long[] queryLongsValue(CharSequence sql, String... param)
+			throws SQLException {
 		LongArrayList list = new LongArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -733,16 +776,18 @@ public abstract class Database {
 			list.add(rs.getLong(1));
 		}
 		close(rs);
-		//close();
+		// close();
 
 		return (list.size() == 0) ? null : list.toArray();
 	}
 
 	/**
-	 * Return the list of primitive short with parameters, or null if the resultset is empty
+	 * Return the list of primitive short with parameters, or null if the
+	 * resultset is empty
 	 * 
 	 */
-	public short[] queryShortsValue(CharSequence sql, String... param) throws SQLException {
+	public short[] queryShortsValue(CharSequence sql, String... param)
+			throws SQLException {
 		ShortArrayList list = new ShortArrayList();
 		ResultSet rs = query(sql, param);
 
@@ -750,7 +795,7 @@ public abstract class Database {
 			list.add(rs.getShort(1));
 		}
 		close(rs);
-		//close();
+		// close();
 
 		return (list.size() == 0) ? null : list.toArray();
 	}
@@ -761,14 +806,16 @@ public abstract class Database {
 	 * the query(String, ResultWrapper) method, because it ensures that the
 	 * statement is closed afterwards. If you use the query(String) method
 	 * instead, be sure to call Database.close(ResultSet) on the result set,
-	 * because this ensures that the underlying statement is closed. The preferred
-	 * way to execute an update query (i.e. INSERT/DELETE/UPDATE) is via the
-	 * executeUpdate method, because it does not create an open statement. If
-	 * query(String) is called with an update query, this method calls
-	 * executeUpdate automatically and returns null. This is an extension of 
-	 * corresponding query method in Fabian's Database class with a number of string parameters. 
+	 * because this ensures that the underlying statement is closed. The
+	 * preferred way to execute an update query (i.e. INSERT/DELETE/UPDATE) is
+	 * via the executeUpdate method, because it does not create an open
+	 * statement. If query(String) is called with an update query, this method
+	 * calls executeUpdate automatically and returns null. This is an extension
+	 * of corresponding query method in Fabian's Database class with a number of
+	 * string parameters.
 	 */
-	public ResultSet query(CharSequence sql, String... param) throws SQLException {
+	public ResultSet query(CharSequence sql, String... param)
+			throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency, param));
 	}
 
@@ -778,12 +825,13 @@ public abstract class Database {
 	 * the query(String, ResultWrapper) method, because it ensures that the
 	 * statement is closed afterwards. If you use the query(String) method
 	 * instead, be sure to call Database.close(ResultSet) on the result set,
-	 * because this ensures that the underlying statement is closed. The preferred
-	 * way to execute an update query (i.e. INSERT/DELETE/UPDATE) is via the
-	 * executeUpdate method, because it does not create an open statement. If
-	 * query(String) is called with an update query, this method calls
-	 * executeUpdate automatically and returns null. This is an extension of 
-	 * corresponding query method in Fabian's Database class with a varbinary parameter
+	 * because this ensures that the underlying statement is closed. The
+	 * preferred way to execute an update query (i.e. INSERT/DELETE/UPDATE) is
+	 * via the executeUpdate method, because it does not create an open
+	 * statement. If query(String) is called with an update query, this method
+	 * calls executeUpdate automatically and returns null. This is an extension
+	 * of corresponding query method in Fabian's Database class with a varbinary
+	 * parameter
 	 */
 	public ResultSet query(CharSequence sql, byte[] param) throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency, param));
@@ -795,12 +843,13 @@ public abstract class Database {
 	 * the query(String, ResultWrapper) method, because it ensures that the
 	 * statement is closed afterwards. If you use the query(String) method
 	 * instead, be sure to call Database.close(ResultSet) on the result set,
-	 * because this ensures that the underlying statement is closed. The preferred
-	 * way to execute an update query (i.e. INSERT/DELETE/UPDATE) is via the
-	 * executeUpdate method, because it does not create an open statement. If
-	 * query(String) is called with an update query, this method calls
-	 * executeUpdate automatically and returns null. This is an extension of 
-	 * corresponding query method in Fabian's Database class with a number of integer parameters. 
+	 * because this ensures that the underlying statement is closed. The
+	 * preferred way to execute an update query (i.e. INSERT/DELETE/UPDATE) is
+	 * via the executeUpdate method, because it does not create an open
+	 * statement. If query(String) is called with an update query, this method
+	 * calls executeUpdate automatically and returns null. This is an extension
+	 * of corresponding query method in Fabian's Database class with a number of
+	 * integer parameters.
 	 */
 	public ResultSet query(CharSequence sql, int... param) throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency, param));
@@ -808,18 +857,24 @@ public abstract class Database {
 
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
-	 * concurrency.This is an extension of a corresponding query method in 
+	 * concurrency.This is an extension of a corresponding query method in
 	 * Fabian's Database class with a number of string parameters
 	 */
-	public ResultSet query(CharSequence sqlcs, int resultSetType, int resultSetConcurrency, String... param) throws SQLException {
+	public ResultSet query(CharSequence sqlcs, int resultSetType,
+			int resultSetConcurrency, String... param) throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
-		if (sql.toUpperCase().startsWith("INSERT") || sql.toUpperCase().startsWith("UPDATE") || sql.toUpperCase().startsWith("DELETE")
-				|| sql.toUpperCase().startsWith("CREATE") || sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("ALTER")) {
+		if (sql.toUpperCase().startsWith("INSERT")
+				|| sql.toUpperCase().startsWith("UPDATE")
+				|| sql.toUpperCase().startsWith("DELETE")
+				|| sql.toUpperCase().startsWith("CREATE")
+				|| sql.toUpperCase().startsWith("DROP")
+				|| sql.toUpperCase().startsWith("ALTER")) {
 			executeUpdate(sql);
 			return (null);
 		}
 		try {
-			PreparedStatement ps = connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+			PreparedStatement ps = connection.prepareStatement(sql,
+					resultSetType, resultSetConcurrency);
 			int n = param.length;
 			for (int i = 1; i <= n; i++)
 				ps.setString(i, param[i - 1]);
@@ -831,18 +886,25 @@ public abstract class Database {
 
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
-	 * concurrency.This is an extension of a corresponding query method in 
+	 * concurrency.This is an extension of a corresponding query method in
 	 * Fabian's Database class with an arbitrary parameter
 	 */
-	public ResultSet query(CharSequence sqlcs, int resultSetType, int resultSetConcurrency, Object param, int type) throws SQLException {
+	public ResultSet query(CharSequence sqlcs, int resultSetType,
+			int resultSetConcurrency, Object param, int type)
+			throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
-		if (sql.toUpperCase().startsWith("INSERT") || sql.toUpperCase().startsWith("UPDATE") || sql.toUpperCase().startsWith("DELETE")
-				|| sql.toUpperCase().startsWith("CREATE") || sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("ALTER")) {
+		if (sql.toUpperCase().startsWith("INSERT")
+				|| sql.toUpperCase().startsWith("UPDATE")
+				|| sql.toUpperCase().startsWith("DELETE")
+				|| sql.toUpperCase().startsWith("CREATE")
+				|| sql.toUpperCase().startsWith("DROP")
+				|| sql.toUpperCase().startsWith("ALTER")) {
 			executeUpdate(sql);
 			return (null);
 		}
 		try {
-			PreparedStatement ps = connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+			PreparedStatement ps = connection.prepareStatement(sql,
+					resultSetType, resultSetConcurrency);
 			ps.setObject(1, param, type);
 
 			return ps.executeQuery();
@@ -853,18 +915,24 @@ public abstract class Database {
 
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
-	 * concurrency.This is an extension of a corresponding query method in 
+	 * concurrency.This is an extension of a corresponding query method in
 	 * Fabian's Database class with a varbinary parameter
 	 */
-	public ResultSet query(CharSequence sqlcs, int resultSetType, int resultSetConcurrency, byte[] param) throws SQLException {
+	public ResultSet query(CharSequence sqlcs, int resultSetType,
+			int resultSetConcurrency, byte[] param) throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
-		if (sql.toUpperCase().startsWith("INSERT") || sql.toUpperCase().startsWith("UPDATE") || sql.toUpperCase().startsWith("DELETE")
-				|| sql.toUpperCase().startsWith("CREATE") || sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("ALTER")) {
+		if (sql.toUpperCase().startsWith("INSERT")
+				|| sql.toUpperCase().startsWith("UPDATE")
+				|| sql.toUpperCase().startsWith("DELETE")
+				|| sql.toUpperCase().startsWith("CREATE")
+				|| sql.toUpperCase().startsWith("DROP")
+				|| sql.toUpperCase().startsWith("ALTER")) {
 			executeUpdate(sql);
 			return (null);
 		}
 		try {
-			PreparedStatement ps = connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+			PreparedStatement ps = connection.prepareStatement(sql,
+					resultSetType, resultSetConcurrency);
 			ps.setBytes(1, param);
 
 			return ps.executeQuery();
@@ -875,18 +943,24 @@ public abstract class Database {
 
 	/**
 	 * Returns the results for a query as a ResultSet with given type and
-	 * concurrency.This is an extension of a corresponding query method in 
+	 * concurrency.This is an extension of a corresponding query method in
 	 * Fabian's Database class with a number of integer parameters
 	 */
-	public ResultSet query(CharSequence sqlcs, int resultSetType, int resultSetConcurrency, int... param) throws SQLException {
+	public ResultSet query(CharSequence sqlcs, int resultSetType,
+			int resultSetConcurrency, int... param) throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
-		if (sql.toUpperCase().startsWith("INSERT") || sql.toUpperCase().startsWith("UPDATE") || sql.toUpperCase().startsWith("DELETE")
-				|| sql.toUpperCase().startsWith("CREATE") || sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("ALTER")) {
+		if (sql.toUpperCase().startsWith("INSERT")
+				|| sql.toUpperCase().startsWith("UPDATE")
+				|| sql.toUpperCase().startsWith("DELETE")
+				|| sql.toUpperCase().startsWith("CREATE")
+				|| sql.toUpperCase().startsWith("DROP")
+				|| sql.toUpperCase().startsWith("ALTER")) {
 			executeUpdate(sql);
 			return (null);
 		}
 		try {
-			PreparedStatement ps = connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+			PreparedStatement ps = connection.prepareStatement(sql,
+					resultSetType, resultSetConcurrency);
 			int n = param.length;
 			for (int i = 1; i <= n; i++)
 				ps.setInt(i, param[i - 1]);
@@ -896,11 +970,13 @@ public abstract class Database {
 		}
 	}
 
-	/** 
-	 * Executes an SQL update query, returns the number of rows added/modified/deleted.  
-	 * This is an extension of a corresponding query method in Fabian's Database class 
-	 * with a number of string parameters */
-	public int executeUpdate(CharSequence sqlcs, String... param ) throws SQLException {
+	/**
+	 * Executes an SQL update query, returns the number of rows
+	 * added/modified/deleted. This is an extension of a corresponding query
+	 * method in Fabian's Database class with a number of string parameters
+	 */
+	public int executeUpdate(CharSequence sqlcs, String... param)
+			throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -915,11 +991,13 @@ public abstract class Database {
 		}
 	}
 
-	/** 
-	 * Executes an SQL update query, returns the number of rows added/modified/deleted.  
-	 * This is an extension of a corresponding query method in Fabian's Database class 
-	 * with a number of integer parameters */
-	public int executeUpdate(CharSequence sqlcs, int... param) throws SQLException {
+	/**
+	 * Executes an SQL update query, returns the number of rows
+	 * added/modified/deleted. This is an extension of a corresponding query
+	 * method in Fabian's Database class with a number of integer parameters
+	 */
+	public int executeUpdate(CharSequence sqlcs, int... param)
+			throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -935,12 +1013,13 @@ public abstract class Database {
 		}
 	}
 
-
-	/** 
-	 * Executes an SQL generic query  
-	 * This is an extension of a corresponding query method in Fabian's Database class 
-	 * with a number of integer parameters */
-	public boolean execute(CharSequence sqlcs, int... param) throws SQLException {
+	/**
+	 * Executes an SQL generic query This is an extension of a corresponding
+	 * query method in Fabian's Database class with a number of integer
+	 * parameters
+	 */
+	public boolean execute(CharSequence sqlcs, int... param)
+			throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -950,18 +1029,19 @@ public abstract class Database {
 			boolean result = ps.execute();
 			close(ps);
 			return result;
-		} 
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
 
-	/** 
-	 * Executes an SQL update query, returns the number of rows added/modified/deleted.  
-	 * This is an extension of a corresponding query method in Fabian's Database class 
-	 * with a number of string parameters */
-	public void executeUpdate(CharSequence sqlcs, Value... param ) throws SQLException {
+	/**
+	 * Executes an SQL update query, returns the number of rows
+	 * added/modified/deleted. This is an extension of a corresponding query
+	 * method in Fabian's Database class with a number of string parameters
+	 */
+	public void executeUpdate(CharSequence sqlcs, Value... param)
+			throws SQLException {
 		String sql = prepareQuery(sqlcs.toString());
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -970,19 +1050,21 @@ public abstract class Database {
 				ps.setObject(i, param[i - 1].getValue(), param[i - 1].getType());
 			ps.execute();
 			close(ps);
-			//close();
-		} 
-		catch (SQLException e) {
+			// close();
+		} catch (SQLException e) {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
 
 	/**
-	 * Execute a generic query with return parameters (default type is Integer). This method gets around known bugs 
-	 * in Oracle's DML statements handling (http://forums.oracle.com/forums/thread.jspa?threadID=943680)
-	 * @throws SQLException 
+	 * Execute a generic query with return parameters (default type is Integer).
+	 * This method gets around known bugs in Oracle's DML statements handling
+	 * (http://forums.oracle.com/forums/thread.jspa?threadID=943680)
+	 * 
+	 * @throws SQLException
 	 */
-	public int returnedExecute(CharSequence sqlcs, String returnParameter, int type) throws SQLException {
+	public int returnedExecute(CharSequence sqlcs, String returnParameter,
+			int type) throws SQLException {
 		StringBuilder sql = new StringBuilder("{call ");
 		sql.append(prepareQuery(sqlcs.toString()));
 		sql.append("RETURNING ");
@@ -993,32 +1075,39 @@ public abstract class Database {
 			s.registerOutParameter(1, type);
 			int result = s.executeUpdate();
 			close(s);
-			if (result > 0) return (s.getInt(1));
-			else throw new SQLException("SQL statement did not affect: " + sql);
-		} 
-		catch (SQLException e) {
+			if (result > 0)
+				return (s.getInt(1));
+			else
+				throw new SQLException("SQL statement did not affect: " + sql);
+		} catch (SQLException e) {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
 	}
-	
-	/** This method is reserved. Each third party-compliant implementation of Database HAS to override this
-	 * method */
-	public int returnedExecute(CharSequence sqlcs, int... param) throws SQLException {
+
+	/**
+	 * This method is reserved. Each third party-compliant implementation of
+	 * Database HAS to override this method
+	 */
+	public int returnedExecute(CharSequence sqlcs, int... param)
+			throws SQLException {
 		return -1;
 	}
-	
+
 	/**
-	 * Execute a generic query with return parameters (default type is Integer). This method gets around known bugs 
-	 * in Oracle's DML statements handling (http://forums.oracle.com/forums/thread.jspa?threadID=943680)
-	 * @throws SQLException 
+	 * Execute a generic query with return parameters (default type is Integer).
+	 * This method gets around known bugs in Oracle's DML statements handling
+	 * (http://forums.oracle.com/forums/thread.jspa?threadID=943680)
+	 * 
+	 * @throws SQLException
 	 */
-	public int returnedExecute(CharSequence sqlcs, int type, String returnParameter, int... param) throws SQLException {
-		//StringBuilder sql = new StringBuilder("{call ");
+	public int returnedExecute(CharSequence sqlcs, int type,
+			String returnParameter, int... param) throws SQLException {
+		// StringBuilder sql = new StringBuilder("{call ");
 		StringBuilder sql = new StringBuilder();
 		sql.append(prepareQuery(sqlcs.toString()));
 		sql.append("RETURNING ");
 		sql.append(returnParameter);
-		//sql.append(" INTO ?}");
+		// sql.append(" INTO ?}");
 		sql.append(" INTO ?;");
 		try {
 			CallableStatement s = connection.prepareCall(sql.toString());
@@ -1028,8 +1117,10 @@ public abstract class Database {
 			s.registerOutParameter(n + 1, type);
 			int result = s.executeUpdate();
 			close(s);
-			if (result > 0) return (s.getInt(1));
-			else throw new SQLException("SQL statement did not affect: " + sql);
+			if (result > 0)
+				return (s.getInt(1));
+			else
+				throw new SQLException("SQL statement did not affect: " + sql);
 		} catch (SQLException e) {
 			throw new SQLException(sql + "\n" + e.getMessage());
 		}
@@ -1049,12 +1140,15 @@ public abstract class Database {
 	}
 
 	/** Returns the results for a query as a ResultIterator */
-	public <T> ResultIterator<T> query(CharSequence sql, ResultIterator.ResultWrapper<T> rc) throws SQLException {
-		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY), rc));
+	public <T> ResultIterator<T> query(CharSequence sql,
+			ResultIterator.ResultWrapper<T> rc) throws SQLException {
+		return (new ResultIterator<T>(query(sql, ResultSet.TYPE_FORWARD_ONLY,
+				ResultSet.CONCUR_READ_ONLY), rc));
 	}
 
 	/** Returns a single value (or null) */
-	public <T> T queryValue(CharSequence sql, ResultIterator.ResultWrapper<T> rc) throws SQLException {
+	public <T> T queryValue(CharSequence sql, ResultIterator.ResultWrapper<T> rc)
+			throws SQLException {
 		ResultIterator<T> results = new ResultIterator<T>(query(sql), rc);
 		T result = results.nextOrNull();
 		results.close();
@@ -1069,91 +1163,131 @@ public abstract class Database {
 		return (result);
 	}
 
-	/** indicates whether autocommit was enabled before we switched if off to start a transaction */
+	/**
+	 * indicates whether autocommit was enabled before we switched if off to
+	 * start a transaction
+	 */
 	boolean autoCommitWasOn = true;
 
 	boolean inTransactionMode = false;
 
-	/** Initiates a transaction by disabling autocommit and enabling transaction mode */
+	/**
+	 * Initiates a transaction by disabling autocommit and enabling transaction
+	 * mode
+	 */
 	public void startTransaction() throws InitTransactionSQLException {
 		if (!inTransactionMode) {
 			try {
 				autoCommitWasOn = connection.getAutoCommit();
-				if (autoCommitWasOn) connection.setAutoCommit(false);
+				if (autoCommitWasOn)
+					connection.setAutoCommit(false);
 			} catch (SQLException ex) {
-				throw new InitTransactionSQLException("Could not check and disable autocommit \nError was" + ex, ex);
+				throw new InitTransactionSQLException(
+						"Could not check and disable autocommit \nError was"
+								+ ex, ex);
 			}
 			try {
 				originalTransactionMode = connection.getTransactionIsolation();
 			} catch (SQLException ex) {
-				throw new InitTransactionSQLException("Could not get hold of transaction isolation\nError was" + ex, ex);
+				throw new InitTransactionSQLException(
+						"Could not get hold of transaction isolation\nError was"
+								+ ex, ex);
 			}
 			try {
 				connection.setTransactionIsolation(defaultTransactionMode);
 			} catch (SQLException ex) {
-				throw new InitTransactionSQLException("Could not set transaction isolation mode\nError was" + ex, ex);
+				throw new InitTransactionSQLException(
+						"Could not set transaction isolation mode\nError was"
+								+ ex, ex);
 			}
 			inTransactionMode = true;
 		}
 	}
 
-	/** commits the transaction aggregated so far 
-	 * if the commit fails the transaction is rolled back!*/
+	/**
+	 * commits the transaction aggregated so far if the commit fails the
+	 * transaction is rolled back!
+	 */
 	protected void commitTransaction() throws TransactionSQLException {
 		try {
 			connection.commit();
 		} catch (SQLException ex) {
-			CommitTransactionSQLException commitfail = new CommitTransactionSQLException("Could not commit transaction.", ex);
+			CommitTransactionSQLException commitfail = new CommitTransactionSQLException(
+					"Could not commit transaction.", ex);
 			try {
 				resetTransaction();
 			} catch (RollbackTransactionSQLException rex) {
-				throw new RollbackTransactionSQLException(rex.getMessage(), commitfail);
+				throw new RollbackTransactionSQLException(rex.getMessage(),
+						commitfail);
 			}
 			throw commitfail;
 		}
 	}
 
-	/** resets the transaction rolling it back and closing it  */
+	/** resets the transaction rolling it back and closing it */
 	public void resetTransaction() throws TransactionSQLException {
 		try {
 			connection.rollback();
 		} catch (SQLException ex2) {
-			throw new RollbackTransactionSQLException("Could not rollback transaction.");
+			throw new RollbackTransactionSQLException(
+					"Could not rollback transaction.");
 		}
 		endTransaction(false);
 	}
 
-	/** executes the transaction and switches back from transaction mode into autocommit mode */
+	/**
+	 * executes the transaction and switches back from transaction mode into
+	 * autocommit mode
+	 */
 	public void endTransaction(boolean flush) throws TransactionSQLException {
 		if (inTransactionMode) {
-			if (flush) commitTransaction();
+			if (flush)
+				commitTransaction();
 			try {
 				connection.setTransactionIsolation(originalTransactionMode);
 			} catch (SQLException ex) {
-				throw new TransactionSQLException("Could not shutdown transaction mode\n Error was:" + ex, ex);
+				throw new TransactionSQLException(
+						"Could not shutdown transaction mode\n Error was:" + ex,
+						ex);
 			}
 			try {
-				if (autoCommitWasOn) connection.setAutoCommit(true);
+				if (autoCommitWasOn)
+					connection.setAutoCommit(true);
 			} catch (SQLException ex) {
-				throw new StartAutoCommitSQLException("Could not start autocommit\n Error was:" + ex, ex);
+				throw new StartAutoCommitSQLException(
+						"Could not start autocommit\n Error was:" + ex, ex);
 			}
 			inTransactionMode = false;
 		}
 	}
 
-	/** Locks a table in write mode, i.e. other db connections can only read the table, but not write to it */
-	public void lockTableWriteAccess(Map<String, String> tableAndAliases) throws SQLException {
-		throw new SQLException("Sorry this functionality is not implemented for you database system by roxxi's database connector (roxxi.tools.database.Database)");
+	/**
+	 * Locks a table in write mode, i.e. other db connections can only read the
+	 * table, but not write to it
+	 */
+	public void lockTableWriteAccess(Map<String, String> tableAndAliases)
+			throws SQLException {
+		throw new SQLException(
+				"Sorry this functionality is not implemented for you database system by roxxi's database connector (roxxi.tools.database.Database)");
 	}
 
-	/** Locks a table in read mode, i.e. only this connection can read or write the table */
-	public void lockTableReadAccess(Map<String, String> tableAndAliases) throws SQLException {
-		throw new SQLException("Sorry this functionality is not implemented for you database system by roxxi's database connector (roxxi.tools.database.Database)");
+	/**
+	 * Locks a table in read mode, i.e. only this connection can read or write
+	 * the table
+	 */
+	public void lockTableReadAccess(Map<String, String> tableAndAliases)
+			throws SQLException {
+		throw new SQLException(
+				"Sorry this functionality is not implemented for you database system by roxxi's database connector (roxxi.tools.database.Database)");
 	}
 
-	/** releases all locks the connection holds, commits the current transaction and ends it */
+	/**
+	 * releases all locks the connection holds, commits the current transaction
+	 * and ends it
+	 */
 	public void releaseLocksAndEndTransaction() throws SQLException {
-		throw new SQLException("Sorry this functionality is not implemented for you database system by roxxi's database connector (roxxi.tools.database.Database)");
+		throw new SQLException(
+				"Sorry this functionality is not implemented for you database system by roxxi's database connector (roxxi.tools.database.Database)");
 	}
 
 	/** The minal column width for describe() */
@@ -1165,15 +1299,16 @@ public abstract class Database {
 	/** Appends something to a StringBuilder with a fixed length */
 	protected static void appendFixedLen(StringBuilder b, Object o, int len) {
 		String s = o == null ? "null" : o.toString();
-		if (s.length() > len) s = s.substring(0, len);
+		if (s.length() > len)
+			s = s.substring(0, len);
 		b.append(s);
 		for (int i = s.length(); i < len; i++)
 			b.append(' ');
 	}
 
 	/**
-	 * Returns a String-representation of a ResultSet, maximally maxrows rows (or
-	 * all for -1)
+	 * Returns a String-representation of a ResultSet, maximally maxrows rows
+	 * (or all for -1)
 	 */
 	public static String describe(ResultSet r, int maxrows) throws SQLException {
 		StringBuilder b = new StringBuilder();
@@ -1205,7 +1340,8 @@ public abstract class Database {
 			}
 			b.append('\n');
 		}
-		if (maxrows == 0 && r.next()) b.append("...\n");
+		if (maxrows == 0 && r.next())
+			b.append("...\n");
 		close(r);
 		return (b.toString());
 	}
@@ -1218,7 +1354,8 @@ public abstract class Database {
 	/** Closes a connection */
 	public static void close(Connection connection) {
 		try {
-			if ((connection != null) && !connection.isClosed()) connection.close();
+			if ((connection != null) && !connection.isClosed())
+				connection.close();
 		} catch (SQLException e) {
 		}
 	}
@@ -1226,7 +1363,8 @@ public abstract class Database {
 	/** Closes a statement */
 	public static void close(Statement statement) {
 		try {
-			if (statement != null) statement.close();
+			if (statement != null)
+				statement.close();
 		} catch (SQLException e) {
 		}
 	}
@@ -1238,14 +1376,16 @@ public abstract class Database {
 		} catch (SQLException e) {
 		}
 		try {
-			if (rs != null) rs.close();
+			if (rs != null)
+				rs.close();
 		} catch (SQLException e) {
 		}
 	}
 
 	/** Closes the connection */
 	public void close() {
-		if (closed) // we need to make sure we only close it once (either manually or by finalizer)
+		if (closed) // we need to make sure we only close it once (either
+					// manually or by finalizer)
 			return;
 		if (inTransactionMode) {
 			try {
@@ -1266,13 +1406,8 @@ public abstract class Database {
 	}
 
 	/** Closes the connection */
-	public void finalize() {
-		try {
-			close();
-		} catch (Exception e) {
-			Announce.error(e);
-		}
-		;
+	public void finalize() throws Exception {
+		close();
 	}
 
 	/** Returns an SQLType for the given Type as defined in java.sql.Types */
@@ -1295,8 +1430,10 @@ public abstract class Database {
 		return (java2SQL.get(c));
 	}
 
-	/** returns the database system specific expression for isnull functionality 
-	 * i.e. isnull(a,b) returns b if a is null and a otherwise */
+	/**
+	 * returns the database system specific expression for isnull functionality
+	 * i.e. isnull(a,b) returns b if a is null and a otherwise
+	 */
 	public String getSQLStmntIFNULL(String a, String b) {
 		Announce.error("You database system class needs to implement this functionality.");
 		return "";
@@ -1305,18 +1442,24 @@ public abstract class Database {
 	/** Formats an object appropriately (provided that its class is in java2SQL) */
 	public String format(Object o) {
 		SQLType t = getSQLType(o.getClass());
-		if (t == null) t = getSQLType(String.class);
+		if (t == null)
+			t = getSQLType(String.class);
 		return (t.format(o.toString()));
 	}
 
-	/** Formats an object appropriately (provided that its class is in java2SQL) and assigns NULL it the given object is a null pointer */
+	/**
+	 * Formats an object appropriately (provided that its class is in java2SQL)
+	 * and assigns NULL it the given object is a null pointer
+	 */
 	public String formatNullToNull(Object o) {
-		if (o == null) return "NULL";
-		else return format(o);
+		if (o == null)
+			return "NULL";
+		else
+			return format(o);
 	}
 
-	/** 
-	 * Produces an SQL fragment casting the given value to the given type   * 
+	/**
+	 * Produces an SQL fragment casting the given value to the given type *
 	 */
 	public String cast(String value, String type) {
 		StringBuilder sql = new StringBuilder("CAST(");
@@ -1324,12 +1467,12 @@ public abstract class Database {
 		return sql.toString();
 	}
 
-	/** 
+	/**
 	 * Produces an SQL fragment representing an autoincrementing column type
-	 * s.t. if used during table creation a column can be declared to get by default 
-	 * an integer value assigned according to an internal sequence counter
-	 * Example:
-	 * createTable("tableWithSingleAutoIncrementingIDColumn", "ID", autoincrementColumn()) 
+	 * s.t. if used during table creation a column can be declared to get by
+	 * default an integer value assigned according to an internal sequence
+	 * counter Example: createTable("tableWithSingleAutoIncrementingIDColumn",
+	 * "ID", autoincrementColumn())
 	 */
 	public String autoincrementColumn() {
 		Announce.error("This functionality is not provided for this database type. It may simply lack implementation at the Database class.");
@@ -1337,16 +1480,18 @@ public abstract class Database {
 	}
 
 	/**
-	 * Creates or rewrites an SQL table. Attributes is an alternating sequence of
-	 * a name (String) and a type (from java.sql.Type).
+	 * Creates or rewrites an SQL table. Attributes is an alternating sequence
+	 * of a name (String) and a type (from java.sql.Type).
 	 */
-	public void createTable(String name, Object... attributes) throws SQLException {
+	public void createTable(String name, Object... attributes)
+			throws SQLException {
 		Announce.doingDetailed("Creating table " + name);
 		try {
 			executeUpdate("DROP TABLE " + name);
 		} catch (SQLException e) {
 		}
-		StringBuilder b = new StringBuilder("CREATE TABLE ").append(name).append(" (");
+		StringBuilder b = new StringBuilder("CREATE TABLE ").append(name)
+				.append(" (");
 		for (int i = 0; i < attributes.length; i += 2) {
 			b.append(attributes[i]).append(' ');
 			if (attributes[i + 1] instanceof Integer) {
@@ -1361,10 +1506,15 @@ public abstract class Database {
 		Announce.doneDetailed();
 	}
 
-	/** checks if a table with the given name exists (or rather whether it can be accessed).
-	 * @param table  name of the table to be checked 
-	 * @note if there is any error with the database connection,
-	 * the function will also return false. */
+	/**
+	 * checks if a table with the given name exists (or rather whether it can be
+	 * accessed).
+	 * 
+	 * @param table
+	 *            name of the table to be checked
+	 * @note if there is any error with the database connection, the function
+	 *       will also return false.
+	 */
 	public boolean existsTable(String table) {
 		try {
 			ResultSet rs = query("SELECT * FROM " + table + " LIMIT 1");
@@ -1375,7 +1525,7 @@ public abstract class Database {
 		return true;
 	}
 
-	/** Creates an index name*/
+	/** Creates an index name */
 	public String indexName(String table, String... attributes) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("I_");
@@ -1393,11 +1543,11 @@ public abstract class Database {
 		return sb.toString().replace("-", "m");
 	}
 
-	/** Creates an index name*/
+	/** Creates an index name */
 	public String indexNameOld(String table, String... attributes) {
 		StringBuilder indexName = new StringBuilder(table);
 		int length = table.length() + 5;
-		//removes brackets for mysql the (160)
+		// removes brackets for mysql the (160)
 		String[] use = new String[attributes.length];
 		for (int i = 0; i < attributes.length; i++) {
 			int index = attributes[i].indexOf("(");
@@ -1411,8 +1561,10 @@ public abstract class Database {
 			length = length + a.length();
 		if (length > 30) {
 			int min = 30 - (use.length * 2) - 2;
-			if (min < 5) min = 5;
-			if (min > table.length()) min = table.length();
+			if (min < 5)
+				min = 5;
+			if (min > table.length())
+				min = table.length();
 			indexName = new StringBuilder(indexName.substring(0, min));
 			for (String a : use)
 				indexName.append(a.substring(0, 2));
@@ -1429,9 +1581,11 @@ public abstract class Database {
 	}
 
 	/** Returns the command to create one index on a table */
-	public String createIndexCommand(String table, boolean unique, String... attributes) {
+	public String createIndexCommand(String table, boolean unique,
+			String... attributes) {
 		StringBuilder sql = new StringBuilder("CREATE ");
-		if (unique) sql.append("UNIQUE ");
+		if (unique)
+			sql.append("UNIQUE ");
 		sql.append("INDEX ");
 		sql.append(indexName(table, attributes));
 		sql.append(" ON ").append(table).append(" (");
@@ -1442,8 +1596,10 @@ public abstract class Database {
 		return (sql.toString());
 	}
 
-	public void createIndex(String table, boolean unique, String... attributes) throws SQLException {
-		Announce.doingDetailed("Creating index " + indexName(table, attributes) + " on table " + table);
+	public void createIndex(String table, boolean unique, String... attributes)
+			throws SQLException {
+		Announce.doingDetailed("Creating index " + indexName(table, attributes)
+				+ " on table " + table);
 		String comand = createIndexCommand(table, unique, attributes);
 		Announce.debug(comand);
 		try {
@@ -1455,14 +1611,16 @@ public abstract class Database {
 	}
 
 	/** Creates non-unique single indices on a table */
-	public void createIndices(String table, String... attributes) throws SQLException {
+	public void createIndices(String table, String... attributes)
+			throws SQLException {
 		for (String a : attributes) {
 			createIndex(table, false, a);
 		}
 	}
 
-	/** makes the given attributes/columns the primary key of the given table*/
-	public void createPrimaryKey(String table, String... attributes) throws SQLException {
+	/** makes the given attributes/columns the primary key of the given table */
+	public void createPrimaryKey(String table, String... attributes)
+			throws SQLException {
 		Announce.doingDetailed("Creating primary Key on table " + table);
 		StringBuilder sql = new StringBuilder("ALTER TABLE ");
 		sql.append(table);
@@ -1475,7 +1633,9 @@ public abstract class Database {
 		try {
 			executeUpdate("ALTER TABLE " + table + " DROP PRIMARY KEY");
 		} catch (SQLException e) {
-			// throw e; //hook here for exception handling; usually disabled as no primary key may exist when we create the new one (which is not an error) 
+			// throw e; //hook here for exception handling; usually disabled as
+			// no primary key may exist when we create the new one (which is not
+			// an error)
 		}
 		executeUpdate(sql.toString());
 		Announce.doneDetailed();
@@ -1504,14 +1664,17 @@ public abstract class Database {
 			String s;
 			while ((s = D.r()).length() != 0)
 				sql.append(s).append("\n");
-			if (sql.length() == 0) break;
+			if (sql.length() == 0)
+				break;
 			sql.setLength(sql.length() - 1);
 			Announce.doing("Querying database");
-			if (sql.length() == 0) break;
+			if (sql.length() == 0)
+				break;
 			try {
 				ResultSet result = query(sql.toString());
 				Announce.done();
-				if (result != null) D.p(describe(result, 50));
+				if (result != null)
+					D.p(describe(result, 50));
 			} catch (SQLException e) {
 				Announce.failed();
 				e.printStackTrace(System.err);
@@ -1532,30 +1695,32 @@ public abstract class Database {
 			this.value = value;
 			this.type = type;
 		}
+
 		public Object getValue() {
 			return value;
 		}
+
 		public int getType() {
 			return type;
 		}
 	}
-	
-	/** Represents a bulk loader*/
+
+	/** Represents a bulk loader */
 	public class Inserter implements Closeable {
 
-		/** Holds the prepared statement*/
+		/** Holds the prepared statement */
 		protected PreparedStatement preparedStatement;
 
-		/** Table where the data will be inserted*/
+		/** Table where the data will be inserted */
 		protected String tableName;
 
-		/** Column types*/
+		/** Column types */
 		protected SQLType[] columnTypes;
 
-		/** Counts how many commands are in the batch*/
+		/** Counts how many commands are in the batch */
 		protected int batchCounter = 0;
 
-		/** Tells after how many commands we will flush the batch*/
+		/** Tells after how many commands we will flush the batch */
 		private int batchSize = 1000;
 
 		/** tells whether the inserter is already closed */
@@ -1565,7 +1730,7 @@ public abstract class Database {
 			batchSize = size;
 		}
 
-		/** Creates a bulk loader*/
+		/** Creates a bulk loader */
 		public Inserter(String table) throws SQLException {
 			ResultSet r = query(limit("SELECT * FROM " + table, 1));
 			ResultSetMetaData meta = r.getMetaData();
@@ -1583,7 +1748,10 @@ public abstract class Database {
 			inserters.add(this);
 		}
 
-		/** Creates a bulk loader for a table with column types given by Java classes*/
+		/**
+		 * Creates a bulk loader for a table with column types given by Java
+		 * classes
+		 */
 		public Inserter(String table, Class... columnTypes) throws SQLException {
 			this.columnTypes = new SQLType[columnTypes.length];
 			for (int i = 0; i < columnTypes.length; i++) {
@@ -1613,9 +1781,13 @@ public abstract class Database {
 			inserters.add(this);
 		}
 
-		/** Creates a bulk loader for partial insert statements with column types and names */
-		public Inserter(String table, Column...columns) throws SQLException {
-			if (columns == null || columns.length == 0) throw new IllegalArgumentException("column must not empty");
+		/**
+		 * Creates a bulk loader for partial insert statements with column types
+		 * and names
+		 */
+		public Inserter(String table, Column... columns) throws SQLException {
+			if (columns == null || columns.length == 0)
+				throw new IllegalArgumentException("column must not empty");
 			columnTypes = new SQLType[columns.length];
 			tableName = table;
 			StringBuilder sb = new StringBuilder("INSERT INTO ");
@@ -1627,8 +1799,8 @@ public abstract class Database {
 				columnTypes[i] = getSQLType(columns[i].getType());
 				sb.append(columns[i].getName());
 				sb.append(",");
-				tb.append("?, ");				
-			}	
+				tb.append("?, ");
+			}
 			columnTypes[n - 1] = getSQLType(columns[n - 1].getType());
 			sb.append(columns[n - 1].getName());
 			sb.append(")");
@@ -1638,12 +1810,12 @@ public abstract class Database {
 			inserters.add(this);
 		}
 
-		/** Returns the table name*/
+		/** Returns the table name */
 		public String getTableName() {
 			return tableName;
 		}
 
-		/** Inserts a row*/
+		/** Inserts a row */
 		public void insert(Object... values) throws SQLException {
 			insert(Arrays.asList(values));
 		}
@@ -1661,32 +1833,40 @@ public abstract class Database {
 						preparedStatement.setBlob(i + 1, bis, buf.length);
 					}
 
-					else preparedStatement.setObject(i + 1, values.get(i), columnTypes[i].getTypeCode());				
+					else
+						preparedStatement.setObject(i + 1, values.get(i),
+								columnTypes[i].getTypeCode());
 				}
 				preparedStatement.addBatch();
 
 			} catch (SQLException e) {
-				throw new SQLException("Bulk-insert into " + tableName + " " + values + "\n" + e.getMessage());
+				throw new SQLException("Bulk-insert into " + tableName + " "
+						+ values + "\n" + e.getMessage());
 			} catch (IOException e) {
-				throw new SQLException("Bulk-insert into " + tableName + " " + values + "\n" + e.getMessage());
+				throw new SQLException("Bulk-insert into " + tableName + " "
+						+ values + "\n" + e.getMessage());
 			}
-			if (batchCounter++ % batchSize == 0) flush();
+			if (batchCounter++ % batchSize == 0)
+				flush();
 		}
 
-		/** Flushes the batch*/
+		/** Flushes the batch */
 		public void flush() throws SQLException {
 			try {
 				preparedStatement.executeBatch();
 				preparedStatement.clearBatch();
 			} catch (SQLException e) {
-				String details = e.getNextException() == null ? "" : e.getNextException().getMessage();
+				String details = e.getNextException() == null ? "" : e
+						.getNextException().getMessage();
 				throw new SQLException(e.getMessage() + "\n\n" + details);
 			}
 		}
 
-		/** Flushes and closes*/
+		/** Flushes and closes */
 		public void close() {
-			if (closed) // we need to make sure we close only once, either by manual call or when finalizer is called by garbage collection
+			if (closed) // we need to make sure we close only once, either by
+						// manual call or when finalizer is called by garbage
+						// collection
 				return;
 			try {
 				flush();
@@ -1702,7 +1882,7 @@ public abstract class Database {
 			closed = true;
 		}
 
-		/** Returns the number of columns*/
+		/** Returns the number of columns */
 		public int numColumns() {
 			return (columnTypes.length);
 		}
@@ -1711,65 +1891,79 @@ public abstract class Database {
 		protected void finalize() {
 			close();
 		}
-		
+
 		public String toString() {
 			return preparedStatement.toString();
 		}
 	}
 
-	/** Returns an inserter for a table with specific column types*/
+	/** Returns an inserter for a table with specific column types */
 	public Inserter newInserter(String table) throws SQLException {
 		return (new Inserter(table));
 	}
 
-	/** Returns an inserter for a table with specific column types*/
-	public Inserter newInserter(String table, Class... argumentTypes) throws SQLException {
+	/** Returns an inserter for a table with specific column types */
+	public Inserter newInserter(String table, Class... argumentTypes)
+			throws SQLException {
 		return (new Inserter(table, argumentTypes));
 	}
 
-	/** Returns an inserter for a table with specific column types given as java.sql.Type constants*/
-	public Inserter newInserter(String table, int... argumentTypes) throws SQLException {
+	/**
+	 * Returns an inserter for a table with specific column types given as
+	 * java.sql.Type constants
+	 */
+	public Inserter newInserter(String table, int... argumentTypes)
+			throws SQLException {
 		return (new Inserter(table, argumentTypes));
 	}
-	
-	public Inserter newInserter(String table, Column... cols) throws SQLException {
+
+	public Inserter newInserter(String table, Column... cols)
+			throws SQLException {
 		return (new Inserter(table, cols));
 	}
 
-	/** Produces a CSV version of the table*/
-	public void makeCSV(String table, File output, char separator) throws IOException, SQLException {
+	/** Produces a CSV version of the table */
+	public void makeCSV(String table, File output, char separator)
+			throws IOException, SQLException {
 		makeCSVForQuery("SELECT * FROM " + table, output, separator);
 	}
 
-	/** Produces a CSV version of the table*/
-	public void dumpCSV(String table, File output, char separator) throws IOException, SQLException {
+	/** Produces a CSV version of the table */
+	public void dumpCSV(String table, File output, char separator)
+			throws IOException, SQLException {
 		dumpQueryAsCSV("SELECT * FROM " + table, output, separator);
 	}
 
-	/** Produces a CSV version of the query*/
-	public void makeCSVForQuery(String selectCommand, File output, char separator) throws IOException, SQLException {
+	/** Produces a CSV version of the query */
+	public void makeCSVForQuery(String selectCommand, File output,
+			char separator) throws IOException, SQLException {
 		ResultSet r = query(selectCommand);
 		Writer out = new UTF8Writer(output);
 		int columns = r.getMetaData().getColumnCount();
 		for (int column = 1; column <= columns; column++) {
 			out.write(r.getMetaData().getColumnLabel(column));
-			if (column == columns) out.write("\n");
-			else out.write(separator + " ");
+			if (column == columns)
+				out.write("\n");
+			else
+				out.write(separator + " ");
 		}
 		while (r.next()) {
 			for (int column = 1; column <= columns; column++) {
 				Object o = r.getObject(column);
 				out.write(o == null ? "null" : o.toString());
-				if (column == columns) out.write("\n");
-				else out.write(separator + " ");
+				if (column == columns)
+					out.write("\n");
+				else
+					out.write(separator + " ");
 			}
 		}
 		close(r);
 		out.close();
 	}
 
-	/** Produces a CSV version of the query*/
-	public void dumpQueryAsCSV(String selectCommand, File output, char separator) throws IOException, SQLException {
+	/** Produces a CSV version of the query */
+	public void dumpQueryAsCSV(String selectCommand, File output, char separator)
+			throws IOException, SQLException {
 		ResultSet r = query(selectCommand);
 		ResultSetMetaData meta = r.getMetaData();
 		int numCols = meta.getColumnCount();
@@ -1787,17 +1981,22 @@ public abstract class Database {
 		csv.close();
 	}
 
-	/** Loads a CSV file into a table*/
-	public void loadCSV(String table, File input, boolean clearTable, char separator) throws IOException, SQLException {
-		if (clearTable) executeUpdate("DELETE FROM " + table);
+	/** Loads a CSV file into a table */
+	public void loadCSV(String table, File input, boolean clearTable,
+			char separator) throws IOException, SQLException {
+		if (clearTable)
+			executeUpdate("DELETE FROM " + table);
 		Inserter bulki = newInserter(table);
 		CSVLines csv = new CSVLines(input);
 		if (csv.numColumns() != null && csv.numColumns() != bulki.numColumns()) {
-			throw new SQLException("File " + input.getName() + " has " + csv.numColumns() + " columns, but table " + table + " has " + bulki.numColumns());
+			throw new SQLException("File " + input.getName() + " has "
+					+ csv.numColumns() + " columns, but table " + table
+					+ " has " + bulki.numColumns());
 		}
 		for (List<String> values : csv) {
 			if (values.size() != bulki.numColumns()) {
-				Announce.warning("Line cannot be read from file", input.getName(), "into table", table, ":\n", values);
+				Announce.warning("Line cannot be read from file",
+						input.getName(), "into table", table, ":\n", values);
 				continue;
 			}
 			bulki.insert(values);
@@ -1807,6 +2006,7 @@ public abstract class Database {
 
 	/**
 	 * convert an object into a byte array
+	 * 
 	 * @param obj
 	 */
 	private static byte[] toBytes(Object obj) throws IOException {
@@ -1824,13 +2024,18 @@ public abstract class Database {
 
 	/** Test routine */
 	public static void main(String[] args) throws Exception {
-		new PostgresDatabase("postgres", "postgres", null, null, null).runInterface();
-		//    System.out.println("Does table 'facts' exist:"+ new PostgresDatabase("postgres", "postgres", "yago", null, null).existsTable("facts"));
-		//    System.out.println("Does table 'factssss' exist:"+ new PostgresDatabase("postgres", "postgres", "yago", null, null).existsTable("factssss"));    
+		new PostgresDatabase("postgres", "postgres", null, null, null)
+				.runInterface();
+		// System.out.println("Does table 'facts' exist:"+ new
+		// PostgresDatabase("postgres", "postgres", "yago", null,
+		// null).existsTable("facts"));
+		// System.out.println("Does table 'factssss' exist:"+ new
+		// PostgresDatabase("postgres", "postgres", "yago", null,
+		// null).existsTable("factssss"));
 	}
 
 	// ---------------------------------------------------------------------
-	//           Exceptions
+	// Exceptions
 	// ---------------------------------------------------------------------
 
 	public static class TransactionSQLException extends SQLException {
@@ -1850,7 +2055,8 @@ public abstract class Database {
 		}
 	}
 
-	public static class InitTransactionSQLException extends TransactionSQLException {
+	public static class InitTransactionSQLException extends
+			TransactionSQLException {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1867,7 +2073,8 @@ public abstract class Database {
 		}
 	}
 
-	public static class CommitTransactionSQLException extends TransactionSQLException {
+	public static class CommitTransactionSQLException extends
+			TransactionSQLException {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1884,7 +2091,8 @@ public abstract class Database {
 		}
 	}
 
-	public static class RollbackTransactionSQLException extends TransactionSQLException {
+	public static class RollbackTransactionSQLException extends
+			TransactionSQLException {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1901,7 +2109,8 @@ public abstract class Database {
 		}
 	}
 
-	public static class StartAutoCommitSQLException extends TransactionSQLException {
+	public static class StartAutoCommitSQLException extends
+			TransactionSQLException {
 
 		private static final long serialVersionUID = 1L;
 
