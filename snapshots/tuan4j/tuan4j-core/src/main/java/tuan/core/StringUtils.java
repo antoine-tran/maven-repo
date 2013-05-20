@@ -348,16 +348,14 @@ public class StringUtils {
 	 *  
 	 *  @author Herb Jellinek
 	 */
-	public static String wikiUrlEncode(String s, String enc) 
+	public static String wikiUrlEncode(String s) 
 			throws UnsupportedEncodingException {
 		
 		boolean needToChange = false;
         StringBuffer out = new StringBuffer(s.length());
         Charset charset;
         CharArrayWriter charArrayWriter = new CharArrayWriter();
-        
-        if (enc == null)
-            throw new NullPointerException("charsetName");
+        String enc = "UTF-8";
 
         try {
             charset = Charset.forName(enc);
