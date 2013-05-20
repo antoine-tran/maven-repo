@@ -276,7 +276,7 @@ public class StringUtils {
 	 *  accepts an arbitrary string, and convert it into a mediawiki HTTP
 	 *  compatible path fragment
 	 */
-	public static String mediawikiEncode(String s) {
+	public static String wikiUrlEncode(String s) {
 		String encoded;
 		try {
 			encoded = URLEncoder.encode(s, "UTF-8");
