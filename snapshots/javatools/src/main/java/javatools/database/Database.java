@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -833,7 +834,7 @@ public abstract class Database {
 	 * of corresponding query method in Fabian's Database class with a varbinary
 	 * parameter
 	 */
-	public ResultSet query(CharSequence sql, byte[] param) throws SQLException {
+	public ResultSet query(CharSequence sql, byte... param) throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency, param));
 	}
 
@@ -852,6 +853,24 @@ public abstract class Database {
 	 * integer parameters.
 	 */
 	public ResultSet query(CharSequence sql, int... param) throws SQLException {
+		return (query(sql, resultSetType, resultSetConcurrency, param));
+	}
+	
+	/**
+	 * Returns the results for a query as a ResultSet with default type and
+	 * concurrency (read comments!). The preferred way to execute a query is by
+	 * the query(String, ResultWrapper) method, because it ensures that the
+	 * statement is closed afterwards. If you use the query(String) method
+	 * instead, be sure to call Database.close(ResultSet) on the result set,
+	 * because this ensures that the underlying statement is closed. The
+	 * preferred way to execute an update query (i.e. INSERT/DELETE/UPDATE) is
+	 * via the executeUpdate method, because it does not create an open
+	 * statement. If query(String) is called with an update query, this method
+	 * calls executeUpdate automatically and returns null. This is an extension
+	 * of corresponding query method in Fabian's Database class with a number of
+	 * Timestamp parameters.
+	 */	
+	public ResultSet query(CharSequence sql, Timestamp... param) throws SQLException {
 		return (query(sql, resultSetType, resultSetConcurrency, param));
 	}
 
@@ -964,6 +983,35 @@ public abstract class Database {
 			int n = param.length;
 			for (int i = 1; i <= n; i++)
 				ps.setInt(i, param[i - 1]);
+			return ps.executeQuery();
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+	
+	/**
+	 * Returns the results for a query as a ResultSet with given type and
+	 * concurrency.This is an extension of a corresponding query method in
+	 * Fabian's Database class with a number of timestamp parameters
+	 */
+	public ResultSet query(CharSequence sqlcs, int resultSetType,
+			int resultSetConcurrency, Timestamp... param) throws SQLException {
+		String sql = prepareQuery(sqlcs.toString());
+		if (sql.toUpperCase().startsWith("INSERT")
+				|| sql.toUpperCase().startsWith("UPDATE")
+				|| sql.toUpperCase().startsWith("DELETE")
+				|| sql.toUpperCase().startsWith("CREATE")
+				|| sql.toUpperCase().startsWith("DROP")
+				|| sql.toUpperCase().startsWith("ALTER")) {
+			executeUpdate(sql);
+			return (null);
+		}
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql,
+					resultSetType, resultSetConcurrency);
+			int n = param.length;
+			for (int i = 1; i <= n; i++)
+				ps.setTimestamp(i, param[i - 1]);
 			return ps.executeQuery();
 		} catch (SQLException e) {
 			throw e;
