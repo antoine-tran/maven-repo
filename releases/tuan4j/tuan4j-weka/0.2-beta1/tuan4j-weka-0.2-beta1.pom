@@ -6,7 +6,7 @@
   <artifactId>tuan4j-weka</artifactId>
   <name>Tuan4J Weka Adapter</name>
   <description>An adapter of data structures between Tuan4J and Weka 3.7.x</description>
-  <version>0.1</version>
+  <version>0.2-beta1</version>
   <packaging>jar</packaging>
   <licenses>
 	<license>
@@ -55,8 +55,8 @@
   <dependencies>
     <dependency>
       <groupId>nz.ac.waikato.cms.weka</groupId>
-      <artifactId>weka-stable</artifactId>
-      <version>3.6.9</version>
+      <artifactId>weka-dev</artifactId>
+      <version>3.7.9</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
