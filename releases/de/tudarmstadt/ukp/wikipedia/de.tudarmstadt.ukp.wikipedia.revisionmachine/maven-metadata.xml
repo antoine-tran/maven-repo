@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
+  <artifactId>de.tudarmstadt.ukp.wikipedia.revisionmachine</artifactId>
+  <versioning>
+    <versions>
+      <version>0.10.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20130604222351</lastUpdated>
+  </versioning>
+</metadata>
