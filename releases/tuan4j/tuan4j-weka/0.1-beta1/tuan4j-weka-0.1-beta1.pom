@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tuan4j</groupId>
+  <artifactId>tuan4j-weka</artifactId>
+  <name>Tuan4J Weka Adapter</name>
+  <description>An adapter of data structures between Tuan4J and Weka 3.7.x</description>
+  <version>0.1-beta1</version>
+  <packaging>jar</packaging>
+  <licenses>
+	<license>
+	  <name>GPL General Public Licene, version 3.0</name>
+	  <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+	  <distribution>repo</distribution>
+	</license>
+  </licenses>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <developers>	
+    <developer>
+      <id>antoine-tran</id>
+      <name>Tuan Tran</name>
+      <email>ttran@l3s.de</email>
+    </developer>
+  </developers>    
+
+  <build>
+    <plugins>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.3.2</version>
+		<configuration>
+		  <source>1.6</source>
+	 	  <target>1.6</target>
+		  <downloadSources>true</downloadSources>
+		  <downloadJavadocs>true</downloadJavadocs>
+		</configuration>
+	  </plugin>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-install-plugin</artifactId>
+		<version>2.3.1</version>
+	  </plugin>
+	</plugins>
+    <sourceDirectory>src/main/java</sourceDirectory>
+	<testSourceDirectory>src/test/java</testSourceDirectory>
+	<testOutputDirectory>bin/test-classes</testOutputDirectory>
+	<finalName>${articfactId}-${project.version}</finalName>
+	<outputDirectory>bin/classes</outputDirectory>
+  </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>nz.ac.waikato.cms.weka</groupId>
+      <artifactId>weka-dev</artifactId>
+      <version>3.7.9</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+	  <groupId>tuan4j</groupId>
+	  <artifactId>tuan4j-core</artifactId>
+	  <version>0.2-beta1</version>
+	</dependency>
+  </dependencies>
+  
+  
+  <repositories>
+     <repository>
+       <id>antoine-tran-github-releases</id>
+       <name>Tuan Tran's Personal Repository for Maven</name>
+       <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+     </repository>
+  </repositories>
+</project>
