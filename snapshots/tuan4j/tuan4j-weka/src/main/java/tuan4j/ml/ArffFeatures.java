@@ -7,6 +7,10 @@ import weka.core.SparseInstance;
 /** A data structure that adapts between Tuan4j's Features and Weka's Instance interfaces */
 public class ArffFeatures extends SparseInstance implements Features {
 
+	public ArffFeatures(int numAttrs) {
+		super(numAttrs);
+	}
+	
 	/** the "internal" dimension size (i.e. the number of present features) */
 	public int size() {
 		return numValues();
