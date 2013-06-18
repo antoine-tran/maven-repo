@@ -2,10 +2,11 @@ package tuan4j.ml.weka;
 
 import tuan.ml.Features;
 import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.SparseInstance;
 
 /** A data structure that adapts between Tuan4j's Features and Weka's Instance interfaces */
-public class ArffFeatures extends SparseInstance implements Features {
+public class ArffFeatures extends Instance implements Features {
 
 	public ArffFeatures(int numAttrs) {
 		super(numAttrs);
