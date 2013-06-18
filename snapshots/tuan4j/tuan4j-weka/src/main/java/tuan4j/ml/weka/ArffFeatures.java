@@ -1,4 +1,4 @@
-package tuan4j.ml;
+package tuan4j.ml.weka;
 
 import tuan.ml.Features;
 import weka.core.Attribute;
@@ -60,6 +60,28 @@ public class ArffFeatures extends SparseInstance implements Features {
 		else {
 			insertAttributeAt(dim);
 			setValue(dim, value);
+		}
+	}
+	
+	/** update the feature nominal value at a specific dim. The index here is the 
+	 * global index, not the local one */
+	public void update(int dim, Object value) {
+		setValue(dim, value.toString());
+	}
+		
+	/** update a nominal feature at a dimension and update the local index at the same time.
+	 * Note that not all implementations support this operation */
+	public void add(int dim, Object value) throws UnsupportedOperationException {
+		
+		// override the existing value
+		if (!isMissing(dim)) {
+			update(dim, value.toString());
+		} 
+		
+		// add exactly one slot for the new feature value
+		else {
+			insertAttributeAt(dim);
+			setValue(dim, value.toString());
 		}
 	}
 }

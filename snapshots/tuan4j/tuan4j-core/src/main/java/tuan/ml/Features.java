@@ -36,6 +36,14 @@ public interface Features {
 	/** update a feature at a dimension and update the local index at the same time.
 	 * Note that not all implementations support this operation */
 	public void add(int dim, double value) throws UnsupportedOperationException;
+	
+	/** update the feature nominal value at a specific dim. The index here is the 
+	 * global index, not the local one */
+	public void update(int dim, Object value);
+		
+	/** update a nominal feature at a dimension and update the local index at the same time.
+	 * Note that not all implementations support this operation */
+	public void add(int dim, Object value) throws UnsupportedOperationException;
 		
 	@Override
 	public int hashCode();

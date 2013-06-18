@@ -14,6 +14,10 @@ public interface RandomAccessFeatures extends Features {
 	public Object featureAtDimension(int dimension) throws UnsupportedOperationException;
 	
 	/** update the feature value at a specific index. The index here is the 
-	 * local index, not the local one */
+	 * local index, not the global one */
 	public void updateLocalFeature(int index, double value);
+	
+	/** update the feature nominal value at a specific index. The index here is the 
+	 * local index, not the global one */
+	public void updateLocalFeature(int index, Object value);
 }

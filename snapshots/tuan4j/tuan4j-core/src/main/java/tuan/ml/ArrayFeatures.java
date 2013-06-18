@@ -237,6 +237,28 @@ public class ArrayFeatures implements RandomAccessFeatures {
 		}
 	}
 	
+
+	@Override
+	// TODO: ArrayFeatures does not support nominal features, so we simply take it around.
+	// This might a specs hole
+	public void update(int dim, Object value) {
+		update(dim, value.hashCode());
+	}
+
+	@Override
+	// TODO: ArrayFeatures does not support nominal features, so we simply take it around.
+	// This might a specs hole	
+	public void add(int dim, Object value) throws UnsupportedOperationException {
+		add(dim, value.hashCode());
+	}
+
+	@Override
+	// TODO: ArrayFeatures does not support nominal features, so we simply take it around.
+	// This might a specs hole
+	public void updateLocalFeature(int index, Object value) {
+		updateLocalFeature(dim, value.hashCode());		
+	}
+	
 	// A pay-as-you-go method that silently re-sort the local index and 
 	// feature arrays the first time one access method is called
 	private void sort() {
