@@ -1,5 +1,6 @@
 package basics;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import javatools.parsers.Char;
