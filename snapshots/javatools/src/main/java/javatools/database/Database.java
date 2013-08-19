@@ -1881,8 +1881,11 @@ public abstract class Database {
 						preparedStatement.setBlob(i + 1, bis, buf.length);
 					}
 
-					else
+					else if (values.get(i) != null)
 						preparedStatement.setObject(i + 1, values.get(i),
+								columnTypes[i].getTypeCode());
+					else
+						preparedStatement.setNull(i + 1,
 								columnTypes[i].getTypeCode());
 				}
 				preparedStatement.addBatch();
