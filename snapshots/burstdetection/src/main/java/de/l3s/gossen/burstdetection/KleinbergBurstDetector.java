@@ -278,7 +278,7 @@ public class KleinbergBurstDetector extends GenericBurstDetector {
 
 		/*
 		 * Change it to the same. Based on the paper. It didn't make sense to
-		 * have first level ratio different from other level. This sound
+		 * have first level ratio different from other level. This sounds
 		 * cheating.
 		 */
 		for (int j = levels - 2; j >= 0; j--) {

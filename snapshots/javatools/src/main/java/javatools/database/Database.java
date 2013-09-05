@@ -479,6 +479,27 @@ public abstract class Database {
 	}
 
 	/**
+	 * This is an double-primitive version of queryValue with parameters. It
+	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
+	 * result set doesn't have data
+	 * 
+	 */
+	public double queryDoubleValue(CharSequence sql, int... param)
+			throws SQLException {
+		ResultSet rs = query(sql, param);
+		if (rs.next()) {
+			double i = rs.getDouble(1);
+			close(rs.getStatement());
+			close(rs);
+			// close();
+			return i;
+		} else {
+			close(rs);
+			return Integer.MAX_VALUE;
+		}
+	}
+	
+	/**
 	 * This is an double-primitive version of queryValue with parameter. It
 	 * returns the value of a resultset if it has data, Integer.MAX_VALUE if the
 	 * result set doesn't have data
