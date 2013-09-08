@@ -3,18 +3,17 @@ package tuan.collections;
 import java.io.Serializable;
 
 /** An entry of key-value pair */
-@SuppressWarnings("serial")
-public class DoubleObjectPair<T extends Serializable> implements Serializable {
+public class DoubleObjectPair<T> {
 	
-	private int key;
+	private double key;
 	private T val;
 	
-	public DoubleObjectPair(int key, T value) {
+	public DoubleObjectPair(double key, T value) {
 		this.key = key;
 		this.val = value;
 	}
 	
-	public int first() {
+	public double first() {
 		return key;
 	}
 
@@ -22,7 +21,7 @@ public class DoubleObjectPair<T extends Serializable> implements Serializable {
 		return val;
 	}
 	
-	public void setFirst(int key) {
+	public void setFirst(double key) {
 		this.key = key;
 	}
 	
@@ -48,6 +47,6 @@ public class DoubleObjectPair<T extends Serializable> implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		return (val == null) ? key : key * 31 + val.hashCode();
+		return (val == null) ? (int)key : (int)key * 31 + val.hashCode();
 	}
 }
