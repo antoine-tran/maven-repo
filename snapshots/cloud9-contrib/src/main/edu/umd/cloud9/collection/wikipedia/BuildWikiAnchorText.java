@@ -426,7 +426,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 		Option tmpOutput = OptionBuilder.withArgName("tmp-output").hasArg()
 				.withDescription("Temporary output directory (required)")
-				.create(PHASE);
+				.create(TMP_OUTPUT_OPTION);
 
 		opts.addOption(langOpt);
 		opts.addOption(inputOpt);
