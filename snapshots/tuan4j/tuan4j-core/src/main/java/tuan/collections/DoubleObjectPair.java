@@ -1,7 +1,5 @@
 package tuan.collections;
 
-import java.io.Serializable;
-
 /** An entry of key-value pair */
 public class DoubleObjectPair<T> {
 	
