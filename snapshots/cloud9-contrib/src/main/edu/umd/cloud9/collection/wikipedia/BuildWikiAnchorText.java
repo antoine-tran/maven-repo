@@ -39,11 +39,13 @@ import edu.umd.cloud9.mapreduce.StructureMessageResolver;
 
 /**
  * A Hadoop job that extracts anchor text from Wikipedia dump
+ * 
  * @author tuan
  */
 public class BuildWikiAnchorText extends JobConfig implements Tool {
 
-	private static final Logger log = LoggerFactory.getLogger(BuildWikiAnchorText.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(BuildWikiAnchorText.class);
 
 	private static final String LANG_OPTION = "lang";
 	private static final String INPUT_OPTION = "input";
@@ -52,79 +54,88 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 	private static final String PHASE = "phase";
 	private static final String TMP_OUTPUT_OPTION = "tmp-output";
 
-	/** Map phase 1: Parse one single Wikipedia page and emits, for each outgoing 
-	 * links in the text, a (destinationLink, anchor) pair */
+	/**
+	 * Map phase 1: Parse one single Wikipedia page and emits, for each outgoing
+	 * links in the text, a (destinationLink, anchor) pair
+	 */
 	private static final class EmitAnchorMapper extends
 			Mapper<LongWritable, WikipediaPage, Text, PairOfStringInt> {
 
 		private Text outKey = new Text();
 		private PairOfStringInt outVal = new PairOfStringInt();
 		private Object2IntOpenHashMap<PairOfStrings> map = new Object2IntOpenHashMap<PairOfStrings>();
-		
+
 		@Override
-		protected void setup(Context context)
-				throws IOException, InterruptedException {
+		protected void setup(Context context) throws IOException,
+				InterruptedException {
 			super.setup(context);
 			map.clear();
 		}
 
-
 		@Override
-		protected void map(LongWritable key, WikipediaPage p,
-				Context context) throws IOException, InterruptedException {
-			
+		protected void map(LongWritable key, WikipediaPage p, Context context)
+				throws IOException, InterruptedException {
+
 			log.debug("Processing page: " + p.getDocid());
-			
+
 			// only articles are emitted
 			boolean redirected = false;
 			if (p.isRedirect()) {
 				redirected = true;
-			} else if (!p.isArticle()) return;		
+			} else if (!p.isArticle())
+				return;
 			String title = p.getTitle().trim();
 
 			// to make the title case-sensitive, we will change all lower-cased
 			// first characters to upper-case.
-			if (title.isEmpty()) return;
+			if (title.isEmpty())
+				return;
 			title = WordUtils.capitalize(title);
-			
+
 			// do not pass the structure message of a redirect article
 			if (!redirected) {
 				outKey.set(title);
 				int id = Integer.parseInt(p.getDocid());
 				outVal.set(title, id);
-				context.write(outKey, outVal);	
-			}			
+				context.write(outKey, outVal);
+			}
 
 			for (PairOfStrings t : extractAnchoredLinks(p)) {
 				String link = t.getLeftElement().trim();
-				if (link.isEmpty()) continue;
+				if (link.isEmpty())
+					continue;
 				link = WordUtils.capitalize(link);
-				if (title.equals(link)) continue;
+				if (title.equals(link))
+					continue;
 				if (redirected) {
 					outKey.set(title);
 					outVal.set(link, -1);
-					context.write(outKey, outVal);	
+					context.write(outKey, outVal);
 					return;
-				} else map.addTo(t, 1);
+				} else
+					map.addTo(t, 1);
 			}
-			PairOfStrings[] keys = map.keySet().toArray((new PairOfStrings[map.size()]));
+			PairOfStrings[] keys = map.keySet().toArray(
+					(new PairOfStrings[map.size()]));
 
 			for (PairOfStrings k : keys) {
-				if (k.getLeftElement().isEmpty()) continue;				
+				if (k.getLeftElement().isEmpty())
+					continue;
 				outKey.set(k.getLeftElement());
 				int cnt = map.get(k);
 				outVal.set(k.getRightElement(), cnt);
-				context.write(outKey, outVal);	
-			}	
-		}		
+				context.write(outKey, outVal);
+			}
+		}
 	}
-		
+
 	/** Reduce phase 1: Resolve the redirect links */
-	private static final class RedirectResolveReducer extends 
+	private static final class RedirectResolveReducer
+			extends
 			StructureMessageResolver<Text, PairOfStringInt, Text, PairOfStringInt> {
 
 		private List<PairOfStringInt> cache = new ArrayList<PairOfStringInt>();
-		
+
 		@Override
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
@@ -136,10 +147,12 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		// Update the outkey on-the-fly
 		public boolean checkStructureMessage(Text key,
 				Text keySingletonToUpdate, PairOfStringInt msg) {
-			int v = msg.getValue();	
+			int v = msg.getValue();
 			boolean redirected = (v == -1);
-			if (redirected) keySingletonToUpdate.set(msg.getKey());
-			else keySingletonToUpdate.set(key);
+			if (redirected)
+				keySingletonToUpdate.set(msg.getKey());
+			else
+				keySingletonToUpdate.set(key);
 			return redirected;
 		}
 
@@ -159,27 +172,36 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		}
 
 		@Override
-		public void emit(Context context, Text key, PairOfStringInt structureMsg, 
-				PairOfStringInt msg, Text keySingleton, PairOfStringInt valueSingleton) 
+		public void emit(Context context, Text key,
+				PairOfStringInt structureMsg, PairOfStringInt msg,
+				Text keySingleton, PairOfStringInt valueSingleton)
 				throws IOException, InterruptedException {
-			
-			// There might be still redirect pages that emit their pageIds. Ignore those
-			if ((key.toString().equals(msg.getKey()))) return;
-			
-			// no need to update the out key - we did it in checkStructureMessage() already
-			else context.write(keySingleton, msg);
+
+			// There might be still redirect pages that emit their pageIds.
+			// Ignore those
+			if ((key.toString().equals(msg.getKey())))
+				return;
+
+			// no need to update the out key - we did it in
+			// checkStructureMessage() already
+			else
+				context.write(keySingleton, msg);
 		}
 
 		@Override
-		// The destination page is not a redirect. Emit everything to the phase 2
-		public void flushNoHit(Context context, Text key, Text keySingleton, 
-				PairOfStringInt valueSingleton)	throws IOException, InterruptedException {
+		// The destination page is not a redirect. Emit everything to the phase
+		// 2
+		public void flushNoHit(Context context, Text key, Text keySingleton,
+				PairOfStringInt valueSingleton) throws IOException,
+				InterruptedException {
 			if (cache != null && !cache.isEmpty()) {
-				for (PairOfStringInt v : cache) context.write(keySingleton, v);
-			} else log.debug("No structure message found: " + key.toString() + ", and " +
-					"no values emitted either.");
+				for (PairOfStringInt v : cache)
+					context.write(keySingleton, v);
+			} else
+				log.debug("No structure message found: " + key.toString()
+						+ ", and " + "no values emitted either.");
 		}
-		
+
 		@Override
 		public Iterable<PairOfStringInt> tempValuesCache() {
 			return cache;
@@ -190,28 +212,30 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			cache.add(clone(value));
 		}
 	}
-	
-	private static final class PageIdResolveReducer 
-			extends StructureMessageResolver<Text, PairOfStringInt, Text, Text> {
+
+	private static final class PageIdResolveReducer extends
+			StructureMessageResolver<Text, PairOfStringInt, Text, Text> {
 
 		private Object2IntOpenHashMap<String> cache = new Object2IntOpenHashMap<String>();
-		
+
 		@Override
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
 			super.setup(context);
 			cache.clear();
 		}
-		
+
 		@Override
 		// Update the output key on-the-fly
 		public boolean checkStructureMessage(Text key,
 				Text keySingletonToUpdate, PairOfStringInt msg) {
 			String dest = key.toString();
-			String source = msg.getKey(); 
+			String source = msg.getKey();
 			boolean redirected = (dest.equals(source));
-			if (redirected) keySingletonToUpdate.set(String.valueOf(msg.getValue()));
-			else keySingletonToUpdate.set(key);
+			if (redirected)
+				keySingletonToUpdate.set(String.valueOf(msg.getValue()));
+			else
+				keySingletonToUpdate.set(key);
 			return redirected;
 		}
 
@@ -221,7 +245,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		}
 
 		@Override
-		public Text newOutputValue() {			
+		public Text newOutputValue() {
 			return new Text();
 		}
 
@@ -231,16 +255,17 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		}
 
 		@Override
-		public void emit(Context context, Text key, PairOfStringInt structureMsg,
-				PairOfStringInt msg, Text keySingleton, Text valueSingleton) 
-				throws IOException, InterruptedException {
+		public void emit(Context context, Text key,
+				PairOfStringInt structureMsg, PairOfStringInt msg,
+				Text keySingleton, Text valueSingleton) throws IOException,
+				InterruptedException {
 			valueSingleton.set(msg.getKey() + "\t" + msg.getValue());
 			context.write(keySingleton, valueSingleton);
 		}
 
 		@Override
 		// We lost the structure message of this page. Report it !
-		public void flushNoHit(Context context, Text key, Text keySingleton, 
+		public void flushNoHit(Context context, Text key, Text keySingleton,
 				Text valueSingleton) throws IOException, InterruptedException {
 			log.info("No structure message found for : " + key.toString());
 		}
@@ -253,7 +278,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		@Override
 		public Iterable<PairOfStringInt> tempValuesCache() {
 			return new Iterable<PairOfStringInt>() {
-				
+
 				@Override
 				public Iterator<PairOfStringInt> iterator() {
 					return new Iterator<PairOfStringInt>() {
@@ -273,38 +298,41 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 						@Override
 						// Optional, no need to implement
-						public void remove() {}
+						public void remove() {
+						}
 					};
 				}
 			};
 		}
-	} 
-	
-	private String phase1(String inputPath, int reduceNo, String lang, String tmpOut) throws 
-	IOException, InterruptedException, ClassNotFoundException {
+	}
+
+	private String phase1(String inputPath, int reduceNo, String lang,
+			String tmpOut) throws IOException, InterruptedException,
+			ClassNotFoundException {
 
 		String output = tmpOut + "/wiki-anchor/phase1";
 
-		if (!"en".equals(lang)) 
-			throw new InterruptedException("Wikipedia dump with language " +
-				lang + " is not supported ");
+		if (!"en".equals(lang))
+			throw new InterruptedException("Wikipedia dump with language "
+					+ lang + " is not supported ");
 
-		Job job = setup("Build Wikipedia Anchor text graph. Phase 1", 
-				BuildWikiAnchorText.class, inputPath, output, 
+		Job job = setup("Build Wikipedia Anchor text graph. Phase 1",
+				BuildWikiAnchorText.class, inputPath, output,
 				WikipediaPageInputFormat.class, SequenceFileOutputFormat.class,
-				Text.class, PairOfStringInt.class, Text.class, PairOfStringInt.class,
-				EmitAnchorMapper.class, RedirectResolveReducer.class, reduceNo);
+				Text.class, PairOfStringInt.class, Text.class,
+				PairOfStringInt.class, EmitAnchorMapper.class,
+				RedirectResolveReducer.class, reduceNo);
 		job.getConfiguration().set("mapred.map.child.java.opts", "-Xmx9192M");
 		job.setCombinerClass(Reducer.class);
 		job.waitForCompletion(true);
 		return output;
 	}
 
-	private String phase2(String inputPath, String output, int reduceNo) throws 
-	IOException, InterruptedException, ClassNotFoundException {
+	private String phase2(String inputPath, String output, int reduceNo)
+			throws IOException, InterruptedException, ClassNotFoundException {
 
-		Job job = setup("Build Wikipedia Anchor text graph. Phase 1", 
-				BuildWikiAnchorText.class, inputPath, output, 
+		Job job = setup("Build Wikipedia Anchor text graph. Phase 2",
+				BuildWikiAnchorText.class, inputPath, output,
 				SequenceFileInputFormat.class, TextOutputFormat.class,
 				Text.class, PairOfStringInt.class, Text.class, Text.class,
 				Mapper.class, PageIdResolveReducer.class, reduceNo);
@@ -313,8 +341,9 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		job.waitForCompletion(true);
 		return output;
 	}
-	
-	private static List<PairOfStrings> extractAnchoredLinks(WikipediaPage wikiPage) {
+
+	private static List<PairOfStrings> extractAnchoredLinks(
+			WikipediaPage wikiPage) {
 		String page = wikiPage.getRawXML();
 		int start = 0;
 		List<PairOfStrings> links = new ArrayList<PairOfStrings>();
@@ -353,16 +382,17 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			}
 
 			if ((a = title.indexOf("#")) != -1) {
-				title = title.substring(0, a);	        
+				title = title.substring(0, a);
 			}
 
 			// ignore article-internal links, e.g., [[#section|here]]
-			if (title.length() == 0 ) {
+			if (title.length() == 0) {
 				start = end + 1;
 				continue;
 			}
-			title = title.trim();	      
-			if (anchor == null) anchor = title;
+			title = title.trim();
+			if (anchor == null)
+				anchor = title;
 			links.add(Pair.of(title, anchor));
 
 			start = end + 1;
@@ -370,34 +400,32 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 		return links;
 	}
-	
+
 	@SuppressWarnings("static-access")
 	@Override
 	public int run(String[] args) throws Exception {
 		Options opts = new Options();
 
-		Option langOpt = OptionBuilder.withArgName("lang")
-				.hasArg().withDescription("language of the Wikipedia dump file")
+		Option langOpt = OptionBuilder.withArgName("lang").hasArg()
+				.withDescription("language of the Wikipedia dump file")
 				.create(LANG_OPTION);
-		
-		Option inputOpt = OptionBuilder.withArgName("input-path")
-				.hasArg().withDescription("XML dump file path (required)")
+
+		Option inputOpt = OptionBuilder.withArgName("input-path").hasArg()
+				.withDescription("XML dump file path (required)")
 				.create(INPUT_OPTION);
-		
-		Option outputOpt = OptionBuilder.withArgName("output-path")
-				.hasArg().withDescription("XML dump file path (required)")
+
+		Option outputOpt = OptionBuilder.withArgName("output-path").hasArg()
+				.withDescription("output file path (required)")
 				.create(OUTPUT_OPTION);
 
-		Option reduceOpt = OptionBuilder.withArgName("reduce-no")
-				.hasArg().withDescription("numer of reducer nodes")
-				.create(REDUCE_NO);
+		Option reduceOpt = OptionBuilder.withArgName("reduce-no").hasArg()
+				.withDescription("number of reducer nodes").create(REDUCE_NO);
 
-		Option phaseOpt = OptionBuilder.withArgName("phase-no")
-				.hasArg().withDescription("numer of reducer nodes")
-				.create(PHASE);
-		
-		Option tmpOutput = OptionBuilder.withArgName("tmp-output")
-				.hasArg().withDescription("Temporary output directory (required)")
+		Option phaseOpt = OptionBuilder.withArgName("phase-no").hasArg()
+				.withDescription("phase 1: Redirect resolve, Phase 2: Page ID resolve").create(PHASE);
+
+		Option tmpOutput = OptionBuilder.withArgName("tmp-output").hasArg()
+				.withDescription("Temporary output directory (required)")
 				.create(PHASE);
 
 		opts.addOption(langOpt);
@@ -410,12 +438,11 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
 		try {
-			cl = parser.parse(opts, args);	
+			cl = parser.parse(opts, args);
 		} catch (ParseException e) {
-			System.err.println("Error parsing command line: " + 
-					e.getMessage());
+			System.err.println("Error parsing command line: " + e.getMessage());
 			return -1;
-		}		
+		}
 		if (!cl.hasOption(INPUT_OPTION)) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp(getClass().getName(), opts);
@@ -437,26 +464,26 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		int reduceNo = 1;
 		if (cl.hasOption(REDUCE_NO)) {
 			try {
-				reduceNo = Integer.parseInt(cl.getOptionValue(REDUCE_NO));	
+				reduceNo = Integer.parseInt(cl.getOptionValue(REDUCE_NO));
 			} catch (NumberFormatException e) {
-				System.err.println("Error parsing reducer number: " + 
-						e.getMessage());
-			}			
+				System.err.println("Error parsing reducer number: "
+						+ e.getMessage());
+			}
 		}
 		int phase = 1;
 		if (cl.hasOption(PHASE)) {
 			try {
-				phase = Integer.parseInt(cl.getOptionValue(PHASE));	
+				phase = Integer.parseInt(cl.getOptionValue(PHASE));
 			} catch (NumberFormatException e) {
-				System.err.println("Error parsing phase number: " + 
-						e.getMessage());			
-			}			
+				System.err.println("Error parsing phase number: "
+						+ e.getMessage());
+			}
 		}
 		String lang = "en";
 		if (cl.hasOption(LANG_OPTION)) {
 			lang = cl.getOptionValue(LANG_OPTION);
 		}
-		
+
 		String input = cl.getOptionValue(INPUT_OPTION);
 		String output = cl.getOptionValue(OUTPUT_OPTION);
 		String tmpOut = cl.getOptionValue(TMP_OUTPUT_OPTION);
@@ -464,11 +491,12 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			phase1(input, reduceNo, lang, tmpOut);
 		} else if (phase == 2) {
 			String out = phase1(input, reduceNo, lang, tmpOut);
-			phase2(out, output, reduceNo);
-		} 
+			String res = phase2(out, output, reduceNo);
+			log.info("Write results to " + res);
+		}
 		return 0;
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			ToolRunner.run(new BuildWikiAnchorText(), args);
