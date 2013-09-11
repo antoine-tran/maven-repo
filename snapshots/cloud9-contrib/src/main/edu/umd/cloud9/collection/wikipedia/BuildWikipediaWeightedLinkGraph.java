@@ -133,7 +133,7 @@ public class BuildWikipediaWeightedLinkGraph extends
 				context.write(newKey, pair);	
 			}			
 
-			for (String t : p.extractLinkDestinations()) {
+			for (String t : extractLinkDestinations(p)) {
 				t = t.trim();
 				if (t.isEmpty()) continue;
 				fc = t.substring(0, 1);
@@ -355,6 +355,60 @@ public class BuildWikipediaWeightedLinkGraph extends
 		}
 	}
 
+	private static List<String> extractLinkDestinations(WikipediaPage wikiPage) {
+		String page = wikiPage.getRawXML();
+		int start = 0;
+		List<String> links = new ArrayList<String>();
+
+		while (true) {
+			start = page.indexOf("[[", start);
+
+			if (start < 0)
+				break;
+
+			int end = page.indexOf("]]", start);
+
+			if (end < 0)
+				break;
+
+			String text = page.substring(start + 2, end);
+
+			// skip empty links
+			if (text.length() == 0) {
+				start = end + 1;
+				continue;
+			}
+
+			// skip special links
+			if (text.indexOf(":") != -1) {
+				start = end + 1;
+				continue;
+			}
+
+			// if there is anchor text, get only article title
+			int a;
+			if ((a = text.indexOf("|")) != -1) {
+				text = text.substring(0, a);
+			}
+
+			if ((a = text.indexOf("#")) != -1) {
+				text = text.substring(0, a);
+			}
+
+			// ignore article-internal links, e.g., [[#section|here]]
+			if (text.length() == 0 ) {
+				start = end + 1;
+				continue;
+			}
+
+			links.add(text.trim());
+
+			start = end + 1;
+		}
+
+		return links;
+	}
+	
 	private String phase1(String inputPath, int reduceNo, String lang) throws 
 	IOException, InterruptedException, ClassNotFoundException {
 
@@ -375,7 +429,7 @@ public class BuildWikipediaWeightedLinkGraph extends
 		FileOutputFormat.setOutputPath(job, new Path(output));
 
 		if ("en".equals(lang)) {
-			job.setInputFormatClass(EnglishWikipediaPageInputFormat.class);
+			job.setInputFormatClass(WikipediaPageInputFormat.class);
 		}
 		else throw new InterruptedException("Wikipedia dump with language " + lang + " is not supported ");
 		

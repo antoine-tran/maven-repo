@@ -22,7 +22,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -31,9 +30,11 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tuan.hadoop.conf.JobConfig;
+
+import edu.umd.cloud9.io.pair.Pair;
 import edu.umd.cloud9.io.pair.PairOfStringInt;
 import edu.umd.cloud9.io.pair.PairOfStrings;
-import edu.umd.cloud9.mapreduce.JobConfig;
 import edu.umd.cloud9.mapreduce.StructureMessageResolver;
 
 /**
@@ -93,7 +94,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 				context.write(outKey, outVal);	
 			}			
 
-			for (PairOfStrings t : p.extractAnchoredLinks()) {
+			for (PairOfStrings t : extractAnchoredLinks(p)) {
 				String link = t.getLeftElement().trim();
 				if (link.isEmpty()) continue;
 				link = WordUtils.capitalize(link);
@@ -289,7 +290,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 		Job job = setup("Build Wikipedia Anchor text graph. Phase 1", 
 				BuildWikiAnchorText.class, inputPath, output, 
-				EnglishWikipediaPageInputFormat.class, SequenceFileOutputFormat.class,
+				WikipediaPageInputFormat.class, SequenceFileOutputFormat.class,
 				Text.class, PairOfStringInt.class, Text.class, PairOfStringInt.class,
 				EmitAnchorMapper.class, RedirectResolveReducer.class, reduceNo);
 		job.getConfiguration().set("mapred.map.child.java.opts", "-Xmx9192M");
@@ -310,6 +311,63 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		job.setCombinerClass(Reducer.class);
 		job.waitForCompletion(true);
 		return output;
+	}
+	
+	private static List<PairOfStrings> extractAnchoredLinks(WikipediaPage wikiPage) {
+		String page = wikiPage.getRawXML();
+		int start = 0;
+		List<PairOfStrings> links = new ArrayList<PairOfStrings>();
+
+		while (true) {
+			start = page.indexOf("[[", start);
+
+			if (start < 0)
+				break;
+
+			int end = page.indexOf("]]", start);
+
+			if (end < 0)
+				break;
+
+			String text = page.substring(start + 2, end);
+			String anchor = null, title = text;
+
+			// skip empty links
+			if (text.length() == 0) {
+				start = end + 1;
+				continue;
+			}
+
+			// skip special links
+			if (text.indexOf(":") != -1) {
+				start = end + 1;
+				continue;
+			}
+
+			// get anchor text
+			int a;
+			if ((a = text.indexOf("|")) != -1) {
+				title = text.substring(0, a);
+				anchor = text.substring(a + 1);
+			}
+
+			if ((a = title.indexOf("#")) != -1) {
+				title = title.substring(0, a);	        
+			}
+
+			// ignore article-internal links, e.g., [[#section|here]]
+			if (title.length() == 0 ) {
+				start = end + 1;
+				continue;
+			}
+			title = title.trim();	      
+			if (anchor == null) anchor = title;
+			links.add(Pair.of(title, anchor));
+
+			start = end + 1;
+		}
+
+		return links;
 	}
 	
 	@SuppressWarnings("static-access")
