@@ -52,7 +52,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 	private static final String OUTPUT_OPTION = "output";
 	private static final String REDUCE_NO = "reduce";
 	private static final String PHASE = "phase";
-	private static final String TMP_OUTPUT_OPTION = "tmp-output";
+	private static final String TMP_OUTPUT_OPTION = "tmpoutput";
 
 	/**
 	 * Map phase 1: Parse one single Wikipedia page and emits, for each outgoing
