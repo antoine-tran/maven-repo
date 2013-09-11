@@ -50,6 +50,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 	private static final String OUTPUT_OPTION = "output";
 	private static final String REDUCE_NO = "reduce";
 	private static final String PHASE = "phase";
+	private static final String TMP_OUTPUT_OPTION = "tmp-output";
 
 	/** Map phase 1: Parse one single Wikipedia page and emits, for each outgoing 
 	 * links in the text, a (destinationLink, anchor) pair */
@@ -279,10 +280,10 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		}
 	} 
 	
-	private String phase1(String inputPath, int reduceNo, String lang) throws 
+	private String phase1(String inputPath, int reduceNo, String lang, String tmpOut) throws 
 	IOException, InterruptedException, ClassNotFoundException {
 
-		String output = "tmp/wiki-anchor/phase1";
+		String output = tmpOut + "/wiki-anchor/phase1";
 
 		if (!"en".equals(lang)) 
 			throw new InterruptedException("Wikipedia dump with language " +
@@ -380,11 +381,11 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 				.create(LANG_OPTION);
 		
 		Option inputOpt = OptionBuilder.withArgName("input-path")
-				.hasArg().withDescription("XML dump file path")
+				.hasArg().withDescription("XML dump file path (required)")
 				.create(INPUT_OPTION);
 		
 		Option outputOpt = OptionBuilder.withArgName("output-path")
-				.hasArg().withDescription("XML dump file path")
+				.hasArg().withDescription("XML dump file path (required)")
 				.create(OUTPUT_OPTION);
 
 		Option reduceOpt = OptionBuilder.withArgName("reduce-no")
@@ -394,12 +395,17 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		Option phaseOpt = OptionBuilder.withArgName("phase-no")
 				.hasArg().withDescription("numer of reducer nodes")
 				.create(PHASE);
+		
+		Option tmpOutput = OptionBuilder.withArgName("tmp-output")
+				.hasArg().withDescription("Temporary output directory (required)")
+				.create(PHASE);
 
 		opts.addOption(langOpt);
 		opts.addOption(inputOpt);
 		opts.addOption(reduceOpt);
 		opts.addOption(phaseOpt);
 		opts.addOption(outputOpt);
+		opts.addOption(tmpOutput);
 
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
@@ -411,6 +417,12 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			return -1;
 		}		
 		if (!cl.hasOption(INPUT_OPTION)) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp(getClass().getName(), opts);
+			ToolRunner.printGenericCommandUsage(System.out);
+			return -1;
+		}
+		if (!cl.hasOption(OUTPUT_OPTION)) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp(getClass().getName(), opts);
 			ToolRunner.printGenericCommandUsage(System.out);
@@ -447,10 +459,11 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		
 		String input = cl.getOptionValue(INPUT_OPTION);
 		String output = cl.getOptionValue(OUTPUT_OPTION);
+		String tmpOut = cl.getOptionValue(TMP_OUTPUT_OPTION);
 		if (phase == 1) {
-			phase1(input, reduceNo, lang);
+			phase1(input, reduceNo, lang, tmpOut);
 		} else if (phase == 2) {
-			String out = phase1(input, reduceNo, lang);
+			String out = phase1(input, reduceNo, lang, tmpOut);
 			phase2(out, output, reduceNo);
 		} 
 		return 0;
