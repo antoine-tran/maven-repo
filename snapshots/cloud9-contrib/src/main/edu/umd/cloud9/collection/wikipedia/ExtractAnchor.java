@@ -101,6 +101,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 				if (actualTitle != null) {
 					outKey.set(actualTitle);
 					outVal.set(title, 1);
+					log.debug("Found redirect: " + title + " --> " + actualTitle);
 					context.write(outKey, outVal);
 				}
 			}
@@ -125,6 +126,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		public void setupTask(Text key, Iterable<PairOfStringInt> values, Context context) {
 			cache.clear();
 			keyOut.set(key.toString());
+			valOut.set(0);
 		}
 		
 		@Override
