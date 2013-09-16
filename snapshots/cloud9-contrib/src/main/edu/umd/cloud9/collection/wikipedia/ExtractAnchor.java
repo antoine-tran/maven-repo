@@ -228,8 +228,9 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		job.waitForCompletion(true);		
 	}
 	
-	private void phase2(String wikiMap, String wikiFile, String outputPath, int reduceNo) throws IOException, InterruptedException, ClassNotFoundException {
+	private void phase2(String wikiMap, String wikiFile, String output, int reduceNo) throws IOException, InterruptedException, ClassNotFoundException {
 		String wikiMapPath = TMP_HDFS_DIR + wikiMap;
+		String outputPath = TMP_HDFS_DIR + output;
 		
 		Job job = setup("Build Wikipedia Anchor Text Graph. Phase 2: Extracting anchors",
 				ExtractAnchor.class, 
