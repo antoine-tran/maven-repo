@@ -2,9 +2,7 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,18 +22,16 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.reduce.IntSumReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage.Link;
-import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfStringInt;
-import edu.umd.cloud9.io.pair.PairOfStrings;
 import edu.umd.cloud9.mapreduce.StructureMessageResolver;
 
 import tuan.hadoop.conf.JobConfig;
@@ -57,6 +53,9 @@ public class ExtractAnchor extends JobConfig implements Tool {
 	private static final String REDUCE_NO = "reduce";
 	private static final String PHASE = "phase";
 	private static final String TITLE_ID_MAP_OPT = "idmap";
+	private static final String TMP_DIR_OPT = "tmpdir";
+	
+	private static String TMP_HDFS_DIR = "/tmp/user/tuan.tran/";
 	
     /** Preprocess: Extract capitalized wiki page titles / id mappings & output
      * to a csv file, format: [capitalized title] TAB [id] */
@@ -208,49 +207,44 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		}
 	}
 	
-	/* private static final class AnchorCombiner extends 
-			Reducer<PairOfStringInt, IntWritable, PairOfStringInt, IntWritable> {
-
-		IntWritable VALUE = new IntWritable();
+	private void phase1(String wikiFile, int reduceNo, String lang, String mapPath) throws IOException, InterruptedException, ClassNotFoundException {
 		
-		@Override
-		protected void reduce(PairOfStringInt k, Iterable<IntWritable> vs, Context context)
-				throws IOException, InterruptedException {
-			int sum = 0;
-			for (IntWritable v : vs) {
-				sum += v.get();
-			}
-			VALUE.set(sum);
-			context.write(k, VALUE);
-		}
-	}
-	
-	private static final class AnchorReducer extends 
-			Reducer<PairOfStringInt, IntWritable, Text, Text> {
-
-		private Text key = new Text();
-		private Text val = new Text();
-		
-		@Override
-		protected void reduce(PairOfStringInt k, Iterable<IntWritable> vs, Context c)
-				throws IOException, InterruptedException {
-			int sum = 0;
-			for (IntWritable v : vs) {
-				sum += v.get();
-			} 
-			key.set(k.getKey() + "\t" + k.getValue());
-			val.set(String.valueOf(sum));
-			c.write(key, val);
-		}
-	}*/
-	
-	private void phase1(String wikiFile, String reduceNo, String lang, String mapPath) {
-		String outputPath = "/tmp/user/tuan.tran/" + mapPath;
+		String outputPath = TMP_HDFS_DIR + mapPath;
 		
 		Job job = setup("Build Wikipedia Anchor Text Graph. Phase 1: Resolving redirects",
-				ExtractAnchor.class, wikiFile, outputPath, WikipediaPageInputFormat.class, 
-				SequenceFileOutputFormat.class, Text.class, PairOfStringInt.class, Text.class,
-				IntWritable.class, TitleIdMapper.class, RedirectResolver.class, reduceNo);
+				ExtractAnchor.class, 
+				wikiFile, outputPath, 
+				WikipediaPageInputFormat.class, 
+				SequenceFileOutputFormat.class, 
+				Text.class, PairOfStringInt.class, 
+				Text.class, IntWritable.class, 
+				TitleIdMapper.class, 
+				RedirectResolver.class, 
+				reduceNo);
+		
+		String ramUsedForEachMapper = job.getConfiguration().get("mapred.map.child.java.opts");		
+		log.info("Memory used per Map task: " + ramUsedForEachMapper);
+		
+		job.waitForCompletion(true);		
+	}
+	
+	private void phase2(String wikiMap, String wikiFile, String outputPath, int reduceNo) throws IOException, InterruptedException, ClassNotFoundException {
+		String wikiMapPath = TMP_HDFS_DIR + wikiMap;
+		
+		Job job = setup("Build Wikipedia Anchor Text Graph. Phase 2: Extracting anchors",
+				ExtractAnchor.class, 
+				wikiFile, outputPath, 
+				WikipediaPageInputFormat.class, 
+				TextOutputFormat.class, 
+				PairOfStringInt.class, IntWritable.class, 
+				PairOfStringInt.class, IntWritable.class, 
+				AnchorMapper.class, 
+				IntSumReducer.class, 
+				reduceNo);
+		job.getConfiguration().set("mapred.map.child.java.opts", "-Xmx5120M");
+		job.getConfiguration().set("wiki.id.cache", wikiMapPath);
+		job.setCombinerClass(IntSumReducer.class);
+		job.waitForCompletion(true);
 	}
 	
 	@SuppressWarnings("static-access")
@@ -269,6 +263,10 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		Option outputOpt = OptionBuilder.withArgName("output-path").hasArg()
 				.withDescription("output file path (required)")
 				.create(OUTPUT_OPT);
+		
+		Option tmpOpt = OptionBuilder.withArgName("tmp-directory").hasArg()
+				.withDescription("temporary directory in HDFS")
+				.create(TMP_DIR_OPT);
 
 		Option reduceOpt = OptionBuilder.withArgName("reduce-no").hasArg()
 				.withDescription("number of reducer nodes").create(REDUCE_NO);
@@ -286,6 +284,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		opts.addOption(phaseOpt);
 		opts.addOption(outputOpt);
 		opts.addOption(phase1Out);
+		opts.addOption(tmpOpt);
 
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
@@ -329,18 +328,22 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		if (cl.hasOption(LANG_OPT)) {
 			lang = cl.getOptionValue(LANG_OPT);
 		}
+		
+		if (cl.hasOption(TMP_DIR_OPT)) {
+			TMP_HDFS_DIR = cl.getOptionValue(TMP_DIR_OPT);
+		}
 
-		/*if (phase == 1) {
-			phase1(input, reduceNo, lang, tmpOut);
+		if (phase == 1) {
+			phase1(input, reduceNo, lang, mapPath);
+			log.info("Map written to " + TMP_HDFS_DIR + mapPath);
+		} else if (phase == 12) {
+			phase1(input, reduceNo, lang, mapPath);
+			phase2(mapPath, input, output, reduceNo);
+			log.info("Write results to " + output);
 		} else if (phase == 2) {
-			String out;
-			if (cl.hasOption(TITLE_ID_MAP_OPT)) {
-				out = cl.getOptionValue(TITLE_ID_MAP_OPT);
-			}
-			else out = phase1(input, reduceNo, lang, tmpOut);
-			String res = phase2(out, output, reduceNo);
-			log.info("Write results to " + res);
-		}*/
+			phase2(mapPath, input, output, reduceNo);
+			log.info("Write results to " + output);
+		}
 		return 0;
 	}
 }
