@@ -139,6 +139,12 @@ public class ExtractAnchor extends JobConfig implements Tool {
 				return true;
 			} else return false;
 		}
+		
+		@Override
+		public PairOfStringInt clone(PairOfStringInt obj) {
+			PairOfStringInt newObj = new PairOfStringInt(obj.getKey(), obj.getValue());
+			return newObj;
+		}
 
 		@Override
 		public void messageAfterHits(Context context, Text key, PairOfStringInt structureMsg,

@@ -163,6 +163,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			return new PairOfStringInt(t.getKey(), t.getValue());
 		}
 
+
 		@Override
 		public void messageAfterHits(Context context, Text key,
 				PairOfStringInt structureMsg, PairOfStringInt msg)
@@ -234,6 +235,10 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			else
 				keyOut.set(key);
 			return redirected;
+		}
+
+		public PairOfStringInt clone(PairOfStringInt t) {
+			return new PairOfStringInt(t.getKey(), t.getValue());
 		}
 
 		@Override
