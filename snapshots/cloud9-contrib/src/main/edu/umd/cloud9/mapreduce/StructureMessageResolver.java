@@ -27,7 +27,7 @@ public abstract class StructureMessageResolver<KEYIN, VALUEIN, KEYOUT, VALUEOUT>
 		VALUEIN smsg = null;
 		
 		for (VALUEIN value : values) {
-			if (checkStructureMessage(key, value, context)) smsg = value;		
+			if (checkStructureMessage(key, value, context)) smsg = clone(value);		
 
 			// items before the structure message in the iterator will
 			// be copied and be emitted later
@@ -60,6 +60,9 @@ public abstract class StructureMessageResolver<KEYIN, VALUEIN, KEYOUT, VALUEOUT>
 	public abstract boolean checkStructureMessage(KEYIN key, VALUEIN msg, Context context) 
 			throws IOException, InterruptedException;
 		
+	/** Clone the value */
+	public abstract VALUEIN clone(VALUEIN obj);
+	
 	/** set up operations before a reduce task */
 	public abstract void setupTask(KEYIN key, Iterable<VALUEIN> values, Context context);
 	
