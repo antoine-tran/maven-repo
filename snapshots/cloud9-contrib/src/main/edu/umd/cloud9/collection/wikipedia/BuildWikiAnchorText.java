@@ -42,18 +42,20 @@ import edu.umd.cloud9.mapreduce.StructureMessageResolver;
  * 
  * @author tuan
  */
+@Deprecated
 public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(BuildWikiAnchorText.class);
 
 	private static final String LANG_OPTION = "lang";
-	private static final String INPUT_OPTION = "input";
-	private static final String OUTPUT_OPTION = "output";
+	private static final String INPUT_OPTION = "in";
+	private static final String OUTPUT_OPTION = "out";
 	private static final String REDUCE_NO = "reduce";
 	private static final String PHASE = "phase";
-	private static final String TMP_OUTPUT_OPTION = "tmpoutput";
-
+	private static final String TMP_OUTPUT_OPTION = "tmpout";
+	private static final String PHASE1_OPTION = "phase1out";
+	
 	/**
 	 * Map phase 1: Parse one single Wikipedia page and emits, for each outgoing
 	 * links in the text, a (destinationLink, anchor) pair
@@ -131,11 +133,13 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 	/** Reduce phase 1: Resolve the redirect links */
 	private static final class RedirectResolveReducer
-			extends
-			StructureMessageResolver<Text, PairOfStringInt, Text, PairOfStringInt> {
+			extends StructureMessageResolver<Text, PairOfStringInt, Text, PairOfStringInt> {
 
 		private List<PairOfStringInt> cache = new ArrayList<PairOfStringInt>();
 
+		private Text keyOut = new Text();
+		private PairOfStringInt valOut = new PairOfStringInt();
+		
 		@Override
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
@@ -145,36 +149,23 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 		@Override
 		// Update the outkey on-the-fly
-		public boolean checkStructureMessage(Text key,
-				Text keySingletonToUpdate, PairOfStringInt msg) {
+		public boolean checkStructureMessage(Text key, PairOfStringInt msg, Context context) {
 			int v = msg.getValue();
 			boolean redirected = (v == -1);
 			if (redirected)
-				keySingletonToUpdate.set(msg.getKey());
+				keyOut.set(msg.getKey());
 			else
-				keySingletonToUpdate.set(key);
+				keyOut.set(key);
 			return redirected;
 		}
 
-		@Override
 		public PairOfStringInt clone(PairOfStringInt t) {
 			return new PairOfStringInt(t.getKey(), t.getValue());
 		}
 
 		@Override
-		public PairOfStringInt newOutputValue() {
-			return new PairOfStringInt();
-		}
-
-		@Override
-		public Text newOutputKey() {
-			return new Text();
-		}
-
-		@Override
-		public void emit(Context context, Text key,
-				PairOfStringInt structureMsg, PairOfStringInt msg,
-				Text keySingleton, PairOfStringInt valueSingleton)
+		public void messageAfterHits(Context context, Text key,
+				PairOfStringInt structureMsg, PairOfStringInt msg)
 				throws IOException, InterruptedException {
 
 			// There might be still redirect pages that emit their pageIds.
@@ -185,20 +176,18 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			// no need to update the out key - we did it in
 			// checkStructureMessage() already
 			else
-				context.write(keySingleton, msg);
+				context.write(keyOut, msg);
 		}
 
 		@Override
 		// The destination page is not a redirect. Emit everything to the phase
 		// 2
-		public void flushNoHit(Context context, Text key, Text keySingleton,
-				PairOfStringInt valueSingleton) throws IOException,
-				InterruptedException {
+		public void flushWithoutHit(Context context) throws IOException, InterruptedException {
 			if (cache != null && !cache.isEmpty()) {
 				for (PairOfStringInt v : cache)
-					context.write(keySingleton, v);
+					context.write(keyOut, v);
 			} else
-				log.debug("No structure message found: " + key.toString()
+				log.debug("No structure message found: " + keyOut.toString()
 						+ ", and " + "no values emitted either.");
 		}
 
@@ -208,8 +197,13 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		}
 
 		@Override
-		public void cacheMessagesBeforeHit(Text key, PairOfStringInt value) {
+		public void messageBeforeHits(Text key, PairOfStringInt value) {
 			cache.add(clone(value));
+		}
+
+		@Override
+		public void setupTask(Text key, Iterable<PairOfStringInt> values, Context context) {
+			cache.clear();
 		}
 	}
 
@@ -217,6 +211,9 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 			StructureMessageResolver<Text, PairOfStringInt, Text, Text> {
 
 		private Object2IntOpenHashMap<String> cache = new Object2IntOpenHashMap<String>();
+		
+		private Text keyOut = new Text();
+		private Text valOut = new Text();
 
 		@Override
 		protected void setup(Context context) throws IOException,
@@ -227,51 +224,34 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 
 		@Override
 		// Update the output key on-the-fly
-		public boolean checkStructureMessage(Text key,
-				Text keySingletonToUpdate, PairOfStringInt msg) {
+		public boolean checkStructureMessage(Text key, PairOfStringInt msg, Context c)
+				throws IOException, InterruptedException {
 			String dest = key.toString();
 			String source = msg.getKey();
 			boolean redirected = (dest.equals(source));
 			if (redirected)
-				keySingletonToUpdate.set(String.valueOf(msg.getValue()));
+				keyOut.set(String.valueOf(msg.getValue()));
 			else
-				keySingletonToUpdate.set(key);
+				keyOut.set(key);
 			return redirected;
 		}
 
 		@Override
-		public PairOfStringInt clone(PairOfStringInt t) {
-			return new PairOfStringInt(t.getKey(), t.getValue());
-		}
-
-		@Override
-		public Text newOutputValue() {
-			return new Text();
-		}
-
-		@Override
-		public Text newOutputKey() {
-			return new Text();
-		}
-
-		@Override
-		public void emit(Context context, Text key,
-				PairOfStringInt structureMsg, PairOfStringInt msg,
-				Text keySingleton, Text valueSingleton) throws IOException,
+		public void messageAfterHits(Context context, Text key,
+				PairOfStringInt structureMsg, PairOfStringInt msg) throws IOException,
 				InterruptedException {
-			valueSingleton.set(msg.getKey() + "\t" + msg.getValue());
-			context.write(keySingleton, valueSingleton);
+			valOut.set(msg.getKey() + "\t" + msg.getValue());
+			context.write(keyOut, valOut);
 		}
 
 		@Override
 		// We lost the structure message of this page. Report it !
-		public void flushNoHit(Context context, Text key, Text keySingleton,
-				Text valueSingleton) throws IOException, InterruptedException {
-			log.info("No structure message found for : " + key.toString());
+		public void flushWithoutHit(Context context) throws IOException, InterruptedException {
+			log.info("No structure message found for : " + keyOut.toString());
 		}
 
 		@Override
-		public void cacheMessagesBeforeHit(Text key, PairOfStringInt value) {
+		public void messageBeforeHits(Text key, PairOfStringInt value) {
 			cache.addTo(value.getKey(), value.getValue());
 		}
 
@@ -303,6 +283,11 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 					};
 				}
 			};
+		}
+
+		@Override
+		public void setupTask(Text key, Iterable<PairOfStringInt> values, Context context) {
+			cache.clear();			
 		}
 	}
 
@@ -427,6 +412,10 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		Option tmpOutput = OptionBuilder.withArgName("tmp-output").hasArg()
 				.withDescription("Temporary output directory (required)")
 				.create(TMP_OUTPUT_OPTION);
+		
+		Option phase1Out = OptionBuilder.withArgName("phase1-out").hasArg()
+				.withDescription("Temporary output directory (required)")
+				.create(PHASE1_OPTION);
 
 		opts.addOption(langOpt);
 		opts.addOption(inputOpt);
@@ -434,6 +423,7 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		opts.addOption(phaseOpt);
 		opts.addOption(outputOpt);
 		opts.addOption(tmpOutput);
+		opts.addOption(phase1Out);
 
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
@@ -490,7 +480,11 @@ public class BuildWikiAnchorText extends JobConfig implements Tool {
 		if (phase == 1) {
 			phase1(input, reduceNo, lang, tmpOut);
 		} else if (phase == 2) {
-			String out = phase1(input, reduceNo, lang, tmpOut);
+			String out;
+			if (cl.hasOption(PHASE1_OPTION)) {
+				out = cl.getOptionValue(PHASE1_OPTION);
+			}
+			else out = phase1(input, reduceNo, lang, tmpOut);
 			String res = phase2(out, output, reduceNo);
 			log.info("Write results to " + res);
 		}
