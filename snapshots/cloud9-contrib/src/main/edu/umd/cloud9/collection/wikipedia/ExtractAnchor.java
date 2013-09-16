@@ -346,4 +346,12 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		}
 		return 0;
 	}
+	
+	public static void main(String[] args) {
+		try {
+			ToolRunner.run(new ExtractAnchor(), args);
+		} catch (Exception e) {
+			log.error("Cannot run: ", e);
+		}
+	}
 }
