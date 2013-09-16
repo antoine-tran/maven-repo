@@ -221,6 +221,9 @@ public class ExtractAnchor extends JobConfig implements Tool {
 						
 			for (Link link : p.extractLinks()) {
 				String anchor = link.getAnchorText();
+				if (anchor == null || anchor.isEmpty()) {
+					continue;
+				}
 				String target = link.getTarget();
 				target = WordUtils.capitalize(target);
 				if (titleId.containsKey(target)) {
