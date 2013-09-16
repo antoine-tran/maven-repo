@@ -194,6 +194,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 		}
 		
 		private void loadIdTitleMap(Path p, Configuration c, FileSystem fs) throws IOException {
+			if (titleId == null) titleId = new Object2IntOpenHashMap<String>();
 			SequenceFile.Reader reader = null;
 			try {
 				reader = new SequenceFile.Reader(fs, p, c);
