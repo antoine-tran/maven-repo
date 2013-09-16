@@ -55,7 +55,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 	private static final String TITLE_ID_MAP_OPT = "idmap";
 	private static final String TMP_DIR_OPT = "tmpdir";
 	
-	private static String TMP_HDFS_DIR = "/tmp/user/tuan.tran/";
+	private static String TMP_HDFS_DIR = "/user/tuan.tran/tmp/";
 	
     /** Preprocess: Extract capitalized wiki page titles / id mappings & output
      * to a csv file, format: [capitalized title] TAB [id] */

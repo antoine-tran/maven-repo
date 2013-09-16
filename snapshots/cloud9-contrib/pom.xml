@@ -8,7 +8,7 @@
 	<groupId>edu.umd</groupId>
 	<artifactId>cloud9-contrib</artifactId>
 	<packaging>jar</packaging>
-	<name>Cloud9</name>
+	<name>Cloud9 Contribution by Antoine Tran</name>
 	<version>1.4.17</version>
 	<description>A contribution to University of Maryland's Cloud9 Library</description>
 	<properties>
