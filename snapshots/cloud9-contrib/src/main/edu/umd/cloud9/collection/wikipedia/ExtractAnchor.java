@@ -15,16 +15,21 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.WordUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.reduce.IntSumReducer;
+import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
@@ -184,12 +189,23 @@ public class ExtractAnchor extends JobConfig implements Tool {
 			String path = context.getConfiguration().get("wiki.id.cache");
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 			Path p = new Path(path);
-			titleId = new Object2IntOpenHashMap<String>();
-			for (String line : FileUtility.readLines(fs.open(p), null)) {
-				int i = line.lastIndexOf('\t');
-				int id = Integer.parseInt(line.substring(i + 1));
-				String title = line.substring(0, i);
-				titleId.addTo(title, id);
+			Configuration c = context.getConfiguration();
+			loadIdTitleMap(p, c, fs);
+		}
+		
+		private void loadIdTitleMap(Path p, Configuration c, FileSystem fs) throws IOException {
+			SequenceFile.Reader reader = null;
+			try {
+				reader = new SequenceFile.Reader(fs, p, c);
+				Writable key = (Writable) ReflectionUtils.newInstance(reader.getKeyClass(), c);
+				Writable val = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), c);
+				while (reader.next(key, val)) {
+					String title = ((Text)key).toString();
+					int id = ((IntWritable)val).get();
+					titleId.addTo(title, id);
+				}
+			} finally {
+				IOUtils.closeStream(reader);
 			}
 		}
 
