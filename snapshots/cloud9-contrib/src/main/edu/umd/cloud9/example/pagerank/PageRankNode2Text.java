@@ -1,7 +1,7 @@
 package edu.umd.cloud9.example.pagerank;
 
+import java.io.IOException;
 import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -9,25 +9,39 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import tuan.hadoop.conf.JobConfig;
+
 /** This program reads a sequenceFile of PageRankNode objects and returns a single .csv files of [pageId] TAB [pagerank]*/
-public class PageRankNode2Text extends Configured implements Tool {
+public class PageRankNode2Text extends JobConfig implements Tool {
 
 	private static final String INPUT = "input";
 	private static final String OUTPUT = "output";
 
 	private static final Logger LOG = Logger.getLogger(PageRankNode2Text.class);
 
+	private static final class PageRankNodeResolver extends Mapper<IntWritable, PageRankNode, IntWritable, Text> {
+
+		Text val = new Text();
+		
+		@Override
+		protected void map(IntWritable key, PageRankNode n, Context context)
+				throws IOException, InterruptedException {			
+			String str = String.format("%d\t%.4f", n.getNodeId(), n.getPageRank());
+			val.set(str);
+			context.write(key, val);
+		}		
+	}
 
 	@SuppressWarnings("static-access")
 	@Override
@@ -65,19 +79,16 @@ public class PageRankNode2Text extends Configured implements Tool {
 		LOG.info(" - input: " + inputPath);
 		LOG.info(" - output: " + outputPath);
 
-		Configuration conf = getConf();
-		FileSystem fs = FileSystem.get(conf);
+		Job job = setup("Debug PageRank intermediate results with csv format",
+				PageRankNode2Text.class, 
+				inputPath, outputPath, 
+				SequenceFileInputFormat.class, TextOutputFormat.class, 
+				IntWritable.class, PageRankNode.class, 
+				IntWritable.class, Text.class,
+				PageRankNodeResolver.class, Reducer.class, 1);
 
-	    IntWritable key = new IntWritable();
-	    PageRankNode value = new PageRankNode();
-		
-		FileStatus[] statuses = fs.listStatus(new Path(inputPath));
-		for (FileStatus s : statuses) {
-			if (s.getPath().getName().contains("part-")) {
-				SequenceFile.Reader reader = 
-						new SequenceFile.Reader(conf, SequenceFile.Reader.file(s.getPath()));
-			}
-		}
+		job.setCombinerClass(Reducer.class);
+		job.waitForCompletion(true);
 		return 0;
 	}
 
