@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>tuan4j</groupId>
 			<artifactId>tuan4j-distributed</artifactId>
-			<version>0.1-beta1</version>
+			<version>0.2-beta1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>

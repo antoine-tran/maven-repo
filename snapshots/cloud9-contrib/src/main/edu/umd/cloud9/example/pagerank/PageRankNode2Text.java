@@ -74,7 +74,7 @@ public class PageRankNode2Text extends Configured implements Tool {
 				
 			}
 		}
-
+		return 0;
 	}
 
 	@SuppressWarnings("static-access")
