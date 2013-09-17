@@ -119,6 +119,36 @@
 			<artifactId>bliki-core</artifactId>
 			<version>3.0.19</version>
 		</dependency>
+		<dependency>
+      		<groupId>org.apache.hadoop</groupId>
+      		<artifactId>hadoop-hdfs</artifactId>
+      		<version>2.0.0-cdh4.3.0</version>
+      		<optional>true</optional>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.apache.hadoop</groupId>
+      		<artifactId>hadoop-mapreduce-client-core</artifactId>
+      		<version>2.0.0-cdh4.3.0</version>
+      		<optional>true</optional>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.apache.hadoop</groupId>
+      		<artifactId>hadoop-common</artifactId>
+      		<version>2.0.0-cdh4.3.0</version>
+      		<optional>true</optional>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.apache.hadoop</groupId>
+	        <artifactId>hadoop-yarn-api</artifactId>
+      		<version>2.0.0-cdh4.3.0</version>
+      		<optional>true</optional>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.apache.hadoop</groupId>
+      		<artifactId>hadoop-yarn-common</artifactId>
+      		<version>2.0.0-cdh4.3.0</version>
+      		<optional>true</optional>
+    	</dependency>
 	</dependencies>
 
 	<repositories>
@@ -137,5 +167,10 @@
 			<name>Tuan Tran's Personal Repository for Maven</name>
 			<url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
 		</repository>
+		<repository>
+       		<id>cloudera</id>
+       		<name>Cloudera Repository</name>
+       		<url>https://repository.cloudera.com/content/groups/cdh-releases-rcs</url>
+     	</repository>
 	</repositories>
 </project>

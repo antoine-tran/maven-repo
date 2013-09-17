@@ -14,6 +14,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -67,11 +68,14 @@ public class PageRankNode2Text extends Configured implements Tool {
 		Configuration conf = getConf();
 		FileSystem fs = FileSystem.get(conf);
 
+	    IntWritable key = new IntWritable();
+	    PageRankNode value = new PageRankNode();
+		
 		FileStatus[] statuses = fs.listStatus(new Path(inputPath));
 		for (FileStatus s : statuses) {
 			if (s.getPath().getName().contains("part-")) {
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs, s.getPath(), conf);
-				
+				SequenceFile.Reader reader = 
+						new SequenceFile.Reader(conf, SequenceFile.Reader.file(s.getPath()));
 			}
 		}
 		return 0;
