@@ -63,7 +63,6 @@
 				<!-- Different configurations for different deployment scenarios -->
 				<executions>				    			
 					<execution>
-						<phase>package</phase>
 						<id>shade-hadoop</id>
 						<goals>
 							<goal>shade</goal>
