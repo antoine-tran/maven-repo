@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.umd.cloud9.example.ppr;
+package edu.umd.cloud9.example.pagerank;
 
 import java.io.DataInput;
 import java.io.DataOutput;

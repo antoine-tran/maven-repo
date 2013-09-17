@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package edu.umd.cloud9.example.ppr;
+package edu.umd.cloud9.example.pagerank;
 
 import it.unimi.dsi.fastutil.ints.Int2IntAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -53,7 +53,7 @@ import tuan.math.DiscreteRandom;
 import tuan.math.InvalidParameterException;
 import tuan.math.ParameterAlreadyDeclaredException;
 import tuan.math.ParameterNotDeclaredException;
-import edu.umd.cloud9.example.ppr.FingerPrint.Type;
+import edu.umd.cloud9.example.pagerank.FingerPrint.Type;
 import edu.umd.cloud9.mapreduce.lib.input.NonSplitableSequenceFileInputFormat;
 
 
