@@ -13,7 +13,6 @@ import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.collection.DocnoMapping.Builder;
 
 /** 
  * This little script extends Jimmy Lin's WikipediaDocnoMapping by 
