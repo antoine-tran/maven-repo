@@ -83,7 +83,7 @@ public class PageRankNode2Text extends JobConfig implements Tool {
 				PageRankNode2Text.class, 
 				inputPath, outputPath, 
 				SequenceFileInputFormat.class, TextOutputFormat.class, 
-				IntWritable.class, PageRankNode.class, 
+				IntWritable.class, Text.class, 
 				IntWritable.class, Text.class,
 				PageRankNodeResolver.class, Reducer.class, 1);
 
