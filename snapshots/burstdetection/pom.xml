@@ -33,6 +33,16 @@
 		  <artifactId>tuan4j-core</artifactId>
 		  <version>0.2-beta1</version>
 		</dependency>
+		<dependency>
+		  <groupId>com.google.guava</groupId>
+	      <artifactId>guava</artifactId>
+	      <version>14.0.1</version>
+        </dependency>   
+        <dependency>
+		  <groupId>com.google.code.findbugs</groupId>
+		  <artifactId>jsr305</artifactId>
+		  <version>2.0.1</version>
+		</dependency>     
 	</dependencies>
 
 	<build>
@@ -45,6 +55,30 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.3.1</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<id>matcher-old</id>
+						<configuration>
+							<file>${project.basedir}/lib/utils-0.2-SNAPSHOT.jar</file>
+							<groupId>de.l3s.gossen</groupId>
+							<artifactId>utils</artifactId>
+							<version>0.2-SNAPSHOT</version>
+							<packaging>jar</packaging>
+							<generatePom>true</generatePom>
+							<downloadSources>true</downloadSources>
+							<downloadJavadocs>true</downloadJavadocs>
+						</configuration>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -53,9 +87,10 @@
 	</scm>
 	
 	<repositories>
-	  <repository>
-        <id>gerhard</id>
-        <url>http://l3s.de/~gossen/repository</url>
-      </repository>
+      <repository>
+       <id>antoine-tran-github-releases</id>
+       <name>Tuan Tran's Personal Repository for Maven</name>
+       <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+     </repository>
 	</repositories>
 </project>
