@@ -64,7 +64,7 @@ public class StringUtils {
 
 	/**
 	 * Don't let anyone instantiate this class.
-	 */
+	 */ 
 	private StringUtils() {
 	}
 
