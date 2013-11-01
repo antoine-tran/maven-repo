@@ -39,7 +39,7 @@ import edu.umd.cloud9.io.pair.PairOfStrings;
  * @author Peter Exner
  */
 @Deprecated
-public abstract class WikipediaPage1 extends Indexable {
+public abstract class WikipediaPageOld extends Indexable {
 	/**
 	 * Start delimiter of the page, which is &lt;<code>page</code>&gt;.
 	 */
@@ -107,7 +107,7 @@ public abstract class WikipediaPage1 extends Indexable {
 	/**
 	 * Creates an empty <code>WikipediaPage</code> object.
 	 */
-	public WikipediaPage1() {
+	public WikipediaPageOld() {
 		wikiModel = new WikiModel("", "");
 		textConverter = new PlainTextConverter();
 	}
@@ -129,7 +129,7 @@ public abstract class WikipediaPage1 extends Indexable {
 		int length = WritableUtils.readVInt(in);
 		byte[] bytes = new byte[length];
 		in.readFully(bytes, 0, length);
-		WikipediaPage1.readPage(this, new String(bytes, "UTF-8"));
+		WikipediaPageOld.readPage(this, new String(bytes, "UTF-8"));
 		language = in.readUTF();
 	}
 
@@ -482,7 +482,7 @@ public abstract class WikipediaPage1 extends Indexable {
 	 * @param s
 	 *            raw XML string
 	 */
-	public static void readPage(WikipediaPage1 page, String s) {
+	public static void readPage(WikipediaPageOld page, String s) {
 		page.page = s;
 		page.processPage(s);
 	}

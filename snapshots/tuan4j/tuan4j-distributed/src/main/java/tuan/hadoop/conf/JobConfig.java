@@ -19,6 +19,13 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
  */
 public class JobConfig extends Configured {
 
+	public static enum Version {
+		HADOOP_1,
+		HADOOP_2
+	}
+	
+	private Version version = Version.HADOOP_2;
+	
 	@SuppressWarnings("rawtypes")
 	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
 			KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
@@ -37,11 +44,16 @@ public class JobConfig extends Configured {
 				int reduceNo) throws IOException {
 		
 		// Hadoop 2.0
-		// Job job = Job.getInstance(getConf());
-		// job.setJobName(jobName);
+		Job job;
+		if (version == Version.HADOOP_2) {
+			job = Job.getInstance(getConf());
+			job.setJobName(jobName);
+		}
 
 		// Hadoop 1.x
-		Job job = new Job(getConf(), jobName);
+		else {
+			job = new Job(getConf(), jobName);
+		}
 		
 		// Common configurations
 		job.setJarByClass(jobClass);
@@ -70,5 +82,9 @@ public class JobConfig extends Configured {
 		job.setReducerClass(reduceClass);
 
 		return job;
+	}
+	
+	public void setVersion(Version v) {
+		this.version = v;
 	}
 }
