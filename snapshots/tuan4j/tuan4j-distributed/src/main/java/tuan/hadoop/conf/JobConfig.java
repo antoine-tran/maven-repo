@@ -26,7 +26,7 @@ public class JobConfig extends Configured {
 	
 	private Version version = Version.HADOOP_2;
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
 			KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
 			MAPPER extends Mapper, REDUCER extends Reducer> 
