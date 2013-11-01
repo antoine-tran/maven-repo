@@ -31,7 +31,7 @@ public class JobConfig extends Configured {
 	
 	private String mapperSize = "-Xmx1024m";
 	
-	public void formatOutput() {
+	public void markOutputForDeletion() {
 		removeOutputDirectory = true;
 	}
 	
