@@ -4,6 +4,7 @@ package tuan.hadoop.conf;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -25,6 +26,18 @@ public class JobConfig extends Configured {
 	}
 	
 	private Version version = Version.HADOOP_2;
+	
+	private boolean removeOutputDirectory = false;
+	
+	private String mapperSize = "-Xmx1024m";
+	
+	public void formatOutput() {
+		removeOutputDirectory = true;
+	}
+	
+	public void setMapperSize(String mapSize) {
+		mapperSize = mapSize;
+	}
 	
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
@@ -62,12 +75,20 @@ public class JobConfig extends Configured {
 				"mapreduce.map.tasks.speculative.execution", false);
 		job.getConfiguration().setBoolean(
 				"mapreduce.reduce.tasks.speculative.execution", false);
-		job.getConfiguration().set("mapreduce.child.java.opts", "-Xmx2048m");
+		job.getConfiguration().set("mapreduce.child.java.opts", mapperSize);
 
 		job.setNumReduceTasks(reduceNo);
 
-		FileInputFormat.setInputPaths(job, new Path(inpath));
-		FileOutputFormat.setOutputPath(job, new Path(outpath));
+		Path ip = new Path(inpath);
+		Path op = new Path(outpath);
+		
+		if (removeOutputDirectory) {
+			FileSystem fs = FileSystem.get(getConf());
+			fs.delete(op, true);
+		}
+		
+		FileInputFormat.setInputPaths(job, ip);
+		FileOutputFormat.setOutputPath(job, op);
 		
 		job.setInputFormatClass(inputFormatClass);
 		job.setOutputFormatClass(outputFormatClass);
