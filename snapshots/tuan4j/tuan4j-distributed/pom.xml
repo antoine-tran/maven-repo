@@ -96,7 +96,6 @@
       <optional>true</optional>
     </dependency>      
   </dependencies>
-
   <repositories>
      <repository>
        <id>antoine-tran-github-releases</id>
