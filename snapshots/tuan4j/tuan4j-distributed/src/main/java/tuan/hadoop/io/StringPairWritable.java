@@ -20,14 +20,14 @@ import org.apache.hadoop.io.WritableUtils;
  * @author tuan
  *
  */
-public class StringStringWritable implements WritableComparable<StringStringWritable> {
+public class StringPairWritable implements WritableComparable<StringPairWritable> {
 
 	private String leftElement, rightElement;
 
 	/**
 	 * Creates a pair.
 	 */
-	public StringStringWritable() {}
+	public StringPairWritable() {}
 
 	/**
 	 * Creates a pair.
@@ -35,7 +35,7 @@ public class StringStringWritable implements WritableComparable<StringStringWrit
 	 * @param left the left element
 	 * @param right the right element
 	 */
-	public StringStringWritable(String left, String right) {
+	public StringPairWritable(String left, String right) {
 		set(left, right);
 	}
 
@@ -114,8 +114,8 @@ public class StringStringWritable implements WritableComparable<StringStringWrit
 	 */
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
-		else if (obj == null || !(obj instanceof StringStringWritable)) return false;
-		StringStringWritable pair = (StringStringWritable) obj;
+		else if (obj == null || !(obj instanceof StringPairWritable)) return false;
+		StringPairWritable pair = (StringPairWritable) obj;
 		return leftElement.equals(pair.getLeftElement())
 				&& rightElement.equals(pair.getRightElement());
 	}
@@ -128,7 +128,7 @@ public class StringStringWritable implements WritableComparable<StringStringWrit
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(StringStringWritable pair) {
+	public int compareTo(StringPairWritable pair) {
 		String pl = pair.getLeftElement();
 		String pr = pair.getRightElement();
 
@@ -162,18 +162,18 @@ public class StringStringWritable implements WritableComparable<StringStringWrit
 	 *
 	 * @return clone of this object
 	 */
-	public StringStringWritable clone() {
-		return new StringStringWritable(this.leftElement, this.rightElement);
+	public StringPairWritable clone() {
+		return new StringPairWritable(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for <code>PairOfStrings</code>. */
+	/** Comparator optimized for <code>StringPairWritable</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
-		 * Creates a new Comparator optimized for <code>PairOfStrings</code>.
+		 * Creates a new Comparator optimized for <code>StringPairWritable</code>.
 		 */
 		public Comparator() {
-			super(StringStringWritable.class);
+			super(StringPairWritable.class);
 		}
 
     /**
@@ -203,6 +203,6 @@ public class StringStringWritable implements WritableComparable<StringStringWrit
   }
 
 	static { // register this comparator
-		WritableComparator.define(StringStringWritable.class, new Comparator());
+		WritableComparator.define(StringPairWritable.class, new Comparator());
 	}
 }

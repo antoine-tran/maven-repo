@@ -15,13 +15,13 @@ import org.apache.hadoop.io.WritableComparator;
  * @author tuan
  *
  */
-public class IntIntWritable implements WritableComparable<IntIntWritable> {
+public class IntPairWritable implements WritableComparable<IntPairWritable> {
 	private int leftElement, rightElement;
 
 	/**
 	 * Creates a pair.
 	 */
-	public IntIntWritable() {}
+	public IntPairWritable() {}
 
 	/**
 	 * Creates a pair.
@@ -29,7 +29,7 @@ public class IntIntWritable implements WritableComparable<IntIntWritable> {
 	 * @param left the left element
 	 * @param right the right element
 	 */
-	public IntIntWritable(int left, int right) {
+	public IntPairWritable(int left, int right) {
 		set(left, right);
 	}
 
@@ -107,7 +107,7 @@ public class IntIntWritable implements WritableComparable<IntIntWritable> {
 	 * @return <code>true</code> if <code>obj</code> is equal to this object, <code>false</code> otherwise
 	 */
 	public boolean equals(Object obj) {
-		IntIntWritable pair = (IntIntWritable) obj;
+		IntPairWritable pair = (IntPairWritable) obj;
 		return leftElement == pair.getLeftElement() && rightElement == pair.getRightElement();
 	}
 
@@ -119,7 +119,7 @@ public class IntIntWritable implements WritableComparable<IntIntWritable> {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(IntIntWritable pair) {
+	public int compareTo(IntPairWritable pair) {
 		int pl = pair.getLeftElement();
 		int pr = pair.getRightElement();
 
@@ -160,18 +160,18 @@ public class IntIntWritable implements WritableComparable<IntIntWritable> {
 	 *
 	 * @return clone of this object
 	 */
-	public IntIntWritable clone() {
-		return new IntIntWritable(this.leftElement, this.rightElement);
+	public IntPairWritable clone() {
+		return new IntPairWritable(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for <code>PairOfInts</code>. */
+	/** Comparator optimized for <code>IntPairWritable</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
-		 * Creates a new Comparator optimized for <code>PairOfInts</code>.
+		 * Creates a new Comparator optimized for <code>IntPairWritable</code>.
 		 */
 		public Comparator() {
-			super(IntIntWritable.class);
+			super(IntPairWritable.class);
 		}
 
 		/**
@@ -194,6 +194,6 @@ public class IntIntWritable implements WritableComparable<IntIntWritable> {
 	}
 
 	static { // register this comparator
-		WritableComparator.define(IntIntWritable.class, new Comparator());
+		WritableComparator.define(IntPairWritable.class, new Comparator());
 	}
 }
