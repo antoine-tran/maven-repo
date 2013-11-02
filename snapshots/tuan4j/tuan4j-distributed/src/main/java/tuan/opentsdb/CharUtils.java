@@ -5,7 +5,7 @@ import java.io.IOException;
 /** Utility methods to handle characters in OpenTSDB tables */
 public class CharUtils {
 
-	/** Tells whether a char is in a range*/
+	/** Tells whether a char is in a range */
 	public static boolean in(char c, char a, char b) {
 		return (c >= a && c <= b);
 	}
