@@ -38,8 +38,8 @@ public class CharUtils {
 	 * @since 05.11.2013: I changed the code a bit to avoid creating unnecessarily
 	 * new objects every time by a lazy instantiation of a new string only in the 
 	 * presence of a non-opentsdb-standard character . A worst-case running time
-	 * is O(n2), but the amortized analysis would result in much lower value,
-	 * and in practice we would not encode a full documents of too many chars...
+	 * is O(n2), in practice this is much faster, and we don't often encode a full
+	 * documents of too many chars...
 	 * @throws IOException 
 	 */
 	public static String encodeTag(String s) throws IllegalArgumentException {
