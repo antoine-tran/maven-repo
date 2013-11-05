@@ -10,6 +10,14 @@ public class CharUtils {
 		return (c >= a && c <= b);
 	}
 
+	protected static boolean isLowecaseAlphabet(char c) {
+		return (in(c, 'a', 'z')); 
+	}
+	
+	private static char capitalize(char c) {
+		return (char)(c - 32);
+	}
+
 	/** OpenTSDB only accepts alphanumeric values and "-", "_", ".", "/", but
 	 * we will reserve "-" for our encoding purpose */
 	public static boolean isUnreserved(char c) {
@@ -49,6 +57,37 @@ public class CharUtils {
 				char c = s.charAt(i);
 				if (isUnreserved(c)) {
 					if (sb != null) sb.append(c);
+				} else {
+					if (sb == null) {
+						sb = new StringBuilder(s.length() + 3); // minimum length of a new string
+						for (int j = 0; j < i; j++) {
+							sb.append(s.charAt(j));
+						}
+					}
+					encodeTagChar(c, sb);	
+				}
+			}
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Error encode the tag value " + s, e);
+		}
+		return (sb != null ? sb.toString() : s);
+	}
+
+	/**
+	 * This is a variant of the encoder which employs the naming convention of Wikimedia,
+	 * where every character but the first one is case sensitive
+	 */
+	public static String encodeWikiTag(String s) throws IllegalArgumentException {
+		StringBuilder sb = null;
+		try {
+			for (int i = 0; i < s.length(); i++) {
+				char c = s.charAt(i);
+				if (isUnreserved(c)) {
+					if (isLowecaseAlphabet(c) && i == 0) {
+						c = capitalize(c);
+						sb = new StringBuilder(s.length()); // minimum length of a new string
+					}
+					if (sb != null) sb.append(c); 
 				} else {
 					if (sb == null) {
 						sb = new StringBuilder(s.length() + 3); // minimum length of a new string
