@@ -142,4 +142,10 @@ public class CharUtils {
 		}
 		return (sb != null ? sb.toString() : t);
 	}
+	
+	// Test routine
+	public static void main(String[] args) {
+		String s = "-0025D8-0025AE-0025D8-0025A7-0025D8-0025B5-003a-0025D8-0025A8-0025D8-0025AD-0025D8-0025AB";
+		System.out.println(decodeTag(s));
+	}
 }

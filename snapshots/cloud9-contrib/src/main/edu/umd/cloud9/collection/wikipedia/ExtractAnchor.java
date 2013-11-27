@@ -40,7 +40,6 @@ import edu.umd.cloud9.io.pair.PairOfStringInt;
 import edu.umd.cloud9.mapreduce.StructureMessageResolver;
 
 import tuan.hadoop.conf.JobConfig;
-import tuan.io.FileUtility;
 
 /** Extract anchor texts together with its list of Wikipedia page IDs and count
  *  of references to the page using the anchors. It resolves the redirects, i.e.
@@ -197,7 +196,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 			if (titleId == null) titleId = new Object2IntOpenHashMap<String>();
 			SequenceFile.Reader reader = null;
 			try {
-				reader = new SequenceFile.Reader(fs, p, c);
+				reader = new SequenceFile.Reader(c, SequenceFile.Reader.file(p));
 				Writable key = (Writable) ReflectionUtils.newInstance(reader.getKeyClass(), c);
 				Writable val = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), c);
 				while (reader.next(key, val)) {
@@ -223,6 +222,9 @@ public class ExtractAnchor extends JobConfig implements Tool {
 				String anchor = link.getAnchorText();
 				if (anchor == null || anchor.isEmpty()) {
 					continue;
+				}
+				else {
+					anchor = anchor.replace('\n', ' ').trim();
 				}
 				String target = link.getTarget();
 				target = WordUtils.capitalize(target);
@@ -366,7 +368,7 @@ public class ExtractAnchor extends JobConfig implements Tool {
 			phase1(input, reduceNo, lang, mapPath);
 			log.info("Map written to " + TMP_HDFS_DIR + mapPath);
 		} else if (phase == 12) {
-			phase1(input, reduceNo, lang, mapPath);
+			phase1(input, 1, lang, mapPath);
 			phase2(mapPath, input, output, reduceNo);
 			log.info("Write results to " + output);
 		} else if (phase == 2) {

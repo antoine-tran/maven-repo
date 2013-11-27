@@ -96,7 +96,7 @@ public class StringUtils {
 	
 	// Test routine	
 	public static void main(String[] args) {
-		String s = "saarbücken   oder NIEEE123124 gfdl";
+		String s = "saarbücken   oder NIEEE123124 gfdl  t    ";
 		System.out.println(normalizeWiki(s));
 	}
 }
