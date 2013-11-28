@@ -41,6 +41,7 @@ import edu.umd.cloud9.mapreduce.StructureMessageResolver;
  * A Hadoop job that extracts anchor text from Wikipedia dump
  * 
  * @author tuan
+ * @deprecated use ExtractAnchor instead
  */
 @Deprecated
 public class BuildWikiAnchorText extends JobConfig implements Tool {
