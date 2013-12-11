@@ -1,6 +1,5 @@
 package tuan.hadoop.conf;
 
-
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configured;
@@ -42,7 +41,7 @@ public class JobConfig extends Configured {
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
 			KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
-			MAPPER extends Mapper, REDUCER extends Reducer> 
+			MAPPER extends Mapper, REDUCER extends Reducer> y
 			Job setup(
 				String jobName,	Class<JOB> jobClass, 
 				String inpath, String outpath,
