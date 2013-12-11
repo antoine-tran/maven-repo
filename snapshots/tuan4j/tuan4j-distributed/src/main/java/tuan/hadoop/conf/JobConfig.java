@@ -41,7 +41,7 @@ public class JobConfig extends Configured {
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
 			KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
-			MAPPER extends Mapper, REDUCER extends Reducer> y
+			MAPPER extends Mapper, REDUCER extends Reducer>
 			Job setup(
 				String jobName,	Class<JOB> jobClass, 
 				String inpath, String outpath,
