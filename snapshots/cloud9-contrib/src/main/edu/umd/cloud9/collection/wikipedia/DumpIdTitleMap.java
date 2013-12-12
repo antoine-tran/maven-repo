@@ -26,7 +26,11 @@ import org.slf4j.LoggerFactory;
 import tuan.hadoop.conf.JobConfig;
 import tuan.wikipedia.StringUtils;
 
-/** Extract redirect mappings with list of Wikipedia page IDs */
+/** 
+ * Extract redirect mappings with list of Wikipedia page IDs 
+ * 
+ * @author tuan
+ * */
 public class DumpIdTitleMap extends JobConfig implements Tool {
 
 	private static final Logger log = 

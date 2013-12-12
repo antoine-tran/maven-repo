@@ -34,6 +34,8 @@ import tuan.hadoop.conf.JobConfig;
  * based on Wikipedia, using the method reported in the paper
  * "Wikify! Linking Documents to Encyclopedic Knowledge", 
  * Mihalcea et al. CIKM 2007 
+ * 
+ * @author tuan
  */
 public class BuildWikiKeyphrase extends JobConfig implements Tool {
 	
