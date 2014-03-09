@@ -33,6 +33,7 @@ import java.util.Iterator;
  * @author tuan
  * @since 2012-02-01
  * @version 0.0.1
+ * @deprecated consider using tuan.io.DataReader
  */
 @Deprecated
 public interface PushIterator<T> extends Iterator<T> {
