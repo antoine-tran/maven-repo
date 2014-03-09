@@ -31,7 +31,7 @@ import java.util.Collection;
  * @author tuan
  * @since 9.3.1024
  */
-public interface DataReader<C, V> extends Closeable, AutoCloseable {
+public interface DataReader<C, V> extends Closeable {
 
 	/** incrementally update the constraints */
 	public void addConstraint(C constraint);
@@ -42,8 +42,11 @@ public interface DataReader<C, V> extends Closeable, AutoCloseable {
 	/** overwrite constraint */
 	public void updateConstraint(C constraint);
 	
-	/** bulk-overwrite constraints. Null arguments mean resetting constraint list */
+	/** bulk-overwrite constraints */
 	public void updateConstraints(Collection<C> constraints);
+	
+	/** reset the constraint */
+	public void reset();
 	
 	/** initiate the reading */
 	public void open();
