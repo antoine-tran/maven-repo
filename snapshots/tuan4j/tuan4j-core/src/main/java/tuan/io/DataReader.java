@@ -41,7 +41,7 @@ public interface DataReader<C, V> {
 	/** overwrite constraint */
 	public void updateConstraint(C constraint);
 	
-	/** bulk-overwrite constraints */
+	/** bulk-overwrite constraints. Null arguments mean resetting constraint list */
 	public void updateConstraints(Collection<C> constraints);
 	
 	/** initiate the reading */
