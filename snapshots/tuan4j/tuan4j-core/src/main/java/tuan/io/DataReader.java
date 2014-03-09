@@ -17,6 +17,7 @@
  */
 package tuan.io;
 
+import java.io.Closeable;
 import java.util.Collection;
 
 /**
@@ -30,7 +31,7 @@ import java.util.Collection;
  * @author tuan
  * @since 9.3.1024
  */
-public interface DataReader<C, V> {
+public interface DataReader<C, V> extends Closeable, AutoCloseable {
 
 	/** incrementally update the constraints */
 	public void addConstraint(C constraint);
