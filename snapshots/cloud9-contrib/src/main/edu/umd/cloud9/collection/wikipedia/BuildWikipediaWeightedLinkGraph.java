@@ -64,6 +64,10 @@ import edu.umd.cloud9.io.pair.PairOfStringInt;
  * hadoop jar cloud9-[version].jar edu...BuildWikipediaWeightedLinkGraph 
  * -input [wikipedia XML Dump file] -reduceNo [reducer count] -phase 3
  * </code>
+ * 
+ * @since 26 Feb 2014: Add JsonLongDoubleFloatDoubleVertexInputFormat support
+ * that will be used to interface with Apache Giraph algorithms
+ * 
  * @author Tuan
  * @version 0.2
  * @since 13 May 2012
@@ -79,6 +83,11 @@ public class BuildWikipediaWeightedLinkGraph extends
 	private static final String INPUT_OPTION = "input";
 	private static final String REDUCE_NO = "reduce";
 	private static final String PHASE = "phase";
+	
+	// Output format: text --> TextOutputFormat
+	// giraphjson --> VertexWithDoubleValueDoubleEdgeTextOutputFormat
+	// TODO: 26.02.2014 13:35 implement the interfacing between Cloud9 and Giraph
+	private static final String OUTPUT_FORMAT_OPTION = "outf";
 
 	/** 
 	 * Parse each Wikipedia article and emit the tuples (outgoingLinks, no),

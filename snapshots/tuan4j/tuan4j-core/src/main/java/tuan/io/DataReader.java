@@ -51,10 +51,10 @@ public interface DataReader<C, V> extends Closeable {
 	/** initiate the reading */
 	public void open();
 	
-	/** read and push next chunk of data into the buffer.
+	/** read and push next chunk of data into the buffer both in push and pull manner
 	 * Return true if the reading is successful and the buffer
 	 * has been updated */
-	public boolean readNext(V value);
+	public V readNext(V value);
 
 	/** check if there is more data to read */
 	public boolean hasNext();
