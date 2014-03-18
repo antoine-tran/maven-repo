@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tuan4j</groupId>
+  <artifactId>tuan4j-core</artifactId>
+  <name>Tuan4J Core</name>
+  <description>This library provides utility methods for widely used tasks in a typical Java software development, be it an academic prototype or an industrial software. It also includes the core, highly reusable components in famous Stanford CoreNLP tool (http://nlp.stanford.edu/software/corenlp.shtml)</description>
+  <version>0.2-beta1</version>
+  <packaging>jar</packaging>
+  <licenses>
+	<license>
+	  <name>New BSD License</name>
+	  <url>http://www.opensource.org/licenses/bsd-license.php</url>
+	  <distribution>repo</distribution>
+	</license>
+	<license>
+	  <name>GPL General Public Licene, version 2</name>
+	  <url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+	  <distribution>repo</distribution>
+	</license>
+  </licenses>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <developers>	
+    <developer>
+      <id>antoine-tran</id>
+      <name>Tuan Tran</name>
+      <email>ttran@l3s.de</email>
+    </developer>
+    <developer>
+      <id>mbarek</id>
+      <name>Nihed Mbarek</name>
+    </developer>
+	<developer>
+	  <id>nathan.sweet</id>
+	  <name>Nathan Sweet</name>
+	  <email>nathan.sweet@gmail.com</email>
+	</developer>
+    <developer>
+      <id>christopher.manning</id>
+      <name>Christopher Manning</name>
+      <email>manning@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>john.bauer</id>
+      <name>John Bauer</name>
+      <email>horatio@gmail.com</email>
+    </developer>
+    <developer>
+      <id>dan.klein</id>
+      <name>Dan Klein</name>
+      <email>klein@cs.stanford.edu</email>
+    </developer>
+    <developer>
+      <id>mihai.surdeanu</id>
+      <name>Mihai Surdeanu</name>
+      <email>mihais@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>rlevy</id>
+      <name>Roger Levy</name>
+      <email>rlevy@inf.ed.ac.uk</email>
+    </developer>
+    <developer>
+      <id>jsmarr</id>
+      <name>Joseph Smarr</name>
+      <email>jsmarr@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>isherman</id>
+      <name>Ilya Sherman</name>
+    </developer>
+    <developer>
+      <id>angelx</id>
+      <name>Angel Xuan Chang</name>
+      <email>angelx@cs.stanford.edu</email>
+    </developer>
+    <developer>
+      <id>dmcer</id>
+      <name>Daniel Cer</name>
+      <email>danielcer@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>yeh1</id>
+      <name>Eric Yeh</name>
+      <email>yeh1@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>kayur</id>
+      <name>Kayur Patel</name>
+      <email>kayur@cs.washington.edu</email>
+    </developer>
+    <developer>
+      <id>grenager</id>
+      <name>Teg Grenager</name>
+      <email>grenager@cs.stanford.edu</email>
+    </developer>
+    <developer>
+      <id>grow</id>
+      <name>Tim Grow</name>
+      <email>grow@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>akleeman</id>
+      <name>Alex Kleeman</name>
+      <email>akleeman@stanford.edu</email>
+    </developer>
+    <developer>
+      <id>galen</id>
+      <name>Galen Andrew</name>
+      <email>galen@cs.washington.edu</email>
+    </developer>
+    <developer>
+      <id>wcmac</id>
+      <name>Bill MacCartney</name>
+      <email>Bill MacCartney@cs.stanford.edu</email>
+    </developer>
+  </developers>    
+
+  <build>
+    <plugins>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.3.2</version>
+		<configuration>
+		  <source>1.6</source>
+	 	  <target>1.6</target>
+		  <downloadSources>true</downloadSources>
+		  <downloadJavadocs>true</downloadJavadocs>
+		</configuration>
+	  </plugin>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-install-plugin</artifactId>
+		<version>2.3.1</version>
+	  </plugin>
+	</plugins>
+    <sourceDirectory>src/main/java</sourceDirectory>
+	<testSourceDirectory>src/test/java</testSourceDirectory>
+	<testOutputDirectory>bin/test-classes</testOutputDirectory>
+	<finalName>${articfactId}-${project.version}</finalName>
+	<outputDirectory>bin/classes</outputDirectory>
+  </build>
+  
+</project>
