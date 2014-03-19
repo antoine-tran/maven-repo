@@ -49,7 +49,6 @@ public class StringUtils {
 		}
 	}
 
-
 	/**
 	 * take a title (e.g. 'barack obama', and convert to Wikipedia title
 	 * (e.g. 'Barack_obama'). The trick is to replace all whitespaces 
@@ -93,10 +92,48 @@ public class StringUtils {
 		}
 		return (sb != null ? sb.toString() : s);
 	}
-	
+
+	/**
+	 * take a title (e.g. 'barack obama', and convert to Wikipedia title
+	 * (e.g. 'Barack_obama'). The trick is to replace all whitespaces 
+	 * with underscores, capitalizing the first character while lowercase
+	 * all others (I know, I know, this is a potential gotcha, but we will
+	 * use this method for seed articles only most of the time)
+	 */
+	public static String deNormalizeWiki(String s) {
+		StringBuilder sb = null;
+
+		for (int i = 0; i < s.length();) {
+			char c = s.charAt(i);
+			if (c == '\\') {
+				if (i < s.length() -1 && s.charAt(i+1) == 'u') {
+					if (i >= s.length() - 5)
+						throw new IllegalArgumentException("Mal-formed encoded string: " + s);
+					char d = (char) Integer.parseInt(s.substring(i + 2, i + 6), 16);
+					if (sb == null ) {
+						sb = new StringBuilder();
+					}
+					sb.append(d);
+					i += 6;
+				}			
+			} else {
+				if (sb == null ) {
+					sb = new StringBuilder();
+				}
+				sb.append(c);
+				i++;	
+			}
+		}
+		return (sb != null ? sb.toString() : s);
+	}
+
 	// Test routine	
 	public static void main(String[] args) {
-		String s = "saarbücken   oder NIEEE123124 gfdl  t    ";
-		System.out.println(normalizeWiki(s));
+		if ("e".equals(args[0])) {
+			System.out.println(normalizeWiki(args[1]));	
+		}
+		else if ("d".equals(args[0])) {
+			System.out.println(deNormalizeWiki(args[1]));
+		}
 	}
 }

@@ -18,6 +18,7 @@
 package tuan.io;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -49,7 +50,7 @@ public interface DataReader<C, V> extends Closeable {
 	public void reset();
 	
 	/** initiate the reading */
-	public void open();
+	public void open() throws IOException;
 	
 	/** read and push next chunk of data into the buffer both in push and pull manner
 	 * Return true if the reading is successful and the buffer
