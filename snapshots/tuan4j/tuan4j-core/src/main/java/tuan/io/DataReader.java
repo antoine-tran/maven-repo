@@ -19,7 +19,6 @@ package tuan.io;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  * An interface to wrap a data reader where the constraints can be added
@@ -32,34 +31,18 @@ import java.util.Collection;
  * @author tuan
  * @since 9.3.1024
  */
-public interface DataReader<C, V> extends Closeable {
-
-	/** incrementally update the constraints */
-	public void addConstraint(C constraint);
-	
-	/** Update constraints in batches. Optional method */
-	public void addConstraints(Collection<C> constraints);
-	
-	/** overwrite constraint */
-	public void updateConstraint(C constraint);
-	
-	/** bulk-overwrite constraints */
-	public void updateConstraints(Collection<C> constraints);
-	
-	/** reset the constraint */
-	public void reset();
+public interface DataReader<T> extends Closeable {
 	
 	/** initiate the reading */
 	public void open() throws IOException;
 	
-	/** read and push next chunk of data into the buffer both in push and pull manner
+	/** read and push next chunk of data into the buffer both in push and pull
+	 * manner
 	 * Return true if the reading is successful and the buffer
 	 * has been updated */
-	public V readNext(V value);
+	public T readNext(T value) throws IOException;
 
-	/** check if there is more data to read */
-	public boolean hasNext();
-	
-	/** re-load the constraints and update the subsequent streaming data */
-	public void load();
+	/** check if there is more data to read using visitor pattern to invoke
+	 * a dynamic data checker */
+	public boolean hasNext(DataChecker checker) throws IOException;
 }
