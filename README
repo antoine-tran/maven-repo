@@ -3,7 +3,7 @@ A github-based maven repositories for many artifacts that are useful, but are to
 <repository>
   <id>antoine-tran-github-releases</id>
   <name>Tuan Tran's Personal Repository for Maven</name>
-  <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+  <url> https://raw.github.com/antoine-tran/maven-repo/master/releases </url>
 </repository>
 
 
