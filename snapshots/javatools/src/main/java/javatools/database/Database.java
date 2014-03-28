@@ -1897,6 +1897,7 @@ public abstract class Database {
 
 					// Insert into BLOB columb using BinaryStream
 					if (columnTypes[i].getTypeCode() == Types.BLOB) {
+						System.out.println("mathc");
 						buf = toBytes(values.get(i));
 						bis = new ByteArrayInputStream(buf);
 						preparedStatement.setBlob(i + 1, bis, buf.length);
