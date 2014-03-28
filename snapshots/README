@@ -17,3 +17,9 @@
    Current version: 0.1
 
 4. Stanford NLP Tools: Extracted tools from Stanford CoreNLP that can be reused in standard Java applications
+
+5. Cloud9-contrib: An extensions to the well-known Cloud9 library (http://lintool.github.io/Cloud9/)
+
+6. Burst Detection: Java implementation of Kleinberg algorithm
+
+7. Yago2_basics: Utility method to work with YAGO2

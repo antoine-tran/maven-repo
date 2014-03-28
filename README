@@ -3,7 +3,7 @@ A github-based maven repositories for many artifacts that are useful, but are to
 <repository>
   <id>antoine-tran-github-releases</id>
   <name>Tuan Tran's Personal Repository for Maven</name>
-  <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+  <url> https://raw.github.com/antoine-tran/maven-repo/master/releases </url>
 </repository>
 
 
@@ -39,3 +39,7 @@ The public maven artifact of Hark-tweet-NLP (https://github.com/antoine-tran/har
 A modified version of the Java implementation of Kleinberg's burst detection algorithm in text streams (J. Kleinberg. Bursty and Hierarchical Structure in Streams. Proc. 8th ACM SIGKDD Intl. Conf. on Knowledge Discovery and Data Mining, 2002), as originally developed by Aretha Alencar et al. at at CNS group, University of Indiana (http://wiki.cns.iu.edu/display/CISHELL/Burst+Detection), and later on by my colleague Gerhard Gossen at L3S Research Center (https://bitbucket.org/GerhardGossen). Some new features added:
 - Conversion of a time series from continuous values to binary values based on burst period checks, 
 - A simplified implementation of the Bron–Kerbosch algorithm (http://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm) to support the detection of disconnected bursts in arbitrary settings (original Kleinberg's algorithm implementation can result in overlapped bursts depending on the configuration of input states / gamma / density scaling parameters).
+
+7. Cloud9-contrib:
+Cloud9 (http://lintool.github.io/Cloud9/) is an excellent Hadoop library for working on various big datasets (Wikipedia, ClueWeb,...). Cloud9-contrib is my (personal) attempts and habits of improving / extending the Cloud9 to have more features / programs in an updated Hadoop version. 
+DISCLAIMER: I used cloud9-contrib for my daily tasks at L3S Research Center, and made the best efforts to fix all known bugs and deficiencies. However, as this is my personal attempts, please take it with a grail of salt if you intend to re-use the code. I'm not responsible for providing patches upon requests (although if you have some, you can try sending them to me. I might respond :) )
