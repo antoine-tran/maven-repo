@@ -1894,7 +1894,6 @@ public abstract class Database {
 			byte[] buf;
 			try {
 				for (int i = 0; i < values.size(); i++) {
-					System.out.println("mathc" + i);
 
 					// Insert into BLOB columb using BinaryStream
 					if (columnTypes[i].getTypeCode() == Types.BLOB) {
