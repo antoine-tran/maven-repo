@@ -1875,6 +1875,7 @@ public abstract class Database {
 			sb.append(")");
 			tb.append("?)");
 			sb.append(tb);
+			System.out.println(sb.toString() );
 			preparedStatement = connection.prepareStatement(sb.toString());
 			inserters.add(this);
 		}
