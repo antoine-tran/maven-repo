@@ -75,7 +75,7 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 				boolean isArticle = page.isArticle();
 				boolean isDisamb = page.isDisambiguation();
 				boolean isRedirect = page.isRedirect();
-				String text = page.getContent();
+				String text = page.getRawXML();
 				String length = valueOf(text.length());
 				Tuple tuple = tuples.newTupleNoCopy(Arrays.asList(id, (isArticle) ? "0" : "118", 
 						title, text, valueOf(isRedirect), length, valueOf(isDisamb)));
@@ -128,12 +128,12 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 		Schema schema = new Schema();
 		
 		// canonical fields in Wikipedia SQL dump
-		schema.add(new FieldSchema("page_id", DataType.INTEGER));
+		schema.add(new FieldSchema("page_id", DataType.LONG));
 		schema.add(new FieldSchema("page_namespace", DataType.INTEGER));
 		schema.add(new FieldSchema("page_title", DataType.CHARARRAY));
 		schema.add(new FieldSchema("text", DataType.CHARARRAY));
 		schema.add(new FieldSchema("page_is_redirect", DataType.BOOLEAN));
-		schema.add(new FieldSchema("page_len", DataType.INTEGER));
+		schema.add(new FieldSchema("page_len", DataType.LONG));
 
 		// Added fields
 		schema.add(new FieldSchema("page_is_disamb", DataType.BOOLEAN));
