@@ -23,8 +23,6 @@ import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPageInputFormat;
@@ -36,8 +34,6 @@ import edu.umd.cloud9.collection.wikipedia.WikipediaPageInputFormat;
  * @author tuan
  */
 public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
-
-	private static final Logger LOG = LoggerFactory.getLogger(LiteWikipediaLoader.class);
 
 	private static final WikipediaPageInputFormat INPUT_FORMAT = new WikipediaPageInputFormat();
 	
