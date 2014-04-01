@@ -112,7 +112,8 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		headerSchema.add(new FieldSchema("tagname", DataType.CHARARRAY));
 		headerSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		headerSchema.add(new FieldSchema("end", DataType.INTEGER));
-		schema.add(new FieldSchema("headers", headerSchema, DataType.BAG));
+		Schema headerSchemaWrapper = new Schema(new FieldSchema("t", headerSchema));
+		schema.add(new FieldSchema("headers", headerSchemaWrapper, DataType.BAG));
 		
 		// register links
 		Schema linkSchema = new Schema();
@@ -120,20 +121,23 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		linkSchema.add(new FieldSchema("anchor", DataType.CHARARRAY));
 		linkSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		linkSchema.add(new FieldSchema("end", DataType.INTEGER));
-		schema.add(new FieldSchema("links", linkSchema, DataType.BAG));
+		Schema linkSchemaWrapper = new Schema(new FieldSchema("t", linkSchema));
+		schema.add(new FieldSchema("links", linkSchemaWrapper, DataType.BAG));
 		
 		// register paragraphs
 		Schema paragraphSchema = new Schema();
 		paragraphSchema.add(new FieldSchema("tagname", DataType.CHARARRAY));
 		paragraphSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		paragraphSchema.add(new FieldSchema("end", DataType.INTEGER));
-		schema.add(new FieldSchema("paragraph", paragraphSchema, DataType.BAG));
+		Schema paragraphSchemaWrapper = new Schema(new FieldSchema("t", paragraphSchema));
+		schema.add(new FieldSchema("paragraph", paragraphSchemaWrapper, DataType.BAG));
 		
 		// register templates
 		Schema templateSchema = new Schema();
 		templateSchema.add(new FieldSchema("target", DataType.CHARARRAY));
 		templateSchema.add(new FieldSchema("label", DataType.CHARARRAY));
-		schema.add(new FieldSchema("template", templateSchema, DataType.BAG));
+		Schema templateSchemaWrapper = new Schema(new FieldSchema("t", templateSchema));
+		schema.add(new FieldSchema("template", templateSchemaWrapper, DataType.BAG));
 		
 		this.schema = new ResourceSchema(schema);
 	}
