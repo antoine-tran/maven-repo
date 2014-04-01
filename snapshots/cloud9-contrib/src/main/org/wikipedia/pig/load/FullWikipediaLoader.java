@@ -112,7 +112,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		headerSchema.add(new FieldSchema("tagname", DataType.CHARARRAY));
 		headerSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		headerSchema.add(new FieldSchema("end", DataType.INTEGER));
-		Schema headerSchemaWrapper = new Schema(new FieldSchema("t", headerSchema));
+		Schema headerSchemaWrapper = new Schema(new FieldSchema("th", headerSchema));
 		schema.add(new FieldSchema("headers", headerSchemaWrapper, DataType.BAG));
 		
 		// register links
@@ -121,7 +121,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		linkSchema.add(new FieldSchema("anchor", DataType.CHARARRAY));
 		linkSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		linkSchema.add(new FieldSchema("end", DataType.INTEGER));
-		Schema linkSchemaWrapper = new Schema(new FieldSchema("t", linkSchema));
+		Schema linkSchemaWrapper = new Schema(new FieldSchema("tl", linkSchema));
 		schema.add(new FieldSchema("links", linkSchemaWrapper, DataType.BAG));
 		
 		// register paragraphs
@@ -129,14 +129,14 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		paragraphSchema.add(new FieldSchema("tagname", DataType.CHARARRAY));
 		paragraphSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		paragraphSchema.add(new FieldSchema("end", DataType.INTEGER));
-		Schema paragraphSchemaWrapper = new Schema(new FieldSchema("t", paragraphSchema));
+		Schema paragraphSchemaWrapper = new Schema(new FieldSchema("tp", paragraphSchema));
 		schema.add(new FieldSchema("paragraph", paragraphSchemaWrapper, DataType.BAG));
 		
 		// register templates
 		Schema templateSchema = new Schema();
 		templateSchema.add(new FieldSchema("target", DataType.CHARARRAY));
 		templateSchema.add(new FieldSchema("label", DataType.CHARARRAY));
-		Schema templateSchemaWrapper = new Schema(new FieldSchema("t", templateSchema));
+		Schema templateSchemaWrapper = new Schema(new FieldSchema("tt", templateSchema));
 		schema.add(new FieldSchema("template", templateSchemaWrapper, DataType.BAG));
 		
 		this.schema = new ResourceSchema(schema);
