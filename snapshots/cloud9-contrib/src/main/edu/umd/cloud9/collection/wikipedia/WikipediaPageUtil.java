@@ -1,6 +1,7 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.Lists;
 
@@ -10,6 +11,7 @@ import com.google.common.collect.Lists;
 public class WikipediaPageUtil  {
 
 	private static final boolean isNotTemplateQuote(String title, String text) {
+		text = Pattern.quote(text); 
 		return (text.matches("R from.*") || text.matches("Redirect\\s.*") 
 				|| text.matches("Cite.*") || text.matches("cite.*")
 				|| text.matches("Use\\s.*") || text.matches("pp-move-indef.*") 
@@ -24,104 +26,109 @@ public class WikipediaPageUtil  {
 				|| text.matches("Lookfrom\\s.*") || text.matches("Portal\\s.*")
 				|| text.matches("Reflist\\s.*") || text.matches("Sister project links.*")
 				|| text.matches("Link\\s.*") || text.matches("link\\s.*")
-				
+
 				// WikiProject BBC
 				|| text.matches("WikiProject\\s.*") || text.matches("BBCNAV.*")
 				|| text.matches("Wikipedia:WikiProject\\s") || text.matches("User:Mollsmolyneux.*")
 				|| text.matches("subst:.*") || text.matches("BBC\\s.*")
 				|| text.matches("BBC-.*stub.*")
-				
+
 				// A quick trick to avoid BBC player linkage. Might be a gotcha !!
 				|| text.matches(title + "|")
-				
+
 				// Other tricks
 				|| text.matches("Good article.*") || text.equals("-"));
 	}
-	
+
 	public static List<Link> getTemplates(String title, String rawContent) {
 		int start = 0;
-	    List<Link> links = Lists.newArrayList();
+		List<Link> links = Lists.newArrayList();
 
-	    while (true) {
-	      start = rawContent.indexOf("{{", start);
+		while (true) {
+			start = rawContent.indexOf("{{", start);
 
-	      if (start < 0) {
-	        break;
-	      }
+			if (start < 0) {
+				break;
+			}
 
-	      int end = rawContent.indexOf("}}", start);
+			int end = rawContent.indexOf("}}", start);
 
-	      if (end < 0) {
-	        break;
-	      }
+			if (end < 0) {
+				break;
+			}
 
-	      String text = rawContent.substring(start + 2, end);
-	      if (isNotTemplateQuote(title, text)) return links;
-	      
-	      String anchor = null;
+			String text = rawContent.substring(start + 2, end);
+			if (isNotTemplateQuote(title, text)) return links;
 
-	      // skip empty links
-	      if (text.length() == 0) {
-	        start = end + 1;
-	        continue;
-	      }
+			String anchor = null;
 
-	      // skip special links
-	      if (text.indexOf(":") != -1) {
-	        start = end + 1;
-	        continue;
-	      }
+			// skip empty links
+			if (text.length() == 0) {
+				start = end + 1;
+				continue;
+			}
 
-	      // if there is anchor text, get only article title
-	      int a;
-	      if ((a = text.indexOf("|")) != -1) {
-	        anchor = text.substring(a + 1, text.length());
-	        text = text.substring(0, a);
-	      }
+			// skip special links
+			if (text.indexOf(":") != -1) {
+				start = end + 1;
+				continue;
+			}
 
-	      if ((a = text.indexOf("#")) != -1) {
-	        text = text.substring(0, a);
-	      }
+			// if there is anchor text, get only article title
+			int a;
+			if ((a = text.indexOf("|")) != -1) {
+				anchor = text.substring(a + 1, text.length());
+				text = text.substring(0, a);
+			}
 
-	      // ignore article-internal links, e.g., [[#section|here]]
-	      if (text.length() == 0) {
-	        start = end + 1;
-	        continue;
-	      }
+			if ((a = text.indexOf("#")) != -1) {
+				text = text.substring(0, a);
+			}
 
-	      if (anchor == null) {
-	        anchor = text;
-	      }
-	      links.add(new Link(anchor, text));
+			// ignore article-internal links, e.g., [[#section|here]]
+			if (text.length() == 0) {
+				start = end + 1;
+				continue;
+			}
 
-	      start = end + 1;
-	    }
+			if (anchor == null) {
+				anchor = text;
+			}
+			links.add(new Link(anchor, text));
 
-	    return links;
+			start = end + 1;
+		}
+
+		return links;
 	}
-	
+
 	// Duplicate the link data structure in WikipediaPage, since the constructor is not visible.
 	// This is merely for backward compatibility and should be re-checked in subsequent versions
 	// of Cloud9
 	public static class Link {
-	    private String anchor;
-	    private String target;
+		private String anchor;
+		private String target;
 
-	    private Link(String anchor, String target) {
-	      this.anchor = anchor;
-	      this.target = target;
-	    }
+		private Link(String anchor, String target) {
+			this.anchor = anchor;
+			this.target = target;
+		}
 
-	    public String getLabel() {
-	      return anchor;
-	    }
+		public String getLabel() {
+			return anchor;
+		}
 
-	    public String getTarget() {
-	      return target;
-	    }
+		public String getTarget() {
+			return target;
+		}
 
-	    public String toString() {
-	      return String.format("[target: %s, anchor: %s]", target, anchor);
-	    }
-	  }
+		public String toString() {
+			return String.format("[target: %s, anchor: %s]", target, anchor);
+		}
+	}
+
+	public static void main(String[] args) {
+		String s = "{{cite journal |first=Judith |last=Suissa |url=http://newhumanist.org.uk/1288/anarchy-in-the-classroom|title= Anarchy in the classroom |journal=[[The New Humanist]] |volume=120 |issue=5 |date=September–October 2005 |ref=harv}}";
+		System.out.println(isNotTemplateQuote("", s));		
+	}
 }
