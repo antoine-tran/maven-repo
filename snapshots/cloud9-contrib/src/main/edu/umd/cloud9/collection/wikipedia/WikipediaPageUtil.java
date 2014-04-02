@@ -48,7 +48,7 @@ public class WikipediaPageUtil  {
 		if (text.equals(title + "|")) {
 			return true;
 		}
-		else return false;
+		else return false;		
 	}
 
 	public static List<Link> getTemplates(String title, String rawContent) {
