@@ -69,7 +69,10 @@ public class WikipediaPageUtil  {
 			}
 
 			String text = rawContent.substring(start + 2, end);
-			if (isNotTemplateQuote(title, text)) return links;
+			if (isNotTemplateQuote(title, text)) {
+				start = end + 1;
+				continue;
+			}
 
 			String anchor = null;
 
@@ -87,7 +90,7 @@ public class WikipediaPageUtil  {
 
 			// if there is anchor text, get only article title
 			int a;
-			if ((a = text.indexOf("|")) != -1) {
+			if ((a = text.lastIndexOf("|")) != -1) {
 				anchor = text.substring(a + 1, text.length());
 				text = text.substring(0, a);
 			}
