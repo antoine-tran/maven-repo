@@ -12,6 +12,7 @@ public class WikipediaPageUtil  {
 
 	private static final boolean isNotTemplateQuote(String title, String text) {
 		text = Pattern.quote(text);  
+
 		return (text.matches("R from.*") || text.matches("Redirect\\s.*") 
 				|| text.matches("Cite.*") || text.matches("cite.*")
 				|| text.matches("Use\\s.*") || text.matches("pp-move-indef.*") 
