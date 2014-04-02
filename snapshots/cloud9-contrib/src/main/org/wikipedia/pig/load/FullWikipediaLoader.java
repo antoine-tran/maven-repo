@@ -78,7 +78,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 				
 				// load templates 
 				DataBag templates = bags.newDefaultBag();
-				for (Link t : WikipediaPageUtil.getTemplates(raw)) {
+				for (Link t : WikipediaPageUtil.getTemplates(title, raw)) {
 					templates.add(tuples.newTupleNoCopy(Arrays.asList(t.getTarget(), t.getLabel())));
 				}
 				

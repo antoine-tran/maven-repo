@@ -9,7 +9,36 @@ import com.google.common.collect.Lists;
  */
 public class WikipediaPageUtil  {
 
-	public static List<Link> getTemplates(String rawContent) {
+	private static final boolean isNotTemplateQuote(String title, String text) {
+		return (text.matches("R from.*$") || text.matches("Redirect\\s*.*$") 
+				|| text.matches("Cite.*$") || text.matches("cite.*$")
+				|| text.matches("Use\\s*.*$") || text.matches("pp-move-indef.*$") 
+				|| text.endsWith("sidebar") || text.matches("Related articles.*$")
+				|| text.matches("lang\\s*.*$") || text.matches("lang-en.*$")
+				|| text.matches("LSJ.*$") || text.matches("OCLC.*$")
+				|| text.matches("Main\\s*.*$|") || text.matches("IEP|.*$")
+				|| text.matches("sep entry.*$") || text.endsWith("sidebar")
+				|| text.endsWith("icon") || text.matches("Wayback\\s*.*$")
+				|| text.matches("See also\\s*.*$") || text.matches("inconsistent citations.*$")
+				|| text.matches("Harvnb.*$") // Harvard citation no brackets
+				|| text.matches("Lookfrom\\s*.*$") || text.matches("Portal\\s*.*$")
+				|| text.matches("Reflist\\s*.*$") || text.matches("Sister project links.*$")
+				|| text.matches("Link\\s*.*$") || text.matches("link\\s*.*$")
+				
+				// WikiProject BBC
+				|| text.matches("WikiProject\\s*.*$") || text.matches("BBCNAV.*$")
+				|| text.matches("Wikipedia:WikiProject\\s*") || text.matches("User:Mollsmolyneux.*$")
+				|| text.matches("subst:.*$") || text.matches("BBC\\s*.*$")
+				|| text.matches("BBC-.*stub.*$")
+				
+				// A quick trick to avoid BBC player linkage. Might be a gotcha !!
+				|| text.matches(title + "|")
+				
+				// Other tricks
+				|| text.matches("Good article.*$") || text.equals("-"));
+	}
+	
+	public static List<Link> getTemplates(String title, String rawContent) {
 		int start = 0;
 	    List<Link> links = Lists.newArrayList();
 
@@ -27,6 +56,8 @@ public class WikipediaPageUtil  {
 	      }
 
 	      String text = rawContent.substring(start + 2, end);
+	      if (isNotTemplateQuote(title, text)) return links;
+	      
 	      String anchor = null;
 
 	      // skip empty links
