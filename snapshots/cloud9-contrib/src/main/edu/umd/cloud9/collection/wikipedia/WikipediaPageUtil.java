@@ -10,34 +10,45 @@ import com.google.common.collect.Lists;
  */
 public class WikipediaPageUtil  {
 
+	static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
+		Pattern.compile("R from.*"), Pattern.compile("Redirect\\s.*"),
+		Pattern.compile("Use\\s.*"), Pattern.compile("pp-move-indef.*"), 
+		Pattern.compile("File:\\s*.*"), Pattern.compile("Related articles.*"),
+		Pattern.compile("lang\\s.*"), Pattern.compile("lang-en.*"),
+		Pattern.compile("LSJ.*"), Pattern.compile("OCLC.*"),
+		Pattern.compile("Main\\s.*|"), Pattern.compile("IEP|.*"),
+		Pattern.compile("sep entry.*"), Pattern.compile("Wayback\\s.*"),
+		Pattern.compile("See also\\s.*"), Pattern.compile("inconsistent citations.*"),
+		Pattern.compile("Harvnb.*"), // Harvard citation no brackets
+		Pattern.compile("Lookfrom\\s.*"), Pattern.compile("Portal\\s.*"),
+		Pattern.compile("Reflist\\s.*"), Pattern.compile("Sister project links.*"),
+		Pattern.compile("Link\\s.*"), Pattern.compile("link\\s.*"),
+
+		// WikiProject BBC
+		Pattern.compile("WikiProject\\s.*"), Pattern.compile("BBCNAV.*"),
+		Pattern.compile("Wikipedia:WikiProject\\s"), Pattern.compile("User:Mollsmolyneux.*"),
+		Pattern.compile("subst:.*"), Pattern.compile("BBC\\s.*"),
+		Pattern.compile("BBC-.*stub.*")
+	};
+	
 	private static final boolean isNotTemplateQuote(String title, String text) {
-		text = Pattern.quote(text);  
-		return (text.matches("R from.*") || text.matches("Redirect\\s.*") 
-				|| text.matches("Cite.*") || text.matches("cite.*")
-				|| text.matches("Use\\s.*") || text.matches("pp-move-indef.*") 
-				|| text.endsWith("sidebar") || text.matches("Related articles.*")
-				|| text.matches("lang\\s.*") || text.matches("lang-en.*")
-				|| text.matches("LSJ.*") || text.matches("OCLC.*")
-				|| text.matches("Main\\s.*|") || text.matches("IEP|.*")
-				|| text.matches("sep entry.*") || text.endsWith("sidebar")
-				|| text.endsWith("icon") || text.matches("Wayback\\s.*")
-				|| text.matches("See also\\s.*") || text.matches("inconsistent citations.*")
-				|| text.matches("Harvnb.*") // Harvard citation no brackets
-				|| text.matches("Lookfrom\\s.*") || text.matches("Portal\\s.*")
-				|| text.matches("Reflist\\s.*") || text.matches("Sister project links.*")
-				|| text.matches("Link\\s.*") || text.matches("link\\s.*")
-
-				// WikiProject BBC
-				|| text.matches("WikiProject\\s.*") || text.matches("BBCNAV.*")
-				|| text.matches("Wikipedia:WikiProject\\s") || text.matches("User:Mollsmolyneux.*")
-				|| text.matches("subst:.*") || text.matches("BBC\\s.*")
-				|| text.matches("BBC-.*stub.*")
-
-				// A quick trick to avoid BBC player linkage. Might be a gotcha !!
-				|| text.matches(title + "|")
-
-				// Other tricks
-				|| text.matches("Good article.*") || text.equals("-"));
+		String qtext = Pattern.quote(text); 
+		
+		for (Pattern p : NOT_TEMPLATE_PATTERN) {
+			if (p.matcher(qtext).matches()) return true;
+		}
+		if (text.endsWith("icon") && text.endsWith("sidebar")) {
+			return true;
+		}
+		if (text.equalsIgnoreCase("good article") || text.equals("-")) {
+			return true;
+		}
+		
+		// A quick trick to avoid BBC player linkage. Might be a gotcha !!
+		if (text.equals(title + "|")) {
+			return true;
+		}
+		else return false;
 	}
 
 	public static List<Link> getTemplates(String title, String rawContent) {
@@ -128,7 +139,8 @@ public class WikipediaPageUtil  {
 	}
 
 	public static void main(String[] args) {
-		String s = "{{cite journal |first=Judith |last=Suissa |url=http://newhumanist.org.uk/1288/anarchy-in-the-classroom|title= Anarchy in the classroom |journal=[[The New Humanist]] |volume=120 |issue=5 |date=September–October 2005 |ref=harv}}";
+		// String s = "{{cite journal |first=Judith |last=Suissa |url=http://newhumanist.org.uk/1288/anarchy-in-the-classroom|title= Anarchy in the classroom |journal=[[The New Humanist]] |volume=120 |issue=5 |date=September–October 2005 |ref=harv}}";
+		String s = "File:HMS Hermes (R12) (Royal Navy aircraft carrier.jpg|";
 		System.out.println(isNotTemplateQuote("", s));		
 	}
 }
