@@ -23,8 +23,8 @@ package tuan.io;
  * @author tuan
  *
  */
-public interface DataChecker {
+public interface DataChecker<K, T> {
 	
 	/** test whether a given internal data pass the rules */
-	public <T> boolean visit(DataReader<T> reader);
+	public boolean visit(K data, DataReader<T> reader);
 }
