@@ -76,6 +76,8 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 				boolean isDisamb = page.isDisambiguation();
 				boolean isRedirect = page.isRedirect();
 				String text = page.getWikiMarkup();
+				
+				if (text == null) return null;				
 				String length = valueOf(text.length());
 				Tuple tuple = tuples.newTupleNoCopy(Arrays.asList(id, (isArticle) ? "0" : "118", 
 						title, text, valueOf(isRedirect), length, valueOf(isDisamb)));
@@ -100,9 +102,11 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 
 	@Override
 	public ResourceSchema getSchema(String loc, Job job) throws IOException {
-		if (schema == null) {
+		ResourceSchema s = schema;
+		if (s == null) {
 			synchronized (this) {
-				if (schema == null) {
+				s = schema;
+				if (s == null) {					
 					defineSchema();
 				}
 			}
