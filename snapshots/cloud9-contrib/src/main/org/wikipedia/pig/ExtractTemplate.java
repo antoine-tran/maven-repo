@@ -5,16 +5,10 @@ package org.wikipedia.pig;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.pig.data.BagFactory;
 import org.apache.pig.data.DataBag;
 import org.apache.pig.data.TupleFactory;
-import org.apache.pig.impl.util.UDFContext;
-import org.python.google.common.collect.Lists;
 
-import pignlproc.markup.AnnotatingMarkupParser;
 
 /**
  * Extract a list of templates from Wikipedia raw page and have it
@@ -148,7 +142,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
 			start = end + 1;
 		}
-			
+
 		return bag;
 	}
 
