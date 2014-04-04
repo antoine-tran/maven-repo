@@ -69,10 +69,10 @@ public class WikipediaPageUtil  {
 			}
 
 			String text = rawContent.substring(start + 2, end);
-			/*if (isNotTemplateQuote(title, text)) {
+			if (isNotTemplateQuote(title, text)) {
 				start = end + 1;
 				continue;
-			}*/
+			}
 
 			String anchor = null;
 
