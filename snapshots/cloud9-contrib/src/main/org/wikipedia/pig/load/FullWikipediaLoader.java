@@ -116,7 +116,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		headerSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		headerSchema.add(new FieldSchema("end", DataType.INTEGER));
 		Schema headerSchemaWrapper = new Schema(new FieldSchema("th", headerSchema));
-		schema.add(new FieldSchema("headers", headerSchemaWrapper, DataType.BAG));
+		schema.add(new FieldSchema("headers", headerSchemaWrapper, DataType.MAP));
 		
 		// register links
 		Schema linkSchema = new Schema();
@@ -125,7 +125,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		linkSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		linkSchema.add(new FieldSchema("end", DataType.INTEGER));
 		Schema linkSchemaWrapper = new Schema(new FieldSchema("tl", linkSchema));
-		schema.add(new FieldSchema("links", linkSchemaWrapper, DataType.BAG));
+		schema.add(new FieldSchema("links", linkSchemaWrapper, DataType.MAP));
 		
 		// register paragraphs
 		Schema paragraphSchema = new Schema();
@@ -133,14 +133,14 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		paragraphSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		paragraphSchema.add(new FieldSchema("end", DataType.INTEGER));
 		Schema paragraphSchemaWrapper = new Schema(new FieldSchema("tp", paragraphSchema));
-		schema.add(new FieldSchema("paragraph", paragraphSchemaWrapper, DataType.BAG));
+		schema.add(new FieldSchema("paragraph", paragraphSchemaWrapper, DataType.MAP));
 		
 		// register templates
 		Schema templateSchema = new Schema();
 		templateSchema.add(new FieldSchema("target", DataType.CHARARRAY));
 		templateSchema.add(new FieldSchema("label", DataType.CHARARRAY));
 		Schema templateSchemaWrapper = new Schema(new FieldSchema("tt", templateSchema));
-		schema.add(new FieldSchema("template", templateSchemaWrapper, DataType.BAG));
+		schema.add(new FieldSchema("template", templateSchemaWrapper, DataType.MAP));
 		
 		this.schema = new ResourceSchema(schema);
 	}
