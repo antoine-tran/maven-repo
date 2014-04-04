@@ -125,7 +125,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 		linkSchema.add(new FieldSchema("begin", DataType.INTEGER));
 		linkSchema.add(new FieldSchema("end", DataType.INTEGER));
 		Schema linkSchemaWrapper = new Schema(new FieldSchema("tl", linkSchema));
-		schema.add(new FieldSchema("links", linkSchemaWrapper, DataType.MAP));
+		schema.add(new FieldSchema("links", linkSchemaWrapper, DataType.BAG));
 		
 		// register paragraphs
 		Schema paragraphSchema = new Schema();
