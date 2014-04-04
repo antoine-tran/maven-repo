@@ -34,7 +34,7 @@ public class WikipediaPageUtil  {
 	
 	private static final boolean isNotTemplateQuote(String title, String text) {
 		String qtext = Pattern.quote(text); 
-		
+		System.out.println(qtext);
 		for (Pattern p : NOT_TEMPLATE_PATTERN) {
 			if (p.matcher(qtext).matches()) return true;
 		}
@@ -51,11 +51,11 @@ public class WikipediaPageUtil  {
 		}
 		else return false;		
 	}
-
+	 
 	public static List<Link> getTemplates(String title, String rawContent) {
 		int start = 0;
 		List<Link> links = Lists.newArrayList();
-
+		rawContent = rawContent.replace('\n', ' ');
 		while (true) {
 			start = rawContent.indexOf("{{", start);
 
@@ -143,8 +143,9 @@ public class WikipediaPageUtil  {
 	}
 
 	public static void main(String[] args) {
-		// String s = "{{cite journal |first=Judith |last=Suissa |url=http://newhumanist.org.uk/1288/anarchy-in-the-classroom|title= Anarchy in the classroom |journal=[[The New Humanist]] |volume=120 |issue=5 |date=September–October 2005 |ref=harv}}";
-		String s = "File:HMS Hermes (R12) (Royal Navy aircraft carrier.jpg|";
+		//String s = "{{cite journal |first=Judith |last=Suissa |url=http://newhumanist.org.uk/1288/anarchy-in-the-classroom|title= Anarchy in the classroom |journal=[[The New Humanist]] |volume=120 |issue=5 |date=September–October 2005 |ref=harv}}";
+		String s = "{{Cite journal\n|last=Williams\n|first=Leonard\n|date=September 2007\n |title=Anarchism Revived\n |journal=New Political Science\n |volume=29\n |issue=3\n |pages=297–312\n |doi=10.1080/07393140701510160\n |ref=harv\n}}";
+		// String s = "File:HMS Hermes (R12) (Royal Navy aircraft carrier.jpg|";
 		System.out.println(isNotTemplateQuote("", s));		
 	}
 }
