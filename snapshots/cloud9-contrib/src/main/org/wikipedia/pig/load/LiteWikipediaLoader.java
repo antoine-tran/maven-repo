@@ -75,7 +75,7 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 				boolean isArticle = page.isArticle();
 				boolean isDisamb = page.isDisambiguation();
 				boolean isRedirect = page.isRedirect();
-				String text = page.getRawXML();
+				String text = page.getWikiMarkup();
 				String length = valueOf(text.length());
 				Tuple tuple = tuples.newTupleNoCopy(Arrays.asList(id, (isArticle) ? "0" : "118", 
 						title, text, valueOf(isRedirect), length, valueOf(isDisamb)));
