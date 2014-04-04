@@ -46,7 +46,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 				String id = page.getDocid();
 				String title = page.getTitle();
 				
-				Log.debug("Processing page: " + title);
+				Log.info("Processing page: " + title);
 				
 				boolean isArticle = page.isArticle();
 				boolean isDisamb = page.isDisambiguation();
@@ -83,10 +83,10 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 				// load templates 
 				DataBag templates = bags.newDefaultBag();
 				for (Link t : WikipediaPageUtil.getTemplates(title, raw)) {
-					Log.debug("Get template: " + t.getLabel() + "::" + t.getTarget());
+					Log.info("Get template: " + t.getLabel() + "::" + t.getTarget());
 					templates.add(tuples.newTupleNoCopy(Arrays.asList(t.getTarget(), t.getLabel())));
 				}
-				
+								
 				return tuples.newTupleNoCopy(Arrays.asList(id, (isArticle) ? "0" : "118", title,
 						text, valueOf(isRedirect), length, valueOf(isDisamb), headers, links, 
 						paragraphs, templates));
