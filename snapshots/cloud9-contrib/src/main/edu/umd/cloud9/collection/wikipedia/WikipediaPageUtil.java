@@ -34,7 +34,6 @@ public class WikipediaPageUtil  {
 	
 	private static final boolean isNotTemplateQuote(String title, String text) {
 		String qtext = Pattern.quote(text); 
-		System.out.println(qtext);
 		for (Pattern p : NOT_TEMPLATE_PATTERN) {
 			if (p.matcher(qtext).matches()) return true;
 		}
