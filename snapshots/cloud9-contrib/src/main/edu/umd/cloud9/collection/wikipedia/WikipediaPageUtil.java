@@ -12,6 +12,7 @@ public class WikipediaPageUtil  {
 
 	static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
 		Pattern.compile("R from.*"), Pattern.compile("Redirect\\s.*"),
+		Pattern.compile("Cite.*"), Pattern.compile("cite.*"),
 		Pattern.compile("Use\\s.*"), Pattern.compile("pp-move-indef.*"), 
 		Pattern.compile("File:\\s*.*"), Pattern.compile("Related articles.*"),
 		Pattern.compile("lang\\s.*"), Pattern.compile("lang-en.*"),
