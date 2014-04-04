@@ -11,25 +11,40 @@ import com.google.common.collect.Lists;
 public class WikipediaPageUtil  {
 
 	static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
-		Pattern.compile("R from.*"), Pattern.compile("Redirect\\s.*"),
-		Pattern.compile("Cite.*"), Pattern.compile("cite.*"),
-		Pattern.compile("Use\\s.*"), Pattern.compile("pp-move-indef.*"), 
-		Pattern.compile("File:\\s*.*"), Pattern.compile("Related articles.*"),
-		Pattern.compile("lang\\s.*"), Pattern.compile("lang-en.*"),
-		Pattern.compile("LSJ.*"), Pattern.compile("OCLC.*"),
-		Pattern.compile("Main\\s.*|"), Pattern.compile("IEP|.*"),
-		Pattern.compile("sep entry.*"), Pattern.compile("Wayback\\s.*"),
-		Pattern.compile("See also\\s.*"), Pattern.compile("inconsistent citations.*"),
-		Pattern.compile("Harvnb.*"), // Harvard citation no brackets
-		Pattern.compile("Lookfrom\\s.*"), Pattern.compile("Portal\\s.*"),
-		Pattern.compile("Reflist\\s.*"), Pattern.compile("Sister project links.*"),
-		Pattern.compile("Link\\s.*"), Pattern.compile("link\\s.*"),
+		Pattern.compile("R from.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Redirect\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Cite.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("cite.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Use\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("pp-move-indef.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("File:\\s*.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Related articles.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("lang\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("lang-en.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("LSJ.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("OCLC.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Main\\s.*|", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("IEP|.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("sep entry.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Wayback\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("See also\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("inconsistent citations.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Harvnb.*", Pattern.DOTALL | Pattern.MULTILINE), // Harvard citation no brackets
+		Pattern.compile("Lookfrom\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Portal\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Reflist\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Sister project links.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Link\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("link\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
 
 		// WikiProject BBC
-		Pattern.compile("WikiProject\\s.*"), Pattern.compile("BBCNAV.*"),
-		Pattern.compile("Wikipedia:WikiProject\\s"), Pattern.compile("User:Mollsmolyneux.*"),
-		Pattern.compile("subst:.*"), Pattern.compile("BBC\\s.*"),
-		Pattern.compile("BBC-.*stub.*")
+		Pattern.compile("WikiProject\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("BBCNAV.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Wikipedia:WikiProject\\s", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("User:Mollsmolyneux.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("subst:.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("BBC\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("BBC-.*stub.*", Pattern.DOTALL | Pattern.MULTILINE)
 	};
 	
 	private static final boolean isNotTemplateQuote(String title, String text) {
