@@ -120,7 +120,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 
 			// skip special links
 			if (text.indexOf(":") != -1) {
-				start = end + 1;
+				start = end + 1; 
 				continue;
 			}
 
@@ -153,7 +153,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			bag.add(tuples.newTupleNoCopy(Arrays.asList("","")));
 		}
 		
-		return (bag.size() == 0) ? null : bag;
+		return bag;
 	}
 
 }
