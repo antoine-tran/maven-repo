@@ -23,6 +23,7 @@ import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
+import org.mortbay.log.Log;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPageInputFormat;
@@ -76,6 +77,7 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 				boolean isDisamb = page.isDisambiguation();
 				boolean isRedirect = page.isRedirect();
 				String text = page.getWikiMarkup();
+				if (text == null) Log.info("NUll for " + title);
 				String length = valueOf(text.length());
 				Tuple tuple = tuples.newTupleNoCopy(Arrays.asList(id, (isArticle) ? "0" : "118", 
 						title, text, valueOf(isRedirect), length, valueOf(isDisamb)));
