@@ -12,6 +12,7 @@ import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
+import org.mortbay.log.Log;
 
 import pignlproc.markup.AnnotatingMarkupParser;
 import pignlproc.markup.Annotation;
@@ -44,6 +45,9 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 				WikipediaPage page = reader.getCurrentValue();
 				String id = page.getDocid();
 				String title = page.getTitle();
+				
+				Log.debug("Processing page: " + title);
+				
 				boolean isArticle = page.isArticle();
 				boolean isDisamb = page.isDisambiguation();
 				boolean isRedirect = page.isRedirect();
@@ -79,6 +83,7 @@ public class FullWikipediaLoader extends LiteWikipediaLoader {
 				// load templates 
 				DataBag templates = bags.newDefaultBag();
 				for (Link t : WikipediaPageUtil.getTemplates(title, raw)) {
+					Log.debug("Get template: " + t.getLabel() + "::" + t.getTarget());
 					templates.add(tuples.newTupleNoCopy(Arrays.asList(t.getTarget(), t.getLabel())));
 				}
 				
