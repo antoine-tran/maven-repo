@@ -1,18 +1,33 @@
-package edu.umd.cloud9.collection.wikipedia;
+/**
+ * 
+ */
+package org.wikipedia.pig;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.Lists;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.pig.data.BagFactory;
+import org.apache.pig.data.DataBag;
+import org.apache.pig.data.TupleFactory;
+import org.apache.pig.impl.util.UDFContext;
+import org.python.google.common.collect.Lists;
 
-/** utility methods to complement the WikipediaPage format
- * @author tuan 
- * @deprecated please see EvalFunc's implementations ({@link org.wikipedia.pig.PageFunc}
+import pignlproc.markup.AnnotatingMarkupParser;
+
+/**
+ * Extract a list of templates from Wikipedia raw page and have it
+ * returned as a data bag
+ * @author tuan
+ *
  */
-@Deprecated
-public class WikipediaPageUtil  {
+public class ExtractTemplate extends PageFunc<DataBag> {
 
-	static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
+	private BagFactory bags = BagFactory.getInstance();
+	private TupleFactory tuples = TupleFactory.getInstance();
+		
+	private static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
 		Pattern.compile("R from.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("Redirect\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("Cite.*", Pattern.DOTALL | Pattern.MULTILINE), 
@@ -61,16 +76,20 @@ public class WikipediaPageUtil  {
 			return true;
 		}
 		
-		// A quick trick to avoid BBC player linkage. Might be a gotcha !!
-		if (text.equals(title + "|")) {
+		// Gotcha: A quick trick to avoid BBC player linkage ({{In Our Time|Anarchism|p0038x9t|Anarchism}}). 
+		// Not work in all cases
+		if (text.endsWith("|" + title)) {
 			return true;
 		}
 		else return false;		
 	}
-	 
-	public static List<Link> getTemplates(String title, String rawContent) {
+	
+	@Override
+	public DataBag parse(long id, String title, String rawContent) {
+					
+		DataBag bag = bags.newDefaultBag();
+
 		int start = 0;
-		List<Link> links = Lists.newArrayList();
 		rawContent = rawContent.replace('\n', ' ');
 		while (true) {
 			start = rawContent.indexOf("{{", start);
@@ -125,43 +144,10 @@ public class WikipediaPageUtil  {
 			if (anchor == null) {
 				anchor = text;
 			}
-			links.add(new Link(anchor, text));
-
+			bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
 			start = end + 1;
 		}
-
-		return links;
+		return bag;
 	}
 
-	// Duplicate the link data structure in WikipediaPage, since the constructor is not visible.
-	// This is merely for backward compatibility and should be re-checked in subsequent versions
-	// of Cloud9
-	public static class Link {
-		private String anchor;
-		private String target;
-
-		private Link(String anchor, String target) {
-			this.anchor = anchor;
-			this.target = target;
-		}
-
-		public String getLabel() {
-			return anchor;
-		}
-
-		public String getTarget() {
-			return target;
-		}
-
-		public String toString() {
-			return String.format("[target: %s, anchor: %s]", target, anchor);
-		}
-	}
-
-	public static void main(String[] args) {
-		//String s = "{{cite journal |first=Judith |last=Suissa |url=http://newhumanist.org.uk/1288/anarchy-in-the-classroom|title= Anarchy in the classroom |journal=[[The New Humanist]] |volume=120 |issue=5 |date=September–October 2005 |ref=harv}}";
-		String s = "{{Cite journal\n|last=Williams\n|first=Leonard\n|date=September 2007\n |title=Anarchism Revived\n |journal=New Political Science\n |volume=29\n |issue=3\n |pages=297–312\n |doi=10.1080/07393140701510160\n |ref=harv\n}}";
-		// String s = "File:HMS Hermes (R12) (Royal Navy aircraft carrier.jpg|";
-		System.out.println(isNotTemplateQuote("", s));		
-	}
 }
