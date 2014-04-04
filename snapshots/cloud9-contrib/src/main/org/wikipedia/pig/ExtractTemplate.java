@@ -147,7 +147,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
 			start = end + 1;
 		}
-		return bag;
+		return (bag.size() == 0) ? null : bag;
 	}
 
 }
