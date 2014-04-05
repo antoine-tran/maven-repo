@@ -19,7 +19,7 @@ import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
  * @author tuan
  *
  */
-public class ExtractTemplate extends PageFunc<String> {
+public class ExtractTemplate extends PageFunc<DataBag> {
 
 	private BagFactory bags = BagFactory.getInstance();
 	private TupleFactory tuples = TupleFactory.getInstance();
@@ -104,7 +104,7 @@ public class ExtractTemplate extends PageFunc<String> {
 
 
 	@Override
-	public String parse(long id, String title, String rawContent) {
+	public DataBag parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
 		bag.add(tuples.newTuple(Arrays.asList("test","anchor")));
@@ -168,7 +168,7 @@ public class ExtractTemplate extends PageFunc<String> {
 			start = end + 1;
 		}*/
 
-		return "test";
+		return bag;
 	}
 
 }
