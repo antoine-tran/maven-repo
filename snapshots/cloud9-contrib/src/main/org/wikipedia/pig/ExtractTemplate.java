@@ -82,7 +82,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	public DataBag parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
-		bag.add(tuples.newTupleNoCopy(Arrays.asList("test","anchor")));
+		bag.add(tuples.newTuple(Arrays.asList("test","anchor")));
 
 		/*int start = 0;
 		rawContent = rawContent.replace('\n', ' ');
