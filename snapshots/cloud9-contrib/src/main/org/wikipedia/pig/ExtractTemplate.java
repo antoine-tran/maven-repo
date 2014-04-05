@@ -92,7 +92,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		try {
 			Schema template = new Schema();
 			template.add(new FieldSchema("target", DataType.CHARARRAY));
-			// template.add(new FieldSchema("anchor", DataType.CHARARRAY));
+			template.add(new FieldSchema("anchor", DataType.CHARARRAY));
 			FieldSchema tupleFs = new FieldSchema("tuple_of_templates", template, DataType.TUPLE);
 			Schema tuple = new Schema(tupleFs);
 			FieldSchema bagFs = new FieldSchema("bag", tuple, DataType.BAG);
