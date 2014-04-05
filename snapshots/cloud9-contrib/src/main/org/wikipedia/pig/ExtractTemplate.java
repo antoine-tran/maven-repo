@@ -91,7 +91,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		try {
 			Schema template = new Schema();
 			template.add(new FieldSchema("target", DataType.CHARARRAY));
-			template.add(new FieldSchema("anchor", DataType.CHARARRAY));
+			// template.add(new FieldSchema("anchor", DataType.CHARARRAY));
 			FieldSchema tupleFs = new FieldSchema("tuple_of_templates", template, DataType.TUPLE);
 			Schema tuple = new Schema(tupleFs);
 			FieldSchema bagFs = new FieldSchema("bag", tuple, DataType.BAG);
@@ -107,7 +107,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	public DataBag parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
-		bag.add(tuples.newTuple(Arrays.asList("test","anchor")));
+		bag.add(tuples.newTuple(Arrays.asList("test")));
 
 		/*int start = 0;
 		rawContent = rawContent.replace('\n', ' ');
