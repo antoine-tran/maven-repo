@@ -11,6 +11,7 @@ import org.apache.pig.data.DataType;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
+import org.mortbay.log.Log;
 
 
 /**
@@ -97,6 +98,8 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			FieldSchema bagFs = new FieldSchema("bag", tuple, DataType.BAG);
 			return new Schema(bagFs);
 		} catch (Exception e) {
+			Log.info("Error: ", e);
+			e.printStackTrace();
 			return null;
 		}
 	}
