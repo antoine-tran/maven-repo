@@ -7,7 +7,10 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import org.apache.pig.data.BagFactory;
 import org.apache.pig.data.DataBag;
+import org.apache.pig.data.DataType;
 import org.apache.pig.data.TupleFactory;
+import org.apache.pig.impl.logicalLayer.schema.Schema;
+import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
 
 
 /**
@@ -78,6 +81,28 @@ public class ExtractTemplate extends PageFunc<String> {
 		else return false;		
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.apache.pig.EvalFunc#outputSchema(org.apache.pig.impl.logicalLayer.schema.Schema)
+	 */
+	@Override
+	public Schema outputSchema(Schema inputSchema) {
+		try {
+			Schema template = new Schema();
+			template.add(new FieldSchema("target", DataType.CHARARRAY));
+			template.add(new FieldSchema("anchor", DataType.CHARARRAY));
+			FieldSchema tupleFs = new FieldSchema("tuple_of_templates", template, DataType.TUPLE);
+			Schema tuple = new Schema(tupleFs);
+			FieldSchema bagFs = new FieldSchema("bag", tuple, DataType.BAG);
+			return new Schema(bagFs);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+
+
 	@Override
 	public String parse(long id, String title, String rawContent) {
 					
