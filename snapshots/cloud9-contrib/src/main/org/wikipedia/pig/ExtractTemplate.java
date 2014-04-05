@@ -16,7 +16,7 @@ import org.apache.pig.data.TupleFactory;
  * @author tuan
  *
  */
-public class ExtractTemplate extends PageFunc<DataBag> {
+public class ExtractTemplate extends PageFunc<String> {
 
 	private BagFactory bags = BagFactory.getInstance();
 	private TupleFactory tuples = TupleFactory.getInstance();
@@ -79,7 +79,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	}
 	
 	@Override
-	public DataBag parse(long id, String title, String rawContent) {
+	public String parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
 		bag.add(tuples.newTuple(Arrays.asList("test","anchor")));
@@ -143,7 +143,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			start = end + 1;
 		}*/
 
-		return bag;
+		return "test";
 	}
 
 }
