@@ -74,7 +74,8 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			return true;
 		}
 		
-		// Gotcha: A quick trick to avoid BBC player linkage ({{In Our Time|Anarchism|p0038x9t|Anarchism}}). 
+		// Gotcha: A quick trick to avoid BBC player linkage 
+		// e.g. ({{In Our Time|Anarchism|p0038x9t|Anarchism}}). 
 		// Not work in all cases
 		if (text.endsWith("|" + title)) {
 			return true;
@@ -110,9 +111,10 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	public DataBag parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
-		//bag.add(tuples.newTuple(Arrays.asList("test")));
+		//bag.add(tuples.newTupleNoCopy(Arrays.asList("test")));
+		bag.add(tuples.newTupleNoCopy(Arrays.asList(rawContent, "anchor")));
 
-		int start = 0;
+		/*int start = 0;
 		rawContent = rawContent.replace('\n', ' ');
 		while (true) {
 			start = rawContent.indexOf("{{", start);
@@ -172,7 +174,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 				bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
 			}
 			start = end + 1;
-		}
+		}*/
 		
 		return (bag.size() == 0) ? null : bag;
 	}
