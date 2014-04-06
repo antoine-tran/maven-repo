@@ -93,6 +93,15 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			return true;
 		}
 		
+		// special markups for redirect
+		if (text.equalsIgnoreCase("R from CamelCase")) {
+			return true;
+		}
+		
+		if (text.equalsIgnoreCase("refend")) {
+			return true;
+		}
+		
 		// Gotcha: A quick trick to avoid BBC player linkage 
 		// e.g. ({{In Our Time|Anarchism|p0038x9t|Anarchism}}). 
 		// Not work in all cases
