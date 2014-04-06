@@ -44,7 +44,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		Pattern.compile("Wayback\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("See also\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("inconsistent citations.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Harvnb.*", Pattern.DOTALL | Pattern.MULTILINE), // Harvard citation no brackets
+		Pattern.compile("Harvnb.*", Pattern.DOTALL | Pattern.MULTILINE), // Harvard cite no brackets
 		Pattern.compile("Lookfrom\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("Portal\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("Reflist\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
@@ -111,9 +111,9 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	public DataBag parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
-		bag.add(tuples.newTupleNoCopy(Arrays.asList(rawContent, "anchor")));
+		// bag.add(tuples.newTupleNoCopy(Arrays.asList(rawContent, "anchor")));
 		
-		/*int start = 0;
+		int start = 0;
 		rawContent = rawContent.replace('\n', ' ');
 		while (true) {
 			start = rawContent.indexOf("{{", start);
@@ -164,7 +164,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 				bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
 			}
 			start = end + 1;
-		}*/
+		}
 		
 		// return (bag.size() == 0) ? null : bag;
 		return bag;
