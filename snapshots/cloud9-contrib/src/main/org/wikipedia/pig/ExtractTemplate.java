@@ -13,6 +13,8 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
 import org.mortbay.log.Log;
 
+import tuan.io.FileUtility;
+
 
 /**
  * Extract a list of templates from Wikipedia raw page and have it
@@ -26,46 +28,49 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	private TupleFactory tuples = TupleFactory.getInstance();
 		
 	private static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
-		Pattern.compile("R from.*", Pattern.DOTALL), 
-		Pattern.compile("Redirect\\s.*", Pattern.DOTALL),
-		Pattern.compile("Cite.*", Pattern.DOTALL), 
-		Pattern.compile("cite.*", Pattern.DOTALL),
-		Pattern.compile("Use\\s.*", Pattern.DOTALL), 
-		Pattern.compile("pp-move-indef.*", Pattern.DOTALL), 
-		Pattern.compile("File:\\s*.*", Pattern.DOTALL), 
-		Pattern.compile("Related articles.*", Pattern.DOTALL),
-		Pattern.compile("lang\\s.*", Pattern.DOTALL), 
-		Pattern.compile("lang-en.*", Pattern.DOTALL),
-		Pattern.compile("LSJ.*", Pattern.DOTALL), 
-		Pattern.compile("OCLC.*", Pattern.DOTALL),
-		Pattern.compile("Main\\s.*|", Pattern.DOTALL), 
-		Pattern.compile("IEP|.*", Pattern.DOTALL),
-		Pattern.compile("sep entry.*", Pattern.DOTALL), 
-		Pattern.compile("Wayback\\s.*", Pattern.DOTALL),
-		Pattern.compile("See also\\s.*", Pattern.DOTALL), 
-		Pattern.compile("inconsistent citations.*", Pattern.DOTALL),
-		Pattern.compile("Harvnb.*", Pattern.DOTALL), // Harvard cite no brackets
-		Pattern.compile("Lookfrom\\s.*", Pattern.DOTALL), 
-		Pattern.compile("Portal\\s.*", Pattern.DOTALL),
-		Pattern.compile("Reflist\\s.*", Pattern.DOTALL), 
-		Pattern.compile("Sister project links.*", Pattern.DOTALL),
-		Pattern.compile("Link\\s.*", Pattern.DOTALL), 
-		Pattern.compile("link\\s.*", Pattern.DOTALL),
+		Pattern.compile("R from.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Redirect\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Cite.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("cite.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Use\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("pp-move-indef.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("File:\\s*.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Related articles.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("lang\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("lang-en.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("LSJ.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("OCLC.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Main\\s.*|", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("IEP\\|.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("sep entry.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Wayback\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("See also\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("inconsistent citations.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Harvnb.*", Pattern.DOTALL | Pattern.MULTILINE), // Harvard cite no brackets
+		Pattern.compile("Lookfrom\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Portal\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Reflist\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Sister project links.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Link\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("link\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
 
 		// WikiProject BBC
-		Pattern.compile("WikiProject\\s.*", Pattern.DOTALL), 
-		Pattern.compile("BBCNAV.*", Pattern.DOTALL),
-		Pattern.compile("Wikipedia:WikiProject\\s", Pattern.DOTALL), 
-		Pattern.compile("User:Mollsmolyneux.*", Pattern.DOTALL),
-		Pattern.compile("subst:.*", Pattern.DOTALL), 
-		Pattern.compile("BBC\\s.*", Pattern.DOTALL),
-		Pattern.compile("BBC-.*stub.*", Pattern.DOTALL)
+		Pattern.compile("WikiProject\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("BBCNAV.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Wikipedia:WikiProject\\s", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("User:Mollsmolyneux.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("subst:.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("BBC\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("BBC-.*stub.*", Pattern.DOTALL | Pattern.MULTILINE)
 	};
 	
 	private static final boolean isNotTemplateQuote(String title, String text) {
 		String qtext = Pattern.quote(text); 
 		for (Pattern p : NOT_TEMPLATE_PATTERN) {
-			if (p.matcher(qtext).matches()) return true;
+			if (p.matcher(qtext).matches()) {
+				System.out.println(p);
+				return true;
+			}
 		}
 		if (text.endsWith("icon") && text.endsWith("sidebar")) {
 			return true;
@@ -169,5 +174,12 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		// return (bag.size() == 0) ? null : bag;
 		return bag;
 	}
-
+	
+	public static void main(String[] args) {
+		StringBuilder sb = new StringBuilder();
+		for (String line : FileUtility.readLines(args[0])) {
+			sb.append(line + "\n");
+		}
+		System.out.println(isNotTemplateQuote("", sb.toString()));
+	}
 }
