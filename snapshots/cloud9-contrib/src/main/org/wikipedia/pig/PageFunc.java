@@ -13,8 +13,14 @@ public abstract class PageFunc<T> extends EvalFunc<T> {
 
 	@Override	
 	public final T exec(Tuple tuple) throws IOException {
-		return parse(Long.parseLong((String) tuple.get(0)), (String)tuple.get(1), 
+		try {
+		T t = parse(Long.parseLong((String) tuple.get(0)), (String)tuple.get(1), 
 				(String)tuple.get(2));
+		return t;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IOException(e);
+		}
 	}
 	
 	public abstract T parse(long pageId, String pageTitle, String pageContent);
