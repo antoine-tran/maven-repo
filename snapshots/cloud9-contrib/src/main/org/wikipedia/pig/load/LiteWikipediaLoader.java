@@ -71,6 +71,7 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 			hasNext = reader.nextKeyValue();
 			if (hasNext) {
 				page = reader.getCurrentValue();
+				System.out.println("Processing page: " + page.getRawXML());
 				String id = page.getDocid();
 				String title = page.getTitle();
 				boolean isArticle = page.isArticle();
@@ -84,7 +85,6 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 				return tuple;
 			}
 		} catch (InterruptedException e) {
-			System.out.println("Processing page: " + page.getRawXML());
 			e.printStackTrace();
 			throw new IOException(e);
 		}
