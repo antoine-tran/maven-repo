@@ -66,10 +66,11 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 	// the layout of Wikipedia SQL dump
 	public Tuple getNext() throws IOException {
 		boolean hasNext;
+		WikipediaPage page = null;
 		try {
 			hasNext = reader.nextKeyValue();
 			if (hasNext) {
-				WikipediaPage page = reader.getCurrentValue();
+				page = reader.getCurrentValue();
 				String id = page.getDocid();
 				String title = page.getTitle();
 				boolean isArticle = page.isArticle();
@@ -83,6 +84,8 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 				return tuple;
 			}
 		} catch (InterruptedException e) {
+			System.out.println("Processing page: " + page.getRawXML());
+			e.printStackTrace();
 			throw new IOException(e);
 		}
 		return null;
