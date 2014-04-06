@@ -29,50 +29,57 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		
 	private static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
 		Pattern.compile("R from.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("Redirect\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Cite.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("cite.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Use\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("pp-move-indef.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("File:\\s*.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("Related articles.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("lang\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("lang\\-en.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Redirect[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Cite[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("cite[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Use[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("pp\\-move\\-indef.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("File:[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Related articles[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("lang[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("quote[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("lang\\-en[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("LSJ.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("OCLC.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Main\\s.*|", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Main[\\s\\|].*|", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("IEP\\|.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("sep entry.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("Wayback\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("See also\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("sep entry[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Wayback[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("See also[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("inconsistent citations.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Harvnb.*", Pattern.DOTALL | Pattern.MULTILINE), // Harvard cite no brackets
-		Pattern.compile("Lookfrom\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("Portal\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Reflist\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("Sister project links.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Link\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("link\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
+		// Harvard cite no brackets
+		Pattern.compile("Harvnb[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Lookfrom[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Portal[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Reflist[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("Sister project links[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Link[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("link[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
 
 		// WikiProject BBC
-		Pattern.compile("WikiProject\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("BBCNAV.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("Wikipedia:WikiProject\\s", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("User:Mollsmolyneux.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("subst:.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("BBC\\s.*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("BBC-.*stub.*", Pattern.DOTALL | Pattern.MULTILINE)
+		Pattern.compile("WikiProject[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("BBCNAV[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("Wikipedia:WikiProject[\\s\\|]", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("User:Mollsmolyneux[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("subst:[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("BBC[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("BBC\\-.*stub.*", Pattern.DOTALL | Pattern.MULTILINE)
 	};
 	
 	private static final boolean isNotTemplateQuote(String title, String text) {
 		String qtext = Pattern.quote(text); 
 		for (Pattern p : NOT_TEMPLATE_PATTERN) {
 			if (p.matcher(qtext).matches()) {
-				System.out.println(p);
 				return true;
 			}
 		}
-		if (text.endsWith("icon") && text.endsWith("sidebar")) {
+		if (text.indexOf('|') > 0) {
+			return true;
+		}
+		if (text.indexOf('\n') > 0) {
+			return true;
+		}
+		if (text.endsWith("icon") || text.endsWith("sidebar")) {
 			return true;
 		}
 		if (text.equalsIgnoreCase("good article") || text.equals("-")) {
@@ -110,8 +117,6 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		}
 	}
 
-
-
 	@Override
 	public DataBag parse(long id, String title, String rawContent) {
 					
@@ -119,7 +124,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		// bag.add(tuples.newTupleNoCopy(Arrays.asList(rawContent, "anchor")));
 		
 		int start = 0;
-		rawContent = rawContent.replace('\n', ' ');
+		// rawContent = rawContent.replace('\n', ' ');
 		while (true) {
 			start = rawContent.indexOf("{{", start);
 
