@@ -28,19 +28,19 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	private TupleFactory tuples = TupleFactory.getInstance();
 		
 	private static final Pattern[] NOT_TEMPLATE_PATTERN = new Pattern[] {
-		Pattern.compile("R from.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("R from\\s*.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("Redirect[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("Cite[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("cite[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("Use[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("pp\\-move\\-indef.*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("pp\\-move\\-indef\\s*.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("File:[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("Related articles[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("lang[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("quote[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("lang\\-en[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
-		Pattern.compile("LSJ.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("OCLC.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("LSJ[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
+		Pattern.compile("OCLC[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("Main[\\s\\|].*|", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("IEP\\|.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("sep entry[\\s\\|].*", Pattern.DOTALL | Pattern.MULTILINE), 
