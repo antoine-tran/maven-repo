@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.apache.pig.data.BagFactory;
 import org.apache.pig.data.DataBag;
 import org.apache.pig.data.DataType;
+import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
@@ -85,6 +86,12 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		if (text.equalsIgnoreCase("good article") || text.equals("-")) {
 			return true;
 		}
+		if (text.length() == 0) {
+			return true;
+		}
+		if (text.indexOf(':') != -1) {
+			return true;
+		}
 		
 		// Gotcha: A quick trick to avoid BBC player linkage 
 		// e.g. ({{In Our Time|Anarchism|p0038x9t|Anarchism}}). 
@@ -105,7 +112,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		try {
 			Schema template = new Schema();
 			template.add(new FieldSchema("target", DataType.CHARARRAY));
-			template.add(new FieldSchema("anchor", DataType.CHARARRAY));
+			//template.add(new FieldSchema("anchor", DataType.CHARARRAY));
 			FieldSchema tupleFs = new FieldSchema("tuple_of_templates", template, DataType.TUPLE);
 			Schema tuple = new Schema(tupleFs);
 			FieldSchema bagFs = new FieldSchema("bag", tuple, DataType.BAG);
@@ -140,24 +147,9 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 				start = end + 1;
 				continue;
 			}
-			String anchor = null;
 			
-			// skip empty links
-			if (text.length() == 0) {
-				start = end + 1;
-				continue;
-			}
-			// skip special links
-			if (text.indexOf(":") != -1) {
-				start = end + 1; 
-				continue;
-			}
 			// if there is anchor text, get only article title
 			int a;
-			if ((a = text.lastIndexOf("|")) != -1) {
-				anchor = text.substring(a + 1, text.length());
-				text = text.substring(0, a);
-			}
 			if ((a = text.indexOf("#")) != -1) {
 				text = text.substring(0, a);
 			}
@@ -166,13 +158,8 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 				start = end + 1;
 				continue;
 			}
-
-			if (anchor == null) {
-				anchor = text;
-			}			
-			if (text != null && !text.isEmpty() && anchor != null && !anchor.isEmpty()) {
-				bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
-			}
+			
+			bag.add(tuples.newTupleNoCopy(Arrays.asList(text)));
 			start = end + 1;
 		}
 		
@@ -180,11 +167,11 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		return bag;
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		StringBuilder sb = new StringBuilder();
 		for (String line : FileUtility.readLines(args[0])) {
 			sb.append(line + "\n");
 		}
 		System.out.println(isNotTemplateQuote("", sb.toString()));
-	}
+	}*/
 }
