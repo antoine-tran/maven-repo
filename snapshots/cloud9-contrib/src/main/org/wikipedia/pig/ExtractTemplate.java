@@ -37,7 +37,7 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 		Pattern.compile("File:\\s*.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("Related articles.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("lang\\s.*", Pattern.DOTALL | Pattern.MULTILINE), 
-		Pattern.compile("lang-en.*", Pattern.DOTALL | Pattern.MULTILINE),
+		Pattern.compile("lang\\-en.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("LSJ.*", Pattern.DOTALL | Pattern.MULTILINE), 
 		Pattern.compile("OCLC.*", Pattern.DOTALL | Pattern.MULTILINE),
 		Pattern.compile("Main\\s.*|", Pattern.DOTALL | Pattern.MULTILINE), 
