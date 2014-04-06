@@ -111,9 +111,9 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 	public DataBag parse(long id, String title, String rawContent) {
 					
 		DataBag bag = bags.newDefaultBag();
-		//bag.add(tuples.newTupleNoCopy(Arrays.asList("test")));
-
-		int start = 0;
+		bag.add(tuples.newTupleNoCopy(Arrays.asList(rawContent, "anchor")));
+		
+		/*int start = 0;
 		rawContent = rawContent.replace('\n', ' ');
 		while (true) {
 			start = rawContent.indexOf("{{", start);
@@ -121,44 +121,36 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 			if (start < 0) {
 				break;
 			}
-
 			int end = rawContent.indexOf("}}", start);
-
 			if (end < 0) {
 				break;
 			}
-
 			String text = rawContent.substring(start + 2, end);
 			if (isNotTemplateQuote(title, text)) {
 				start = end + 1;
 				continue;
 			}
-
 			String anchor = null;
-
+			
 			// skip empty links
 			if (text.length() == 0) {
 				start = end + 1;
 				continue;
 			}
-
 			// skip special links
 			if (text.indexOf(":") != -1) {
 				start = end + 1; 
 				continue;
 			}
-
 			// if there is anchor text, get only article title
 			int a;
 			if ((a = text.lastIndexOf("|")) != -1) {
 				anchor = text.substring(a + 1, text.length());
 				text = text.substring(0, a);
 			}
-
 			if ((a = text.indexOf("#")) != -1) {
 				text = text.substring(0, a);
 			}
-
 			// ignore article-internal links, e.g., [[#section|here]]
 			if (text.length() == 0) {
 				start = end + 1;
@@ -167,13 +159,12 @@ public class ExtractTemplate extends PageFunc<DataBag> {
 
 			if (anchor == null) {
 				anchor = text;
-			}
-			
+			}			
 			if (text != null && !text.isEmpty() && anchor != null && !anchor.isEmpty()) {
 				bag.add(tuples.newTupleNoCopy(Arrays.asList(text, anchor)));
 			}
 			start = end + 1;
-		}
+		}*/
 		
 		// return (bag.size() == 0) ? null : bag;
 		return bag;
