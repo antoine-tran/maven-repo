@@ -23,7 +23,6 @@ import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
-import org.mortbay.log.Log;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPageInputFormat;
@@ -71,7 +70,6 @@ public class LiteWikipediaLoader extends LoadFunc implements LoadMetadata {
 			hasNext = reader.nextKeyValue();
 			if (hasNext) {
 				WikipediaPage page = reader.getCurrentValue();
-				Log.info("Processing page: " + page.getRawXML());
 				String id = page.getDocid();
 				String title = page.getTitle();
 				boolean isArticle = page.isArticle();
