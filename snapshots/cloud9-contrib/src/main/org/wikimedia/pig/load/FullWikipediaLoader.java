@@ -1,4 +1,4 @@
-package org.wikipedia.pig.load;
+package org.wikimedia.pig.load;
 
 import static java.lang.String.valueOf;
 

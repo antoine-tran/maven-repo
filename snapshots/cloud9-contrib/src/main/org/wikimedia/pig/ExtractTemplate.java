@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.wikipedia.pig;
+package org.wikimedia.pig;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;

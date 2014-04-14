@@ -1,4 +1,4 @@
-package org.wikipedia.pig;
+package org.wikimedia.pig;
 
 import java.io.IOException;
 
