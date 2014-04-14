@@ -49,6 +49,26 @@ import org.apache.log4j.Logger;
 public class WikipediaRevisionInputFormat extends TextInputFormat {
 	public static final String START_TAG_KEY = "xmlinput.start";
 	public static final String END_TAG_KEY = "xmlinput.end";
+	
+	public static final String RECORD_READER = "wiki.revision.recordreader";
+
+	private static final String START_PAGE_TAG = "<page>";
+	private static final String END_PAGE_TAG = "</page>";
+	private static final byte[] START_PAGE = START_PAGE_TAG.getBytes(StandardCharsets.UTF_8);
+	private static final byte[] END_PAGE = END_PAGE_TAG.getBytes(StandardCharsets.UTF_8);
+	private static final byte[] START_REVISION = "<revision>".getBytes(StandardCharsets.UTF_8);
+	private static final byte[] END_REVISION = "</revision>".getBytes(StandardCharsets.UTF_8);
+	
+	@Override
+	public RecordReader<LongWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext context) {
+		Configuration conf = context.getConfiguration();
+		String recordReader = conf.get(RECORD_READER);
+		if (recordReader == null || recordReader.equalsIgnoreCase("RevisionPairRecordReader")) {
+			return new RevisionPairRecordReader();
+		} else if (recordReader.equalsIgnoreCase("RevisionRecordReader")) {
+			return new RevisionRecordReader();
+		} else return null;
+	}
 
 	/** read a meta-history xml file and output as a record every pair of consecutive revisions.
 	 * For example,  Given the following input containing two pages and four revisions,
@@ -132,12 +152,6 @@ public class WikipediaRevisionInputFormat extends TextInputFormat {
 	public static class RevisionPairRecordReader extends RecordReader<LongWritable, Text> {
 		private static final Logger LOG = Logger.getLogger(RevisionPairRecordReader.class); 		
 
-		private static final String START_PAGE_TAG = "<page>";
-		private static final String END_PAGE_TAG = "</page>";
-		private static final byte[] START_PAGE = START_PAGE_TAG.getBytes(StandardCharsets.UTF_8);
-		private static final byte[] END_PAGE = END_PAGE_TAG.getBytes(StandardCharsets.UTF_8);
-		private static final byte[] START_REVISION = "<revision>".getBytes(StandardCharsets.UTF_8);
-		private static final byte[] END_REVISION = "</revision>".getBytes(StandardCharsets.UTF_8);
 		private static final byte[] DUMMY_REV = "<revision beginningofpage=\"true\"><text xml:space=\"preserve\"></text></revision>\n"
 				.getBytes(StandardCharsets.UTF_8);
 
@@ -416,42 +430,172 @@ public class WikipediaRevisionInputFormat extends TextInputFormat {
 	 */
 	public static class RevisionRecordReader extends RecordReader<LongWritable, Text> {
 
-		@Override
-		public void close() throws IOException {
-			// TODO Auto-generated method stub
-			
-		}
+		private long start;
+		private long end;
+		
+		// A flag that tells in which block the cursor is:
+		// -1: EOF
+		// 1 - outside the <page> tag
+		// 2 - just passed the <page> tag but outside the <revision>
+		// 3 - just passed the (next) <revision>
+		// 4 - just passed the </revision>
+		// 5 - just passed the </page>
+		private byte flag;
 
+		private FSDataInputStream fsin;
+		private DataOutputBuffer pageHeader = new DataOutputBuffer();
+		private DataOutputBuffer revBuf = new DataOutputBuffer();
+		
+		private final LongWritable key = new LongWritable();
+		private final Text value = new Text();
+		
 		@Override
-		public LongWritable getCurrentKey() throws IOException,
-				InterruptedException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Text getCurrentValue() throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public float getProgress() throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public void initialize(InputSplit arg0, TaskAttemptContext arg1)
+		public void initialize(InputSplit input, TaskAttemptContext tac)
 				throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
-			
+			// config xmlinput properties to support bzip2 splitting
+			Configuration conf = tac.getConfiguration();
+			conf.set(START_TAG_KEY, START_PAGE_TAG);
+			conf.set(END_TAG_KEY, END_PAGE_TAG);
+
+			// Tu should have done this already (??): Set maximum splitsize to be 64MB
+			conf.setLong("mapreduce.input.fileinputformat.split.maxsize", 67108864l);
+
+			FileSplit split = (FileSplit) input;
+			start = split.getStart();
+			Path file = split.getPath();
+
+			CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(conf);
+			CompressionCodec codec = compressionCodecs.getCodec(file);
+
+			FileSystem fs = file.getFileSystem(conf);
+
+			if (codec != null) { // file is compressed
+				fsin = new FSDataInputStream(codec.createInputStream(fs.open(file)));
+				end = Long.MAX_VALUE;
+			} else { // file is uncompressed	
+				fsin = fs.open(file);
+				fsin.seek(start);
+				end = start + split.getLength();
+			}
+			flag = 1;
 		}
 
 		@Override
 		public boolean nextKeyValue() throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
+			if (fsin.getPos() < end) {
+				if (readUntilMatch()) {
+					if (flag == 2) {
+						key.set(fsin.getPos() - START_PAGE.length);	
+					}
+					try {
+						while (readUntilMatch()) {
+							if (flag == 5 || flag == 4) {
+								try {
+									value.set(pageHeader.getData());
+									value.append(revBuf.getData(), 0, revBuf.getLength());
+									value.append(END_PAGE, 0, END_PAGE.length);
+								} finally {
+									if (flag == 5) pageHeader.reset();																		
+								}
+								return true;
+							}							
+							else if (flag == -1) {
+								pageHeader.reset();
+								return false;
+							}
+						}
+					} finally {
+						revBuf.reset();						
+					}
+				}
+			}
 			return false;
+		}		
+
+		@Override
+		public LongWritable getCurrentKey() throws IOException, InterruptedException {
+			return key;
+		}
+
+		@Override
+		public Text getCurrentValue() throws IOException, InterruptedException {
+			return value;
+		}
+
+		@Override
+		public float getProgress() throws IOException, InterruptedException {
+			return (fsin.getPos() - start) / (float) (end - start);
+		}
+		
+		@Override
+		public void close() throws IOException {
+			fsin.close();
+		}
+		
+		private boolean readUntilMatch() throws IOException {
+			int i = 0;
+			while (true) {				
+				int b = fsin.read();
+				if (b == -1) {
+					flag = -1;
+					return false;
+				}
+				
+				// ignore every character until reaching a new page
+				if (flag == 1 || flag == 5) {
+					if (b == START_PAGE[i]) {
+						i++;
+						if (i >= START_PAGE.length) {
+							pageHeader.write(START_PAGE);
+							flag = 2;
+							return true;
+						}
+					} else i = 0;
+				}
+				
+				// put everything between <page> tag and the first <revision> tag into pageHeader
+				else if (flag == 2) {
+					if (b == START_REVISION[i]) {
+						i++;
+						if (i >= START_REVISION.length) {
+							revBuf.write(START_REVISION);							
+							flag = 3;
+							return true;
+						}
+					} else i = 0;
+					pageHeader.write(b);
+				}
+				
+				// inside <revision></revision> block everything goes to revBuf
+				else if (flag == 3) {
+					if (b == END_REVISION[i]) {
+						i++;
+						if (i >= END_REVISION.length) {
+							flag = 4;
+							revBuf.write(END_REVISION);							
+							return true;
+						}
+					} else i = 0;
+					revBuf.write(b);
+				}
+				
+				// Note that flag 4 can be the signal of a new record inside one old page
+				else if (flag == 4) {
+					if (b == END_PAGE[i]) {
+						i++;
+						if (i >= END_PAGE.length) {
+							flag = 5;
+							return true;							
+						}
+					} else if (b == START_REVISION[i]) {
+						i++;
+						if (i >= START_REVISION.length) {
+							flag = 3;
+							revBuf.write(START_REVISION);
+						}
+					} else i = 0;
+				} 
+			}			
 		}
 	}
 }
