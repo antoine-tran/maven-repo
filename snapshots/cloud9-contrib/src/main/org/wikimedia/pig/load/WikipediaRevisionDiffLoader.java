@@ -82,14 +82,20 @@ public class WikipediaRevisionDiffLoader extends LoadFunc implements LoadMetadat
 				String title = doc.select("page > title").first().data();
 				Elements elems = doc.select("page > revision");
 				List<String> revIds = new ArrayList<>(2);
+				List<String> revTss = new ArrayList<>(2);
 				List<String> revTexts = new ArrayList<>(2);
 				for (Element e : elems) {
 					String t = e.attr("beginningofpage");
 					if (t == null || t.isEmpty()) {
+						
 						String revId = e.getElementsByTag("id").first().data();
 						revIds.add(revId);
+						
 						String revTxt = e.getElementsByTag("text").first().data();
 						revTexts.add(revTxt);
+						
+						String revTs = e.getElementsByTag("timestamp").first().data();
+						revTss.add(revTs);
 					}
 				}
 				LinkedList<Diff> diffs;
