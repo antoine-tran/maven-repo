@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 
 /** utility methods to complement the WikipediaPage format
  * @author tuan 
- * @deprecated please see EvalFunc's implementations ({@link org.wikipedia.pig.PageFunc}
+ * @deprecated please see EvalFunc's implementations ({@link org.wikimedia.pig.PageFunc}
  */
 @Deprecated
 public class WikipediaPageUtil  {

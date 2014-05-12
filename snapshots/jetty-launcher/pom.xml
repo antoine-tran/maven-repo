@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>tuan4j</groupId>
+	<artifactId>jetty-launcher</artifactId>
+	<name>Jetty Launcher</name>
+	<description>A simple launcher of a web application using the embedded Jetty server</description>
+	<version>0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<developers>
+		<developer>
+			<id>antoine-tran</id>
+			<name>Tuan Tran</name>
+			<email>ttran@l3s.de</email>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.3.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+						    <transformers>
+						    	<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+						    		<mainClass>tuan.JettyWebAppLauncher</mainClass>
+						    	</transformer>
+						    </transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testOutputDirectory>bin/test-classes</testOutputDirectory>
+		<finalName>${articfactId}-${project.version}</finalName>
+		<outputDirectory>bin/classes</outputDirectory>
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>9.1.5.v20140505</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-webapp</artifactId>
+			<version>9.1.5.v20140505</version>
+		</dependency>
+
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>antoine-tran-github-releases</id>
+			<name>Tuan Tran's Personal Repository for Maven</name>
+			<url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
+		</repository>
+	</repositories>
+</project>
