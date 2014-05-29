@@ -14,12 +14,12 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.WordUtils;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.mapreduce.StructureMessageResolver;
-
 import tuan.hadoop.conf.JobConfig;
 
 /** Extract redirect mappings with list of Wikipedia page IDs */
@@ -36,26 +35,27 @@ public class ExtractRedirect extends JobConfig implements Tool {
 
 	private static final Logger log = 
 			LoggerFactory.getLogger(ExtractRedirect.class);
-	
+
 	private static final String LANG_OPT = "lang";
 	private static final String INPUT_OPT = "in";
 	private static final String OUTPUT_OPT = "out";
 	private static final String REDUCE_NO = "reduce";
-	
+	private static final String OUTPUT_FORMAT_OPT = "out_format";
+
 	private static String TMP_HDFS_DIR = "/user/tuan.tran/tmp/";
-	
-    /** Preprocess: Extract capitalized wiki page titles / id mappings & output
-     * to a csv file, format: [capitalized title] TAB [id] */
+
+	/** Preprocess: Extract capitalized wiki page titles / id mappings & output
+	 * to a csv file, format: [capitalized title] TAB [id] */
 	private static final class MyMapper extends 
-			Mapper<LongWritable, WikipediaPage, Text, PairOfInts> {
+	Mapper<LongWritable, WikipediaPage, Text, PairOfInts> {
 
 		private Text outKey = new Text();
 		private PairOfInts outVal = new PairOfInts();
-		
+
 		@Override
 		protected void map(LongWritable key, WikipediaPage p, Context context) 
 				throws IOException, InterruptedException {
-			
+
 			log.debug("Processing page: " + p.getDocid());
 
 			// only articles are emitted
@@ -95,13 +95,13 @@ public class ExtractRedirect extends JobConfig implements Tool {
 			}
 		}
 	}
-	
+
 	/** Resolve redirects and output (title, id) pairs */
 	private static final class RedirectResolver extends 
-			StructureMessageResolver<Text, PairOfInts, IntWritable, IntWritable> {
-		
+	StructureMessageResolver<Text, PairOfInts, IntWritable, IntWritable> {
+
 		private List<PairOfInts> cache;
-		
+
 		private IntWritable keyOut = new IntWritable();
 		private IntWritable valOut = new IntWritable();
 
@@ -114,7 +114,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		public void setupTask(Text key, Iterable<PairOfInts> values, Context context) {
 			cache.clear();
 		}
-		
+
 		@Override
 		public boolean checkStructureMessage(Text key, PairOfInts msg, Context c) 
 				throws IOException, InterruptedException {
@@ -124,7 +124,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 				return true;
 			} else return false;
 		}
-		
+
 		@Override
 		public PairOfInts clone(PairOfInts obj) {
 			PairOfInts newObj = new PairOfInts(obj.getKey(), obj.getValue());
@@ -154,30 +154,44 @@ public class ExtractRedirect extends JobConfig implements Tool {
 			return cache;
 		}
 	}
-	
-	private void phase1(String wikiFile, int reduceNo, String lang, String output) 
+
+	private void phase1(String wikiFile, int reduceNo, String lang, String output, String format) 
 			throws IOException, InterruptedException, ClassNotFoundException {
-		
+
 		String outputPath = TMP_HDFS_DIR + output;
-		
-		Job job = setup("Build Wikipedia Redirect Mapping Graph",
-				ExtractAnchor.class, 
-				wikiFile, outputPath, 
-				WikipediaPageInputFormat.class, 
-				TextOutputFormat.class, 
-				Text.class, PairOfInts.class, 
-				Text.class, IntWritable.class, 
-				MyMapper.class, 
-				RedirectResolver.class, 
-				reduceNo);
-		
+
+		Job job = null;
+		if ("text".equals(format)) {
+			job = setup("Build Wikipedia Redirect Mapping Graph",
+					ExtractAnchor.class, 
+					wikiFile, outputPath, 
+					WikipediaPageInputFormat.class, 
+					TextOutputFormat.class, 
+					Text.class, PairOfInts.class, 
+					IntWritable.class, IntWritable.class, 
+					MyMapper.class, 
+					RedirectResolver.class, 
+					reduceNo);
+		} else if ("map".equals(format)) {
+			job = setup("Build Wikipedia Redirect Mapping Graph",
+					ExtractAnchor.class, 
+					wikiFile, outputPath, 
+					WikipediaPageInputFormat.class, 
+					MapFileOutputFormat.class, 
+					Text.class, PairOfInts.class, 
+					IntWritable.class, IntWritable.class, 
+					MyMapper.class, 
+					RedirectResolver.class, 
+					reduceNo);
+		} else throw new RuntimeException("unknown output format: " + format);
+
 		String ramUsedForEachMapper = job.getConfiguration().get("mapred.map.child.java.opts");		
 		log.info("Memory used per Map task: " + ramUsedForEachMapper);
-		
+
 		job.waitForCompletion(true);		
 	}
-	
-	
+
+
 	@SuppressWarnings("static-access")
 	@Override
 	public int run(String[] args) throws Exception {
@@ -194,16 +208,20 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		Option outputOpt = OptionBuilder.withArgName("output-path").hasArg()
 				.withDescription("output file path (required)")
 				.create(OUTPUT_OPT);
-		
+
+		Option outputFormatOpt = OptionBuilder.withArgName("output-format").hasArg()
+				.withDescription("output file path (required)")
+				.create(OUTPUT_FORMAT_OPT);
 
 		Option reduceOpt = OptionBuilder.withArgName("reduce-no").hasArg()
 				.withDescription("number of reducer nodes").create(REDUCE_NO);
-		
+
 
 		opts.addOption(langOpt);
 		opts.addOption(inputOpt);
 		opts.addOption(reduceOpt);
 		opts.addOption(outputOpt);
+		opts.addOption(outputFormatOpt);
 
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
@@ -228,19 +246,22 @@ public class ExtractRedirect extends JobConfig implements Tool {
 						+ e.getMessage());
 			}
 		}
-		
+
 		String input = cl.getOptionValue(INPUT_OPT);
 		String output = cl.getOptionValue(OUTPUT_OPT);
-		
+		String outputFm = cl.getOptionValue(OUTPUT_FORMAT_OPT);
+		if (outputFm == null)
+			outputFm = "text";
+
 		String lang = "en";
 		if (cl.hasOption(LANG_OPT)) {
 			lang = cl.getOptionValue(LANG_OPT);
 		}
-		
-		phase1(input, reduceNo, lang, output);
+
+		phase1(input, reduceNo, lang, output, outputFm);
 		return 0;
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			ToolRunner.run(new ExtractRedirect(), args);
