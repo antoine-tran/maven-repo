@@ -423,8 +423,8 @@ public class BuildWikipediaWeightedLinkGraph extends
 
 		String output = "tmp/wiki-link/phase1";
 
-		Job job = new Job(getConf(), 
-				"Build Wikipedia Weighted Link Graph. Phase 1");
+		Job job = Job.getInstance(getConf());
+		job.setJobName("Build Wikipedia Weighted Link Graph. Phase 1");
 		job.setJarByClass(BuildWikipediaWeightedLinkGraph.class);
 		job.getConfiguration().setBoolean(
 				"mapred.map.tasks.speculative.execution", false);
@@ -463,8 +463,8 @@ public class BuildWikipediaWeightedLinkGraph extends
 
 		String output = "tmp/wiki-link/phase2";
 
-		Job job = new Job(getConf(), 
-				"Build Wikipedia Weighted Link Graph. Phase 2");
+		Job job = Job.getInstance(getConf());
+		job.setJobName("Build Wikipedia Weighted Link Graph. Phase 2");
 		job.setJarByClass(BuildWikipediaWeightedLinkGraph.class);
 		job.getConfiguration().setBoolean(
 				"mapred.map.tasks.speculative.execution", false);
@@ -498,8 +498,8 @@ public class BuildWikipediaWeightedLinkGraph extends
 
 		String output = "trace/phase3";
 
-		Job job = new Job(getConf(), 
-				"Build Wikipedia Weighted Link Graph. Phase 3");
+		Job job = Job.getInstance(getConf());
+		job.setJobName("Build Wikipedia Weighted Link Graph. Phase 3");
 		job.setJarByClass(BuildWikipediaWeightedLinkGraph.class);
 		job.getConfiguration().setBoolean(
 				"mapred.map.tasks.speculative.execution", false);
