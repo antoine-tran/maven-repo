@@ -9,7 +9,7 @@
 	<artifactId>cloud9-contrib</artifactId>
 	<packaging>jar</packaging>
 	<name>Cloud9 Contribution by Antoine Tran</name>
-	<version>1.4.17</version>
+	<version>1.5.0</version>
 	<description>A contribution to University of Maryland's Cloud9 Library</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,8 +41,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<encoding>UTF-8</encoding>
 					<downloadSources>true</downloadSources>
 					<downloadJavadocs>true</downloadJavadocs>
