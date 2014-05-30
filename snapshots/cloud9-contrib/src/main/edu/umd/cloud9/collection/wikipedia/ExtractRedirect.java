@@ -14,12 +14,17 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.WordUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -158,37 +163,50 @@ public class ExtractRedirect extends JobConfig implements Tool {
 	private void phase1(String wikiFile, int reduceNo, String lang, String output, String format) 
 			throws IOException, InterruptedException, ClassNotFoundException {
 
-		String outputPath = TMP_HDFS_DIR + output;
-
+		// String outputPath = TMP_HDFS_DIR + output;
+		String tmp = TMP_HDFS_DIR + output;
+		
 		Job job = null;
-		if ("text".equals(format)) {
-			job = setup("Build Wikipedia Redirect Mapping Graph",
-					ExtractAnchor.class, 
-					wikiFile, outputPath, 
-					WikipediaPageInputFormat.class, 
-					TextOutputFormat.class, 
-					Text.class, PairOfInts.class, 
-					IntWritable.class, IntWritable.class, 
-					MyMapper.class, 
-					RedirectResolver.class, 
-					reduceNo);
-		} else if ("map".equals(format)) {
-			job = setup("Build Wikipedia Redirect Mapping Graph",
-					ExtractAnchor.class, 
-					wikiFile, outputPath, 
-					WikipediaPageInputFormat.class, 
-					MapFileOutputFormat.class, 
-					Text.class, PairOfInts.class, 
-					IntWritable.class, IntWritable.class, 
-					MyMapper.class, 
-					RedirectResolver.class, 
-					reduceNo);
-		} else throw new RuntimeException("unknown output format: " + format);
+		job = setup("Build Wikipedia Redirect Mapping Graph - processing",
+				ExtractAnchor.class, 
+				wikiFile, tmp, 
+				WikipediaPageInputFormat.class, 
+				SequenceFileOutputFormat.class, 
+				Text.class, PairOfInts.class, 
+				IntWritable.class, IntWritable.class, 
+				MyMapper.class, 
+				RedirectResolver.class, 
+				reduceNo);
 
 		String ramUsedForEachMapper = job.getConfiguration().get("mapred.map.child.java.opts");		
 		log.info("Memory used per Map task: " + ramUsedForEachMapper);
-
-		job.waitForCompletion(true);		
+		job.waitForCompletion(true);	
+		
+		log.info("Phase 2..");
+		if ("text".equals(format)) {
+			job = setup("Build Wikipedia Redirect Mapping Graph - sorting",
+					ExtractAnchor.class, 
+					tmp, output, 
+					SequenceFileInputFormat.class, 
+					TextOutputFormat.class, 
+					IntWritable.class, IntWritable.class, 
+					IntWritable.class, IntWritable.class, 
+					Mapper.class, Reducer.class, 1);
+		} else if ("map".equals(format)) {
+			job = setup("Build Wikipedia Redirect Mapping Graph - sorting",
+					ExtractAnchor.class, 
+					tmp, output, 
+					SequenceFileInputFormat.class, 
+					MapFileOutputFormat.class, 
+					IntWritable.class, IntWritable.class, 
+					IntWritable.class, IntWritable.class, 
+					Mapper.class, Reducer.class, 1);
+		} else throw new RuntimeException("unknown output format: " + format);
+		job.waitForCompletion(true);
+	
+		
+		// remove intermediate file
+		FileSystem.get(job.getConfiguration()).delete(new Path(tmp), true);
 	}
 
 
