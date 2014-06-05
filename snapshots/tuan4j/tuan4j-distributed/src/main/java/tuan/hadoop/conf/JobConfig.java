@@ -12,6 +12,11 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.io.compress.Lz4Codec;
+import org.apache.hadoop.io.compress.SnappyCodec;
+import org.apache.hadoop.io.compress.BZip2Codec;
+import org.apache.hadoop.io.compress.GzipCodec;
+import org.apache.hadoop.io.compress.CompressionCodec;
 
 /**
  * A typical setting of one Hadoop job
@@ -90,35 +95,60 @@ public class JobConfig extends Configured {
 		job.getConfiguration().set("mapreduce.child.java.opts", mapperSize);
 		job.getConfiguration().set("mapred.child.java.opts", mapperSize);
 
-		
 		// Option: compress output
 		if (compressType != null) {
 			job.getConfiguration().setBoolean("mapreduce.output.fileoutputformat.compress", true);
 			job.getConfiguration().setBoolean("mapred.output.compress", true);
 			
+			job.getConfiguration().set("mapreduce.output.fileoutputformat.compress.type", "BLOCK"); 
+			job.getConfiguration().set("mapred.output.compression.type", "BLOCK"); 
+			
+			job.getConfiguration().setBoolean("mapred.compress.map.output", true); 
+			job.getConfiguration().setBoolean("mapreduce.map.output.compress", true);
+			
 			if ("bz2".equals(compressType)) {
 				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
-						org.apache.hadoop.io.compress.BZip2Codec.class,
-						org.apache.hadoop.io.compress.CompressionCodec.class);
+						BZip2Codec.class, CompressionCodec.class);
 				getConf().setClass("mapred.output.compression.codec", 
-						org.apache.hadoop.io.compress.BZip2Codec.class,
-						org.apache.hadoop.io.compress.CompressionCodec.class);
+						BZip2Codec.class, CompressionCodec.class);
+				
+				getConf().setClass("mapred.map.output.compression.codec", 
+						BZip2Codec.class, CompressionCodec.class);
+				getConf().setClass("mapreduce.map.output.compress.codec", 
+						BZip2Codec.class, CompressionCodec.class);
 			}			
 			else if ("gz".equals(compressType)) {
 				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
-						org.apache.hadoop.io.compress.GzipCodec.class,
-						org.apache.hadoop.io.compress.CompressionCodec.class);
+						GzipCodec.class, CompressionCodec.class);
 				getConf().setClass("mapred.output.compression.codec", 
-						org.apache.hadoop.io.compress.GzipCodec.class,
-						org.apache.hadoop.io.compress.CompressionCodec.class);
+						GzipCodec.class, CompressionCodec.class);
+				
+				getConf().setClass("mapred.map.output.compression.codec", 
+						GzipCodec.class, CompressionCodec.class);
+				getConf().setClass("mapreduce.map.output.compress.codec", 
+						GzipCodec.class, CompressionCodec.class);
 			}
 			else if ("lz4".equals(compressType)) {
 				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
-						org.apache.hadoop.io.compress.Lz4Codec.class,
-						org.apache.hadoop.io.compress.CompressionCodec.class);
+						Lz4Codec.class, CompressionCodec.class);
 				getConf().setClass("mapred.output.compression.codec", 
-						org.apache.hadoop.io.compress.Lz4Codec.class,
-						org.apache.hadoop.io.compress.CompressionCodec.class);
+						Lz4Codec.class, CompressionCodec.class);
+				
+				getConf().setClass("mapred.map.output.compression.codec", 
+						Lz4Codec.class, CompressionCodec.class);
+				getConf().setClass("mapreduce.map.output.compress.codec", 
+						Lz4Codec.class, CompressionCodec.class);
+			}
+			else if ("snappy".equals(compressType)) {
+				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+						SnappyCodec.class, CompressionCodec.class);
+				getConf().setClass("mapred.output.compression.codec", 
+						SnappyCodec.class, CompressionCodec.class);
+				
+				getConf().setClass("mapred.map.output.compression.codec", 
+						SnappyCodec.class, CompressionCodec.class);
+				getConf().setClass("mapreduce.map.output.compress.codec", 
+						SnappyCodec.class, CompressionCodec.class);
 			}
 			else throw new RuntimeException("Unknown compress codec: " + compressType);
 		}
