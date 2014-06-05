@@ -100,7 +100,7 @@ public class JobConfig extends Configured {
 				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
 						"org.apache.hadoop.io.compress.BZip2Codec");
 				getConf().set("mapred.output.compression.codec", 
-						"org.apache.hadoop.io.compress.GzipCodec");
+						"org.apache.hadoop.io.compress.BZip2Codec");
 			}			
 			else if ("gz".equals(compressType)) {
 				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
@@ -112,7 +112,7 @@ public class JobConfig extends Configured {
 				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
 						"org.apache.hadoop.io.compress.Lz4Codec");
 				getConf().set("mapred.output.compression.codec", 
-						"org.apache.hadoop.io.compress.GzipCodec");
+						"org.apache.hadoop.io.compress.Lz4Codec");
 			}
 			else throw new RuntimeException("Unknown compress codec: " + compressType);
 		}
