@@ -17,7 +17,6 @@ import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.io.compress.BZip2Codec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.io.compress.CompressionCodec;
-
 /**
  * A typical setting of one Hadoop job
  * @author tuan
@@ -149,6 +148,17 @@ public class JobConfig extends Configured {
 						SnappyCodec.class, CompressionCodec.class);
 				getConf().setClass("mapreduce.map.output.compress.codec", 
 						SnappyCodec.class, CompressionCodec.class);
+			}
+			else if ("lzo".equals(compressType)) {
+				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
+						"com.hadoop.compression.lzo.LzoCodec");
+				getConf().set("mapred.output.compression.codec", 
+						"com.hadoop.compression.lzo.LzoCodec");
+				
+				getConf().set("mapred.map.output.compression.codec", 
+						"com.hadoop.compression.lzo.LzoCodec");
+				getConf().set("mapreduce.map.output.compress.codec", 
+						"com.hadoop.compression.lzo.LzoCodec");
 			}
 			else throw new RuntimeException("Unknown compress codec: " + compressType);
 		}
