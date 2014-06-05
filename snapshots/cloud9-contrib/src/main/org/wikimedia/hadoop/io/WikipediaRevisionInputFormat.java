@@ -58,7 +58,7 @@ public class WikipediaRevisionInputFormat extends TextInputFormat {
 	private static final byte[] END_PAGE = END_PAGE_TAG.getBytes(StandardCharsets.UTF_8);
 	private static final byte[] START_REVISION = "<revision>".getBytes(StandardCharsets.UTF_8);
 	private static final byte[] END_REVISION = "</revision>".getBytes(StandardCharsets.UTF_8);
-	
+		
 	@Override
 	public RecordReader<LongWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext context) {
 		Configuration conf = context.getConfiguration();

@@ -204,7 +204,6 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		} else throw new RuntimeException("unknown output format: " + format);
 		job.waitForCompletion(true);
 	
-		
 		// remove intermediate file
 		FileSystem.get(job.getConfiguration()).delete(new Path(tmp), true);
 	}

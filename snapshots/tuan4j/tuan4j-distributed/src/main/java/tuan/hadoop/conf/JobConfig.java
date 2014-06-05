@@ -30,12 +30,22 @@ public class JobConfig extends Configured {
 	
 	private String mapperSize = "-Xmx1024m";
 	
+	private String compressType = null;
+	
 	public void markOutputForDeletion() {
 		removeOutputDirectory = true;
 	}
 	
 	public void setMapperSize(String mapSize) {
 		mapperSize = mapSize;
+	}
+	
+	/**
+	 * Compress type: gz, bz2, lz4
+	 * @param type
+	 */
+	public void setCompress(String type) {
+		compressType = type;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "deprecation" })
@@ -74,8 +84,40 @@ public class JobConfig extends Configured {
 				"mapreduce.map.tasks.speculative.execution", false);
 		job.getConfiguration().setBoolean(
 				"mapreduce.reduce.tasks.speculative.execution", false);
+		
+		
+		// Option: Java heap space
 		job.getConfiguration().set("mapreduce.child.java.opts", mapperSize);
+		job.getConfiguration().set("mapred.child.java.opts", mapperSize);
 
+		
+		// Option: compress output
+		if (compressType != null) {
+			job.getConfiguration().setBoolean("mapreduce.output.fileoutputformat.compress", true);
+			job.getConfiguration().setBoolean("mapred.output.compress", true);
+			
+			if ("bz2".equals(compressType)) {
+				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
+						"org.apache.hadoop.io.compress.BZip2Codec");
+				getConf().set("mapred.output.compression.codec", 
+						"org.apache.hadoop.io.compress.GzipCodec");
+			}			
+			else if ("gz".equals(compressType)) {
+				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
+						"org.apache.hadoop.io.compress.GzipCodec");
+				getConf().set("mapred.output.compression.codec", 
+						"org.apache.hadoop.io.compress.GzipCodec");
+			}
+			else if ("lz4".equals(compressType)) {
+				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
+						"org.apache.hadoop.io.compress.Lz4Codec");
+				getConf().set("mapred.output.compression.codec", 
+						"org.apache.hadoop.io.compress.GzipCodec");
+			}
+			else throw new RuntimeException("Unknown compress codec: " + compressType);
+		}
+		
+		
 		job.setNumReduceTasks(reduceNo);
 
 		Path ip = new Path(inpath);
@@ -91,7 +133,7 @@ public class JobConfig extends Configured {
 		
 		job.setInputFormatClass(inputFormatClass);
 		job.setOutputFormatClass(outputFormatClass);
-		
+				
 		job.setMapOutputKeyClass(mapKeyOutClass);
 		job.setMapOutputValueClass(mapValOutClass);
 		

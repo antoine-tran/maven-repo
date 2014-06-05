@@ -7,14 +7,16 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CustomAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
+import edu.stanford.nlp.util.CoreMap;
 
 public class TestAnnotations {
 
-	//@Test
+	// @Test
 	public void testNETokenAnnotations() {
 		Properties props = new Properties();		
 		props.put("annotators", "tokenize, ssplit, pos, lemma, ner, nerannot");
@@ -54,7 +56,28 @@ public class TestAnnotations {
 			}
 		}
 		
-		System.out.println(annotText);
+		// System.out.println(annotText);
+	}
+	
+	@Test
+	public void testSentenceSplit() {
+		Properties props = new Properties();		
+		props.put("annotators", "tokenize, ssplit");
+		Annotation text = new Annotation("Kosgi Santosh sent an email to Stanford University. He didn't get a reply\nShit always happens.");
+		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);		
+		StringBuilder annotText = new StringBuilder();
+
+		// run all Annotators on this text
+		pipeline.annotate(text);
+
+		// get all annotated sentences
+		List<CoreMap> sentences = 
+				text.get(SentencesAnnotation.class);
+
+		for (CoreMap sen : sentences) {
+			System.out.println(sen.get(TextAnnotation.class));
+		}
+		
 	}
 
 	/** this internal method invokes OKKAM services to disambiguated a given
