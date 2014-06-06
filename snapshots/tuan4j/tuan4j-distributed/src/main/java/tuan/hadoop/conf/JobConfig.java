@@ -44,11 +44,35 @@ public class JobConfig extends Configured {
 	}
 	
 	/**
-	 * Compress type: gz, bz2, lz4
+	 * Compress type: gz, bz2, lz4, snappy, lzo
 	 * @param type
 	 */
 	public void setCompress(String type) {
 		compressType = type;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
+			KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
+			MAPPER extends Mapper, REDUCER extends Reducer>
+			Job setup(
+				String jobName,	Class<JOB> jobClass, 
+				String inpath, String outpath,
+				Class<INFILE> inputFormatClass,
+				Class<OUTFILE> outputFormatClass,
+				Class<KEYIN> mapKeyOutClass,
+				Class<VALUEIN> mapValOutClass,
+				Class<KEYOUT> keyOutClass,
+				Class<VALUEOUT> valOutClass,
+				Class<REDUCER> reduceClass,
+				int reduceNo) throws IOException {
+		
+		Job job = setup(jobName, jobClass,
+				inpath, outpath, inputFormatClass, outputFormatClass,
+				mapKeyOutClass, mapValOutClass, keyOutClass, valOutClass,
+				Mapper.class, reduceClass, reduceNo);
+				
+		return job;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "deprecation" })
@@ -190,6 +214,35 @@ public class JobConfig extends Configured {
 
 		return job;
 	}
+	
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
+			KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
+			MAPPER extends Mapper, REDUCER extends Reducer, COMBINER extends Reducer>
+			Job setup(
+				String jobName,	Class<JOB> jobClass, 
+				String inpath, String outpath,
+				Class<INFILE> inputFormatClass,
+				Class<OUTFILE> outputFormatClass,
+				Class<KEYIN> mapKeyOutClass,
+				Class<VALUEIN> mapValOutClass,
+				Class<KEYOUT> keyOutClass,
+				Class<VALUEOUT> valOutClass,
+				Class<MAPPER> mapClass,
+				Class<REDUCER> reduceClass,
+				Class<COMBINER> combinerClass,
+				int reduceNo) throws IOException {
+		
+		Job job = setup(jobName, jobClass,
+				inpath, outpath, inputFormatClass, outputFormatClass,
+				mapKeyOutClass, mapValOutClass, keyOutClass, valOutClass,
+				mapClass, reduceClass, reduceNo);
+		
+		job.setCombinerClass(combinerClass);
+		
+		return job;
+	}
+	
 	
 	public void setVersion(Version v) {
 		this.version = v;
