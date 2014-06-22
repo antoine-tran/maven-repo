@@ -499,13 +499,7 @@ public class FileUtility {
 
 		// loading xmlProfileGen.properties from the classpath
 		Properties props = new Properties();
-		InputStream inputStream = FileUtility.class.getClass()
-				.getResourceAsStream(propFileName);
-
-		if (inputStream == null) {
-			throw new FileNotFoundException("property file '" + propFileName
-					+ "' not found in the classpath");
-		}
+		InputStream inputStream = new FileInputStream(propFileName);
 
 		props.load(inputStream);
 		return props;
