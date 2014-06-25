@@ -184,7 +184,7 @@ public class JobConfig extends Configured {
 		return job;
 	}
 
-	private void setCompressOption(Job job) {
+	public void setCompressOption(Job job) {
 		// Option: compress output
 		if (compressType != null) {
 			job.getConfiguration().setBoolean("mapreduce.output.fileoutputformat.compress", true);
