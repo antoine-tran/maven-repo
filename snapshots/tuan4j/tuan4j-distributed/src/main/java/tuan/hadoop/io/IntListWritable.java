@@ -67,6 +67,11 @@ public abstract class IntListWritable extends ListWritable<IntListWritable> {
 	 * @return the element previously at the specified position
 	 */
 	public abstract int set(int index, int element);
+	
+	/**
+	 * Replaces the entire array set with the input
+	 */
+	public abstract void set(int[] array, int length);
 
 	/**
 	 * Removes the element at the specified position in this list. 

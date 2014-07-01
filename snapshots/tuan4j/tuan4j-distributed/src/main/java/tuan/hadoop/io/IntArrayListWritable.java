@@ -116,7 +116,16 @@ public class IntArrayListWritable extends IntListWritable {
 		array[index] = element;
 		return oldValue;
 	}
-
+	
+	@Override
+	public void set(int[] a, int length) {
+		if (a != null) {
+			// Be defensive and make a copy of the array.
+			array = Arrays.copyOf(a, length);
+			size = length;	
+		}
+	}
+	
 	@Override
 	public int remove(int index) {
 		if (index >= size) {
