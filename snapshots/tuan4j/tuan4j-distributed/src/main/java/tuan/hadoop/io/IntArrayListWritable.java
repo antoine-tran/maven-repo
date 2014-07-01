@@ -9,6 +9,9 @@ import java.util.Arrays;
  * librarry (http://lintool.github.com/Cloud9), to make it
  * more flexible to other frameworks.
  * 
+ * It also supports hashing and comparing the item, enabling
+ * it as keys for other output formats
+ * 
  * @author tuan
  *
  */
@@ -114,6 +117,7 @@ public class IntArrayListWritable extends IntListWritable {
 	public int set(int index, int element) {
 		int oldValue = array[index];
 		array[index] = element;
+		updateHash(hashCode() - oldValue + element);
 		return oldValue;
 	}
 	
@@ -123,6 +127,7 @@ public class IntArrayListWritable extends IntListWritable {
 			// Be defensive and make a copy of the array.
 			array = Arrays.copyOf(a, length);
 			size = length;	
+			resetHash();
 		}
 	}
 	
@@ -139,6 +144,7 @@ public class IntArrayListWritable extends IntListWritable {
 		}
 
 		size--;
+		resetHash();
 		return oldValue;
 	}
 
@@ -146,6 +152,18 @@ public class IntArrayListWritable extends IntListWritable {
 	public IntArrayListWritable add(int e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		resetHash();
+		return this;
+	}
+	
+	@Override
+	public IntArrayListWritable addAll(int[] a, int len) {
+		if (a == null || a.length == 0) return this;
+		int n = (len > a.length) ? a.length : len;
+		ensureCapacity(size + n); // Increments modCount!!
+		for (int i = 0; i < len; i++)
+		array[size++] = a[i];
+		resetHash();
 		return this;
 	}
 
@@ -159,6 +177,7 @@ public class IntArrayListWritable extends IntListWritable {
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		resetHash();
 		return this;
 	}
 
@@ -183,6 +202,7 @@ public class IntArrayListWritable extends IntListWritable {
 	public void clear() {
 		size = 0;
 		array = new int[INITIAL_CAPACITY_DEFAULT];
+		resetHash();
 	}
 
 	@Override

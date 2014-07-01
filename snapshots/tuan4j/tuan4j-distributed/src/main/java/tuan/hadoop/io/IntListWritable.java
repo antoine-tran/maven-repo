@@ -30,7 +30,17 @@ import java.io.IOException;
  */ 
 public abstract class IntListWritable extends ListWritable<IntListWritable> {
 
-
+	/** Cached sum hash */
+	private int sum;
+	
+	protected void resetHash() {
+		sum = -1;
+	}
+	
+	protected void updateHash(int hash) {
+		sum = hash;
+	}
+	
 	/**
 	 * Returns <tt>true</tt> if this list contains the input element.
 	 *
@@ -88,6 +98,14 @@ public abstract class IntListWritable extends ListWritable<IntListWritable> {
 	 */
 	public abstract IntListWritable add(int e);
 
+	/**
+	 * Append massively the ints to the end of this list
+	 * @param a an array to be added
+	 * @param length how many items from the array to be copied
+	 * @return the object itself for convenience
+	 */
+	public abstract IntArrayListWritable addAll(int[] a, int length);
+	
 	/**
 	 * Inserts the specified element at the specified position in this list.
 	 * Shifts the element currently at that position (if any) and any
@@ -196,5 +214,36 @@ public abstract class IntListWritable extends ListWritable<IntListWritable> {
 		}
 		s.append("]");
 		return s.toString();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null || obj instanceof IntListWritable) {
+			return false;
+		}
+		IntListWritable ilw = (IntListWritable)obj;
+		if (ilw.size() != size()) return false;
+		else {
+			boolean equal = true;
+			for (int i = 0; i < size(); i++) {
+				if (get(i) != ilw.get(i)) {
+					equal = false;
+					break;
+				}
+			}
+			return equal;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		if (size() == 0) return 0;
+		else if (sum == -1) {
+			for (int i = 0; i < size(); i++) {
+				sum += get(i);
+			}
+		}
+		return sum;
 	}
 }
