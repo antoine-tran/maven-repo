@@ -67,6 +67,9 @@ public class JobConfig extends Configured {
 		else {
 			job = new Job(getConf(), jobName);
 		}
+		
+		job.setJarByClass(jobClass);
+		
 		return job;
 	}
 

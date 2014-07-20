@@ -2,6 +2,8 @@ package tuan.wikipedia;
 
 import java.io.IOException;
 
+import tuan.io.FileUtility;
+
 /** java utility class to handle strings in Wikipedia domain 
  * @author tuan */
 public class StringUtils {
@@ -125,6 +127,16 @@ public class StringUtils {
 			}
 		}
 		return (sb != null ? sb.toString() : s);
+	}
+	
+	public static String deNormalizeWikiFile(String input) {
+		StringBuilder sb = new StringBuilder();
+		for (String line : FileUtility.readLines(input)) {
+			sb.append(line);
+			sb.append("\n");
+		}
+		String content = deNormalizeWiki(sb.toString());
+		return content;
 	}
 
 	// Test routine	
