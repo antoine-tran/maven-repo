@@ -52,13 +52,13 @@ public class ExtractRedirect extends JobConfig implements Tool {
 	/** Preprocess: Extract capitalized wiki page titles / id mappings & output
 	 * to a csv file, format: [capitalized title] TAB [id] */
 	private static final class MyMapper extends 
-	Mapper<LongWritable, WikipediaPage, Text, PairOfInts> {
+	Mapper<IntWritable, WikipediaPage, Text, PairOfInts> {
 
 		private Text outKey = new Text();
 		private PairOfInts outVal = new PairOfInts();
 
 		@Override
-		protected void map(LongWritable key, WikipediaPage p, Context context) 
+		protected void map(IntWritable key, WikipediaPage p, Context context) 
 				throws IOException, InterruptedException {
 
 			log.debug("Processing page: " + p.getDocid());
@@ -170,7 +170,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		job = setup("Build Wikipedia Redirect Mapping Graph - processing",
 				ExtractAnchor.class, 
 				wikiFile, tmp, 
-				WikipediaPageInputFormat.class, 
+				SequenceFileInputFormat.class, 
 				SequenceFileOutputFormat.class, 
 				Text.class, PairOfInts.class, 
 				IntWritable.class, IntWritable.class, 
