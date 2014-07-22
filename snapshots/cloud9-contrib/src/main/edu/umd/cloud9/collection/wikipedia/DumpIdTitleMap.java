@@ -10,13 +10,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -81,7 +81,7 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 				.create(LANG_OPT);
 
 		Option inputOpt = OptionBuilder.withArgName("input-path").hasArg()
-				.withDescription("XML dump file path (required)")
+				.withDescription("binary-compacked dump file path (required)")
 				.create(INPUT_OPT);
 
 		Option outputOpt = OptionBuilder.withArgName("output-path").hasArg()
@@ -135,7 +135,7 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 		Job job = setup("Build Wikipedia Id-Title Mapping Graph",
 				DumpIdTitleMap.class, 
 				input, outputPath, 
-				WikipediaPageInputFormat.class, 
+				SequenceFileInputFormat.class, 
 				TextOutputFormat.class, 
 				Text.class, IntWritable.class, 
 				Text.class, IntWritable.class, 
