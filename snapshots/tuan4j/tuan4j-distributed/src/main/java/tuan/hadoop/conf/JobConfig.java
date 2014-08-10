@@ -53,11 +53,11 @@ public class JobConfig extends Configured {
 	public static final String COMPRESS_OPT = "compress";
 	protected int reduceNo = 24;
 	
-	protected Options opts;
+	protected CommandLine command;
 	
 	@SuppressWarnings("static-access")
 	public int parseOtions(String[] args) {
-		opts = new Options();
+		Options opts = new Options();
 
 		Option jnameOpt = OptionBuilder.withArgName("job-name").hasArg(true)
 				.withDescription("XML dump file path (required)")
@@ -88,25 +88,24 @@ public class JobConfig extends Configured {
 		opts.addOption(rmOpt);
 		opts.addOption(cOpt);
 		
-		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
 		try {
-			cl = parser.parse(opts, args);
+			command = parser.parse(opts, args);
 		} catch (ParseException e) {
 			System.err.println("Error parsing command line: " + e.getMessage());
 			return -1;
 		}
 
-		if (!cl.hasOption(INPUT_OPT) || !cl.hasOption(OUTPUT_OPT)) {
+		if (!command.hasOption(INPUT_OPT) || !command.hasOption(OUTPUT_OPT)) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp(getClass().getName(), opts);
 			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 		
-		if (cl.hasOption(REDUCE_NO)) {
+		if (command.hasOption(REDUCE_NO)) {
 			try {
-				reduceNo = Integer.parseInt(cl.getOptionValue(REDUCE_NO));
+				reduceNo = Integer.parseInt(command.getOptionValue(REDUCE_NO));
 			} catch (NumberFormatException e) {
 				System.err.println("Error parsing reducer number: "
 						+ e.getMessage());
