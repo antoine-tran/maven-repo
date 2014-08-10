@@ -47,7 +47,7 @@ import tuan.core.ExceptionHandler;
  * 
  * @author tuan
  * @author Dan Klein
- * @author Christopher Manning
+ * @author Christopher Manning 
  * @author Tim Grow (grow@stanford.edu)
  * @author Chris Cox
  * @author Johannes Hoffart
@@ -84,7 +84,7 @@ public class FileUtility {
 				if (oos != null) oos.close();
 				if (bos != null) bos.close();
 				if (fos != null) fos.close();
-			}
+			} 
 		}
 	}
 

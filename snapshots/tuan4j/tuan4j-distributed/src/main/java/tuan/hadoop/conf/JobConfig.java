@@ -1,6 +1,15 @@
 package tuan.hadoop.conf;
 
 import java.io.IOException;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -11,6 +20,7 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.io.compress.Lz4Codec;
 import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.io.compress.BZip2Codec;
@@ -35,6 +45,76 @@ public class JobConfig extends Configured {
 
 	private String compressType = null;
 
+	public static final String INPUT_OPT = "in";
+	public static final String OUTPUT_OPT = "out";
+	public static final String REDUCE_NO = "reduce";
+	public static final String JOB_NAME = "name";
+	public static final String REMOVE_OUTPUT = "rmo";
+	public static final String COMPRESS_OPT = "compress";
+	protected int reduceNo = 24;
+	
+	protected Options opts;
+	
+	@SuppressWarnings("static-access")
+	public int parseOtions(String[] args) {
+		opts = new Options();
+
+		Option jnameOpt = OptionBuilder.withArgName("job-name").hasArg(true)
+				.withDescription("XML dump file path (required)")
+				.create(JOB_NAME);
+
+		Option inputOpt = OptionBuilder.withArgName("input-path").hasArg(true)
+				.withDescription("XML dump file path (required)")
+				.create(INPUT_OPT);
+
+		Option outputOpt = OptionBuilder.withArgName("output-path").hasArg(true)
+				.withDescription("output file path (required)")
+				.create(OUTPUT_OPT);
+
+		Option reduceOpt = OptionBuilder.withArgName("reduce-no").hasArg(true)
+				.withDescription("number of reducer nodes").create(REDUCE_NO);
+
+		Option rmOpt = OptionBuilder.withArgName("remove-out").hasArg(false)
+				.withDescription("remove the output then create again before writing files onto it")
+				.create(REMOVE_OUTPUT);
+
+		Option cOpt = OptionBuilder.withArgName("compress-option").hasArg(true)
+				.withDescription("compression option").create(COMPRESS_OPT);
+
+		opts.addOption(jnameOpt);
+		opts.addOption(inputOpt);
+		opts.addOption(reduceOpt);
+		opts.addOption(outputOpt);
+		opts.addOption(rmOpt);
+		opts.addOption(cOpt);
+		
+		CommandLine cl;
+		CommandLineParser parser = new GnuParser();
+		try {
+			cl = parser.parse(opts, args);
+		} catch (ParseException e) {
+			System.err.println("Error parsing command line: " + e.getMessage());
+			return -1;
+		}
+
+		if (!cl.hasOption(INPUT_OPT) || !cl.hasOption(OUTPUT_OPT)) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp(getClass().getName(), opts);
+			ToolRunner.printGenericCommandUsage(System.out);
+			return -1;
+		}
+		
+		if (cl.hasOption(REDUCE_NO)) {
+			try {
+				reduceNo = Integer.parseInt(cl.getOptionValue(REDUCE_NO));
+			} catch (NumberFormatException e) {
+				System.err.println("Error parsing reducer number: "
+						+ e.getMessage());
+			}
+		}
+		return 0;
+	}
+	
 	public void markOutputForDeletion() {
 		removeOutputDirectory = true;
 	}
