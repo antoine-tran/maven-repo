@@ -26,12 +26,17 @@ import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.io.compress.BZip2Codec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A typical setting of one Hadoop job
  * @author tuan
  */
 public class JobConfig extends Configured {
 
+	private static final Logger log = LoggerFactory.getLogger(JobConfig.class);
+	
 	public static enum Version {
 		HADOOP_1,
 		HADOOP_2
@@ -39,11 +44,7 @@ public class JobConfig extends Configured {
 
 	private Version version = Version.HADOOP_2;
 
-	private boolean removeOutputDirectory = false;
-
 	private String mapperSize = "-Xmx1024m";
-
-	private String compressType = null;
 
 	public static final String INPUT_OPT = "in";
 	public static final String OUTPUT_OPT = "out";
@@ -51,12 +52,17 @@ public class JobConfig extends Configured {
 	public static final String JOB_NAME = "name";
 	public static final String REMOVE_OUTPUT = "rmo";
 	public static final String COMPRESS_OPT = "compress";
-	protected int reduceNo = 24;
+	protected CommandLine command;	
 	
-	protected CommandLine command;
+	private int reduceNo = 24;
+	private String jobName;
+	private String input;
+	private String output;
+	private String compressType = null;	
+	private boolean removeOutputDirectory = false;
 	
 	@SuppressWarnings("static-access")
-	public int parseOtions(String[] args) {
+	public Options options() {
 		Options opts = new Options();
 
 		Option jnameOpt = OptionBuilder.withArgName("job-name").hasArg(true)
@@ -88,6 +94,11 @@ public class JobConfig extends Configured {
 		opts.addOption(rmOpt);
 		opts.addOption(cOpt);
 		
+		return opts;
+	}
+	
+	public int parseOtions(String[] args) {
+		Options opts = options();
 		CommandLineParser parser = new GnuParser();
 		try {
 			command = parser.parse(opts, args);
@@ -111,6 +122,29 @@ public class JobConfig extends Configured {
 						+ e.getMessage());
 			}
 		}
+		
+		if (command.hasOption(JOB_NAME)) {
+			jobName = command.getOptionValue(JOB_NAME);
+			jobName = jobName.replace('-',' ');
+		}
+		
+		if (command.hasOption(REMOVE_OUTPUT)) {
+			markOutputForDeletion();
+		}
+
+		if (command.hasOption(COMPRESS_OPT)) {
+			setCompress(command.getOptionValue(COMPRESS_OPT));
+		}
+
+		input = command.getOptionValue(INPUT_OPT);
+		output = command.getOptionValue(OUTPUT_OPT);
+		
+		log.info("Job name: " + jobName);
+		log.info(" - input: " + input);
+		log.info(" - output file: " + output);
+		log.info(" - compression: " + compressType);
+		log.info(" - reducer no.: " + reduceNo);
+		
 		return 0;
 	}
 	
@@ -152,6 +186,46 @@ public class JobConfig extends Configured {
 		return job;
 	}
 
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
+	KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
+	MAPPER extends Mapper, REDUCER extends Reducer>
+	Job setup(Class<INFILE> inputFormatClass,
+			Class<OUTFILE> outputFormatClass,
+			Class<KEYIN> mapKeyOutClass,
+			Class<VALUEIN> mapValOutClass,
+			Class<KEYOUT> keyOutClass,
+			Class<VALUEOUT> valOutClass,
+			Class<REDUCER> reduceClass, String[] args) throws IOException {
+		parseOtions(args);
+		return setup(jobName, this.getClass(),
+				input, output, inputFormatClass, outputFormatClass,
+				mapKeyOutClass, mapValOutClass, keyOutClass, valOutClass,
+				Mapper.class, reduceClass, reduceNo);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
+	KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
+	MAPPER extends Mapper, REDUCER extends Reducer, COMBINER extends Reducer>
+	Job setup(
+			Class<INFILE> inputFormatClass,
+			Class<OUTFILE> outputFormatClass,
+			Class<KEYIN> mapKeyOutClass,
+			Class<VALUEIN> mapValOutClass,
+			Class<KEYOUT> keyOutClass,
+			Class<VALUEOUT> valOutClass,
+			Class<MAPPER> mapClass,
+			Class<REDUCER> reduceClass,
+			Class<COMBINER> combinerClass,
+			String[] args) throws IOException {
+		parseOtions(args);
+		return setup(jobName, this.getClass(),
+				input, output, inputFormatClass, outputFormatClass,
+				mapKeyOutClass, mapValOutClass, keyOutClass, valOutClass,
+				mapClass, reduceClass, combinerClass, reduceNo);
+	}
+	
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
 	KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
