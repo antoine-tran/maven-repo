@@ -44,7 +44,7 @@ public class JobConfig extends Configured {
 
 	private Version version = Version.HADOOP_2;
 
-	private String mapperSize = "-Xmx1024m";
+	private String mapperSize = "-Xmx1024m"; 
 
 	public static final String INPUT_OPT = "in";
 	public static final String OUTPUT_OPT = "out";
@@ -224,6 +224,27 @@ public class JobConfig extends Configured {
 				input, output, inputFormatClass, outputFormatClass,
 				mapKeyOutClass, mapValOutClass, keyOutClass, valOutClass,
 				mapClass, reduceClass, combinerClass, reduceNo);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	public <JOB, INFILE extends InputFormat, OUTFILE extends OutputFormat,
+	KEYIN, VALUEIN, KEYOUT, VALUEOUT, 
+	MAPPER extends Mapper, REDUCER extends Reducer>
+	Job setup(
+			Class<INFILE> inputFormatClass,
+			Class<OUTFILE> outputFormatClass,
+			Class<KEYIN> mapKeyOutClass,
+			Class<VALUEIN> mapValOutClass,
+			Class<KEYOUT> keyOutClass,
+			Class<VALUEOUT> valOutClass,
+			Class<MAPPER> mapClass,
+			Class<REDUCER> reduceClass,
+			String[] args) throws IOException {
+		parseOtions(args);
+		return setup(jobName, this.getClass(),
+				input, output, inputFormatClass, outputFormatClass,
+				mapKeyOutClass, mapValOutClass, keyOutClass, valOutClass,
+				mapClass, reduceClass, reduceNo);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "deprecation" })
