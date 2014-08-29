@@ -66,11 +66,11 @@ public class JobConfig extends Configured {
 		Options opts = new Options();
 
 		Option jnameOpt = OptionBuilder.withArgName("job-name").hasArg(true)
-				.withDescription("XML dump file path (required)")
+				.withDescription("Job name")
 				.create(JOB_NAME);
 
 		Option inputOpt = OptionBuilder.withArgName("input-path").hasArg(true)
-				.withDescription("XML dump file path (required)")
+				.withDescription("input file / directory path (required)")
 				.create(INPUT_OPT);
 
 		Option outputOpt = OptionBuilder.withArgName("output-path").hasArg(true)
