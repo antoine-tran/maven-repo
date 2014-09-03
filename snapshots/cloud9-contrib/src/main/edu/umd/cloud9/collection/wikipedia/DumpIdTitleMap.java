@@ -46,13 +46,13 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 	/** Preprocess: Extract capitalized wiki page titles / id mappings & output
 	 * to a csv file, format: [capitalized title] TAB [id] */
 	private static final class MyMapper extends 
-	Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
+	Mapper<IntWritable, WikipediaPage, Text, IntWritable> {
 
 		private Text outKey = new Text();
 		private IntWritable outVal = new IntWritable();
 
 		@Override
-		protected void map(LongWritable key, WikipediaPage p, Context context) 
+		protected void map(IntWritable key, WikipediaPage p, Context context) 
 				throws IOException, InterruptedException {
 
 			// only articles are emitted
@@ -97,7 +97,7 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 		opts.addOption(inputOpt);
 		opts.addOption(reduceOpt);
 		opts.addOption(outputOpt);
-
+ 
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
 		try {
