@@ -92,6 +92,8 @@ public class RepackBinary2CSV extends JobConfig implements Tool {
 				Mapper.class,	Reducer.class, 
 				reduceNo);
 		
+		job.waitForCompletion(true);
+		
 		return 0;
 	}
 
