@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
-
+import org.apache.hadoop.util.ToolRunner;
 import tuan.hadoop.conf.JobConfig;
 
 /** Extract redirect graphs where sources and destination are both titles */
@@ -52,6 +52,17 @@ public class ExtractRedirtectTitles extends JobConfig implements Tool {
 				MyMapper.class, Reducer.class, args);
 		job.waitForCompletion(true);		
 		return 0;
+	}
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			ToolRunner.run(new ExtractRedirtectTitles(), args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
