@@ -126,6 +126,8 @@ public class JobConfig extends Configured {
 		if (command.hasOption(JOB_NAME)) {
 			jobName = command.getOptionValue(JOB_NAME);
 			jobName = jobName.replace('-',' ');
+		} else {
+			jobName = this.getClass().getCanonicalName();
 		}
 		
 		if (command.hasOption(REMOVE_OUTPUT)) {
@@ -174,6 +176,9 @@ public class JobConfig extends Configured {
 		if (version == Version.HADOOP_2) {
 			job = Job.getInstance(getConf());
 			job.setJobName(jobName);
+			
+			// This is the nasty thing in MapReduce v2 and YARN: They always prefer their ancient jars first. Set this on to say you don't like it
+			job.getConfiguration().set("mapreduce.job.user.classpath.first", "true");
 		}
 
 		// Hadoop 1.x

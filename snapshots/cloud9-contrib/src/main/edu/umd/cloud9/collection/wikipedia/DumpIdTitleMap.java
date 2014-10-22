@@ -41,7 +41,11 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 	private static final String INPUT_OPT = "in";
 	private static final String OUTPUT_OPT = "out";
 	private static final String REDUCE_NO = "reduce";
-
+	private static final String NORMALIZE_OPT = "norm";
+	private static final String OUTPUT_FORMAT_OPT = "outformat";
+	
+	private static final String NORMALIZE = "wikipedia.output.normalized";
+	
 	private static String TMP_HDFS_DIR = "/user/tuan.tran/tmp/";
 
 	/** Preprocess: Extract capitalized wiki page titles / id mappings & output
@@ -65,10 +69,24 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 			if (title.isEmpty())
 				return;
 
-			String nTitle = StringUtils.normalizeWiki(title);
+			boolean normalized = context.getConfiguration().getBoolean(NORMALIZE, false);
+						
+			String nTitle = (normalized) ? StringUtils.normalizeWiki(title) : title;
 			outKey.set(nTitle);
 			outVal.set(docId);
 			context.write(outKey, outVal);
+		}
+	}
+	
+	// Only emit one of them
+	private static final class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+		
+		private IntWritable outval = new IntWritable();
+		@Override
+		protected void reduce(Text k, Iterable<IntWritable> vs, Context c)
+				throws IOException, InterruptedException {
+			for (IntWritable v : vs) outval.set(v.get());
+			c.write(k,outval);
 		}
 	}
 
@@ -89,15 +107,21 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 				.withDescription("output directory path (required)")
 				.create(OUTPUT_OPT);
 
-
 		Option reduceOpt = OptionBuilder.withArgName("reduce-no").hasArg()
 				.withDescription("number of reducer nodes").create(REDUCE_NO);
-
+		
+		Option normalizeOpt = OptionBuilder.withArgName("normalization").hasArg(false)
+				.withDescription("normalize is needed ?").create(NORMALIZE_OPT);
+		
+		Option outputFormatOpt = OptionBuilder.withArgName("output format").hasArg()
+				.withDescription("Output format: Text of sequential").create(OUTPUT_FORMAT_OPT);
 
 		opts.addOption(langOpt);
 		opts.addOption(inputOpt);
 		opts.addOption(reduceOpt);
 		opts.addOption(outputOpt);
+		opts.addOption(normalizeOpt);
+		opts.addOption(outputFormatOpt);
  
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
@@ -133,25 +157,34 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 
 		String outputPath = TMP_HDFS_DIR + output;
 
+		boolean normalized = cl.hasOption(NORMALIZE_OPT);		
+		
+		String outputFormat = "text";
+		if (cl.hasOption(OUTPUT_FORMAT_OPT)) {
+			outputFormat = cl.getOptionValue(OUTPUT_FORMAT_OPT);
+		}
+		
 		Job job = setup("Build Wikipedia Id-Title Mapping Graph",
 				DumpIdTitleMap.class, 
 				input, outputPath, 
 				SequenceFileInputFormat.class, 
 				
 				// Uncomment this if want output to be a text file
-				// TextOutputFormat.class,
+				outputFormat.equals("text") ? TextOutputFormat.class :
 				
 				// Uncomment this if want output to be a binary file
 				SequenceFileOutputFormat.class,
 				
 				Text.class, IntWritable.class, 
 				Text.class, IntWritable.class, 
-				MyMapper.class,	Reducer.class, 
+				MyMapper.class,	Reducer.class, Reducer.class, 
 				reduceNo);
 
 		String ramUsedForEachMapper = job.getConfiguration().get("mapred.map.child.java.opts");		
 		log.info("Memory used per Map task: " + ramUsedForEachMapper);
 
+		job.getConfiguration().setBoolean(NORMALIZE, normalized);
+		
 		job.waitForCompletion(true);				
 		return 0;
 	}
