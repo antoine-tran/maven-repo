@@ -3,6 +3,7 @@
  */
 package edu.umd.cloud9.collection.wikipedia;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,11 +14,19 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.map.HMapIIW;
 import edu.umd.cloud9.io.map.HMapSIW;
+import edu.umd.cloud9.io.pair.PairOfInts;
 import tuan.hadoop.conf.JobConfig;
 
 /**
@@ -27,53 +36,58 @@ import tuan.hadoop.conf.JobConfig;
  * @author tuan
  *
  */
-public class InverseAnchorTextMap extends Configured implements Tool {
+public class InverseAnchorTextMap extends JobConfig implements Tool {
 
+	private static final Logger LOG = Logger.getLogger(InverseAnchorTextMap.class);
+		
+	private static class MyMapper extends Mapper<IntWritable, HMapSIW, Text, PairOfInts> {
+		
+		private final Text keyOut = new Text();
+		private final PairOfInts valOut = new PairOfInts();
+
+		@Override
+		protected void map(IntWritable mapKey, HMapSIW mapVal, Context context)
+				throws IOException, InterruptedException {
+			int entityId = mapKey.get();
+			Set<String> anchors = mapVal.keySet();				
+			for (String anchor : anchors) {
+				keyOut.set(anchor);
+				valOut.set(entityId, mapVal.get(anchor));		
+				context.write(keyOut, valOut);
+			}
+		}
+	}
+	
+	private static class MyReducer extends Reducer<Text, PairOfInts, Text, HMapIIW> {
+		
+		private HMapIIW outVal = new HMapIIW();
+
+		@Override
+		protected void reduce(Text k, Iterable<PairOfInts> vs, Context context)
+				throws IOException, InterruptedException {
+			outVal.clear();
+			for (PairOfInts e : vs) {
+				outVal.put(e.getKey(), e.getValue());
+			}
+			context.write(k, outVal);
+		}
+	}
+	
 	@Override
 
 	// First argument is the input path
 	// Second argument is the output path
 	public int run(String[] args) throws Exception {
-		String inpath = args[0];
-		String outpath = args[0];
-
-		final IntWritable mapKey = new IntWritable();
-		final HMapSIW mapVal = new HMapSIW();
-
-		Map<String, HMapIIW> tmpMap = new HashMap<>();
+		Job job = setup(SequenceFileInputFormat.class, MapFileOutputFormat.class,
+				Text.class, PairOfInts.class, 
+				Text.class, HMapIIW.class,
+				MyMapper.class, MyReducer.class, args);
 		
-		final Text outKey = new Text();
-		
-		// cache anchor text inverted index into main-memory
-		try (MapFile.Reader reader = new MapFile.Reader(new Path(inpath), getConf())) {
-
-			while (reader.next(mapKey, mapVal)) {
-				int entityId = mapKey.get();
-				Set<String> anchors = mapVal.keySet();				
-				for (String anchor : anchors) {
-					if (!tmpMap.containsKey(anchor)) {
-						tmpMap.put(anchor, new HMapIIW());
-					} 
-					tmpMap.get(anchor).put(entityId, mapVal.get(anchor));					
-				}
-			}
+		try {
+		job.waitForCompletion(true);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return -1;
-		}
-		
-		
-		try (MapFile.Writer writer = new MapFile.Writer(getConf(), new Path(outpath),
-						MapFile.Writer.keyClass(Text.class),
-						MapFile.Writer.valueClass(HMapIIW.class))) {
-			for (Entry<String, HMapIIW> entry : tmpMap.entrySet()) {
-				outKey.set(entry.getKey());
-				HMapIIW outVal = entry.getValue();
-				writer.append(outKey, outVal);
-			}			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return -1;
+			throw e;
 		}
 		
 		return 0;
