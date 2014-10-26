@@ -45,7 +45,10 @@ import tuan.hadoop.conf.JobConfig;
  *  of references to the page using the anchors. It resolves the redirects, i.e.
  *  title of a redirect page will be mapped to the id of the actual page.
  *  This program is to replace the  BuildAnchorText, which uses the cumbersome 
- *  StructureMessageResolver */
+ *  StructureMessageResolver 
+ *  @deprecated use Jimmy Ling's ExtractWikipediaAnchorText job instead  
+ */
+@Deprecated 
 public class ExtractAnchor extends JobConfig implements Tool {
 
 	private static final Logger log = 
