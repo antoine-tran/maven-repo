@@ -439,7 +439,6 @@ public class JobConfig extends Configured {
 		}
 	}
 
-
 	public void setVersion(Version v) {
 		this.version = v;
 	}
