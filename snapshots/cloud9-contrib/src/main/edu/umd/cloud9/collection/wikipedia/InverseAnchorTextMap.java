@@ -74,7 +74,6 @@ public class InverseAnchorTextMap extends JobConfig implements Tool {
 	}
 	
 	@Override
-
 	// First argument is the input path
 	// Second argument is the output path
 	public int run(String[] args) throws Exception {
@@ -82,20 +81,15 @@ public class InverseAnchorTextMap extends JobConfig implements Tool {
 				Text.class, PairOfInts.class, 
 				Text.class, HMapIIW.class,
 				MyMapper.class, MyReducer.class, args);
-		
 		try {
 		job.waitForCompletion(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
-		}
-		
+		}		
 		return 0;
 	}
-
-	/**
-	 * @param args
-	 */
+	
 	public static void main(String[] args) {
 		try {
 			ToolRunner.run(new InverseAnchorTextMap(), args);
