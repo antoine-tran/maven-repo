@@ -177,7 +177,9 @@ public class JobConfig extends Configured {
 			job = Job.getInstance(getConf());
 			job.setJobName(jobName);
 			
-			// This is the nasty thing in MapReduce v2 and YARN: They always prefer their ancient jars first. Set this on to say you don't like it
+			// This is the nasty thing in MapReduce v2 and YARN: 
+			// They always prefer their ancient jars first. 
+			// Set this on to say you don't like it
 			job.getConfiguration().set("mapreduce.job.user.classpath.first", "true");
 		}
 
