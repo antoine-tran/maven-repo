@@ -29,6 +29,9 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tuan.terrier.Files;
+import tuan.terrier.HadoopDistributedFileSystem;
+
 /**
  * A typical setting of one Hadoop job
  * @author tuan
@@ -445,5 +448,14 @@ public class JobConfig extends Configured {
 	
 	public Version getVersion() {
 		return version;
+	}
+	
+	/** Register the HDFS filesystem to tuan.terrier.Files, so that any libraries use the class
+	 * to open files can both read in local and HDFS file systems 
+	 * @throws IOException */
+	public void registerHDFS() throws IOException {
+		if (!Files.hasFileSystemScheme(HadoopDistributedFileSystem.HDFS_SCHEME)) {
+			Files.addFileSystemCapability(new HadoopDistributedFileSystem(getConf()));	
+		}
 	}
 }
