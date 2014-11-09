@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -617,6 +618,25 @@ public class Files
 		}
 	}
 
+	/** Open an input stream from a file, de-serialize as an object
+	 * and return the content as a string 
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static Object getFileAsObject(File file) throws IOException, ClassNotFoundException
+	{
+		ObjectInputStream ois = null;
+		try
+		{
+			ois = new ObjectInputStream(openFileStream(file));
+			return ois.readObject();
+		}
+		finally
+		{
+			if (ois != null) ois.close();
+		}
+	}
+	
 	/** Opens an OutputStream to a file called file.
 	 * @param file File to open.
 	 * @return OutputStream of the file
