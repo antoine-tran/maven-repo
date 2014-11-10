@@ -177,7 +177,7 @@ public class IntFloatArrayListWritable extends IntFloatListWritable {
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
-		if (minCapacity > indices.length) {
+		if (minCapacity >= indices.length) {
 			int newCapacity = (int) (minCapacity * LOAD_FACTOR);
 			indices = Arrays.copyOf(indices, newCapacity);
 			contents = Arrays.copyOf(contents, newCapacity);
