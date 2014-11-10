@@ -171,6 +171,24 @@ public class Files
 		addPathTransormation(filename, localFile);
 		new File(localFile).deleteOnExit();
 	}
+	
+	/** Cache to the temporary directory specified by <tt>java.io.tmpdir</tt> System property. */
+	public static File getCacheFile(String filename) throws IOException
+	{
+		return getCacheFile(filename, System.getProperty("java.io.tmpdir"));
+	}
+	
+	/** Cache file to specified temporary folder and return the file */
+	public static File getCacheFile(String filename, String temporaryFolder) throws IOException
+	{
+		String localFile = temporaryFolder + "/" + new File(filename).getName();
+		Files.copyFile(filename, localFile);
+		addPathTransormation(filename, localFile);
+		File f = new File(localFile);
+		f.deleteOnExit();
+		
+		return f;
+	}
 
 	/** add a static transformation to apply to a path. Find and replace are both regular expressions */
 	public static void addPathTransormation(String find, String replace)
