@@ -4,7 +4,7 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.cnr.isti.hpc</groupId>
-	<artifactId>h-dexter</artifactId>
+	<artifactId>dexter-hadoop</artifactId>
 	<name>StreamCorpus Tools</name>
 	<description>Hadoop toolkit for working with StreamCorpus</description>
 	<version>0.1-beta1</version>
@@ -247,8 +247,29 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/example</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
 		</plugins>
-		<sourceDirectory>src</sourceDirectory>
+		<sourceDirectory>src/main</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testOutputDirectory>bin/test-classes</testOutputDirectory>
 		<finalName>${artifactId}-${project.version}</finalName>
@@ -349,6 +370,12 @@
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
 			<version>1.5.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>edu.umd</groupId>
+			<artifactId>cloud9</artifactId>
+			<version>1.5.0</version>
 		</dependency>
 
 		<dependency>
