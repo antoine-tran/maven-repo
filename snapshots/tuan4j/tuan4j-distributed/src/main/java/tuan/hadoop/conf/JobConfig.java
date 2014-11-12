@@ -57,12 +57,12 @@ public class JobConfig extends Configured {
 	public static final String COMPRESS_OPT = "compress";
 	protected CommandLine command;	
 	
-	private int reduceNo = 24;
-	private String jobName;
-	private String input;
-	private String output;
-	private String compressType = null;	
-	private boolean removeOutputDirectory = false;
+	protected int reduceNo = 24;
+	protected String jobName;
+	protected String input;
+	protected String output;
+	protected String compressType = null;	
+	protected boolean removeOutputDirectory = false;
 	
 	@SuppressWarnings("static-access")
 	public Options options() {
