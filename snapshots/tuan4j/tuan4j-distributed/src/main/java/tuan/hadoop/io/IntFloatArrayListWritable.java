@@ -223,4 +223,17 @@ public class IntFloatArrayListWritable extends IntFloatListWritable {
 		// components and get back to them later
 		throw new NotImplementedException();
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < size; i++) {
+			sb.append("(");
+			sb.append(indices[i] + "," + contents[i]);
+			sb.append(",");
+			sb.append(contents[i]);
+			sb.append(")");
+		}
+		return sb.toString();
+	}
 }
