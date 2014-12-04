@@ -33,7 +33,7 @@ import tuan.terrier.Files;
 import tuan.terrier.HadoopDistributedFileSystem;
 
 /**
- * A typical setting of one Hadoop job
+ * A typical setting of one Hadoop job with one step
  * @author tuan
  */
 public class JobConfig extends Configured {
