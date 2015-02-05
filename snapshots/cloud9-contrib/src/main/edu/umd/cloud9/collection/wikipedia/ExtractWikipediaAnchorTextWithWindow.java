@@ -274,7 +274,7 @@ public class ExtractWikipediaAnchorTextWithWindow extends Configured implements 
 
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		// job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		job.setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.TextOutputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
 
 		job.setMapOutputKeyClass(PairOfStringInt.class);
 		job.setMapOutputValueClass(PairOfStrings.class);
