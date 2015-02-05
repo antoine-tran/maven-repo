@@ -38,6 +38,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -228,17 +229,19 @@ public class ExtractWikipediaAnchorTextWithWindow extends Configured implements 
 		Random random = new Random();
 		String tmp = "tmp-" + this.getClass().getCanonicalName() + "-" + random.nextInt(10000);
 
-		task1(cmdline.getOptionValue(INPUT_OPTION), tmp);
+		// task1(cmdline.getOptionValue(INPUT_OPTION), tmp);
+		task1(cmdline.getOptionValue(INPUT_OPTION), cmdline.getOptionValue(OUTPUT_OPTION));
 
-		if (!cmdline.hasOption(REDIR_OPTION)) {
+		/* if (!cmdline.hasOption(REDIR_OPTION)) {
 			task2(tmp, cmdline.getOptionValue(OUTPUT_OPTION));
 		}
 		else {
 			String tmp2 = "tmp-" + this.getClass().getCanonicalName() + "-" + random.nextInt(10000);
 			task2(tmp, tmp2);
 			task3(tmp2,cmdline.getOptionValue(REDIR_OPTION),cmdline.getOptionValue(OUTPUT_OPTION));
-		}
+			}*/
 
+		
 		return 0;
 	}
 
@@ -270,7 +273,8 @@ public class ExtractWikipediaAnchorTextWithWindow extends Configured implements 
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
 		job.setInputFormatClass(SequenceFileInputFormat.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+		// job.setOutputFormatClass(SequenceFileOutputFormat.class);
+		job.setOutputFormatClass(org.apache.hadoop.mapreduce.lib.output.TextOutputFormat.class);
 
 		job.setMapOutputKeyClass(PairOfStringInt.class);
 		job.setMapOutputValueClass(PairOfStrings.class);
@@ -294,37 +298,46 @@ public class ExtractWikipediaAnchorTextWithWindow extends Configured implements 
 		LOG.info(" - input: " + inputPath);
 		LOG.info(" - output: " + outputPath);
 
-		Job conf = Job.getInstance(getConf());
-		conf.setJarByClass(ExtractWikipediaAnchorTextWithWindow.class);
-		conf.setJobName(String.format(
+		Job job = Job.getInstance(getConf());
+		job.setJarByClass(ExtractWikipediaAnchorTextWithWindow.class);
+		job.setJobName(String.format(
 				"ExtractWikipediaAnchorText:phase2[input: %s, output: %s]",
 				inputPath, outputPath));
 
 		// Gathers everything together for convenience; feasible for Wikipedia.
-		conf.setNumReduceTasks(1);
+		job.setNumReduceTasks(1);
 
-		FileInputFormat.addInputPath(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		// increase heap
+		job.getConfiguration().set("mapreduce.job.user.classpath.first", "true");
+		
+		job.getConfiguration().set("mapreduce.map.memory.mb", "6144");
+		job.getConfiguration().set("mapreduce.reduce.memory.mb", "6144");
+		job.getConfiguration().set("mapreduce.map.java.opts", "-Xmx6144m");
+		job.getConfiguration().set("mapreduce.reduce.java.opts", "-Xmx6144m");
+		job.getConfiguration().set("mapreduce.job.user.classpath.first", "true");
+		
+		FileInputFormat.addInputPath(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		conf.setInputFormatClass(SequenceFileInputFormat.class);
-		conf.setOutputFormatClass(MapFileOutputFormat.class);
+		job.setInputFormatClass(SequenceFileInputFormat.class);
+		job.setOutputFormatClass(MapFileOutputFormat.class);
 
-		conf.setMapOutputKeyClass(IntWritable.class);
-		conf.setMapOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(Text.class);
 
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(HMapSIW.class);
+		job.setOutputKeyClass(IntWritable.class);
+		job.setOutputValueClass(HMapSIW.class);
 
-		conf.setMapperClass(MyMapper2.class);
-		conf.setReducerClass(MyReducer2.class);
+		job.setMapperClass(MyMapper2.class);
+		job.setReducerClass(MyReducer2.class);
 
 		// Delete the output directory if it exists already.
-		FileSystem.get(conf.getConfiguration()).delete(new Path(outputPath), true);
+		FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
 
-		conf.waitForCompletion(true);
+		job.waitForCompletion(true);
 
 		// Clean up intermediate data.
-		FileSystem.get(conf.getConfiguration()).delete(new Path(inputPath), true);
+		FileSystem.get(job.getConfiguration()).delete(new Path(inputPath), true);
 	}
 
 	// resolve the redirect
