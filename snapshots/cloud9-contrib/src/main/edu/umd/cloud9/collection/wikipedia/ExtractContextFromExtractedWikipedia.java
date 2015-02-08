@@ -37,8 +37,7 @@ Tool {
 		// Basic algorithm:
 		// Emit: key = (link target article name, 0), value = (link target docid, "");
 		// Emit: key = (link target article name, 1), value = (src docid, anchor text with context, offset and length)
-		public void map(IntWritable key, Text p, Context context) 
-				throws IOException, InterruptedException {
+		public void map(LongWritable key, Text p, Context context) throws IOException, InterruptedException {
 
 			String raw = p.toString();
 			int i = raw.indexOf("id=\"");
