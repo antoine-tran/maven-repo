@@ -70,7 +70,7 @@ Tool {
 			List<ContextedLink> links = Lists.newArrayList();
 
 			while (true) {
-				start = page.indexOf("<a href=", start);
+				start = page.indexOf("<a href=\"", start);
 
 				if (start < 0) {
 					break;
@@ -84,8 +84,8 @@ Tool {
 					break;
 				}
 
-				String text = page.substring(startText + 1, end);
-				String anchor = page.substring(start + 9, startText - 1);
+				String anchor = page.substring(startText + 1, end);
+				String text  = page.substring(start + 9, startText - 1);
 
 				int prefOffset = ((start > 500) ? start-500 : 0);
 				int postOffset = (end + 500 > page.length() ? page.length() : end + 500);
