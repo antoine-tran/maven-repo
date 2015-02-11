@@ -11,7 +11,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -26,8 +25,8 @@ import edu.umd.cloud9.io.pair.PairOfStrings;
 import tuan.hadoop.conf.JobConfig;
 
 public class ExtractContextFromExtractedWikipedia extends JobConfig implements
-Tool {
-
+		Tool {
+	
 	private static final class MyMapper extends Mapper<LongWritable, Text, 
 	PairOfStringInt, PairOfStrings> {
 
@@ -197,9 +196,9 @@ Tool {
 			return (key.getLeftElement().hashCode() & Integer.MAX_VALUE) % numReduceTasks;
 		}
 	}
-	
+
 	private static class MyReducer1 extends Reducer<PairOfStringInt, 
-			PairOfStrings, IntWritable, Text> {
+	PairOfStrings, IntWritable, Text> {
 		private static final IntWritable SRCID = new IntWritable();
 		private static final Text TARGET_ANCHOR_PAIR 
 		= new Text();
@@ -234,18 +233,22 @@ Tool {
 	@Override
 	public int run(String[] args) throws Exception {
 		Job job = setup(WikiExtractorInputFormat.class,TextOutputFormat.class,
-				PairOfStringInt.class, PairOfStrings.class,
-				IntWritable.class,PairOfIntString.class,
-				MyMapper.class,MyReducer1.class,args);
-		
-		job.setPartitionerClass(MyPartitioner1.class);
+				//PairOfStringInt.class, PairOfStrings.class,
+				LongWritable.class, Text.class,
+				//IntWritable.class,PairOfIntString.class,
+				LongWritable.class, Text.class,
+				//MyMapper.class,MyReducer1.class,
+				Mapper.class, Reducer.class,
+				args);
+
+		// job.setPartitionerClass(MyPartitioner1.class);
 		job.getConfiguration().set("mapreduce.map.memory.mb", "6144");
 		job.getConfiguration().set("mapreduce.reduce.memory.mb", "6144");
 		job.getConfiguration().set("mapreduce.map.java.opts", "-Xmx6144m");
 		job.getConfiguration().set("mapreduce.reduce.java.opts", "-Xmx6144m");
 		job.getConfiguration().set("mapreduce.job.user.classpath.first", "true");
 		job.waitForCompletion(true);
-		
+
 		return 0;
 	}
 
