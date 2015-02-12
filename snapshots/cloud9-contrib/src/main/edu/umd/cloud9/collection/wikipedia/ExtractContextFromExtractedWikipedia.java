@@ -40,16 +40,16 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 
 			String raw = p.toString();
 			int i = raw.indexOf("id=\"");
-			int j = raw.indexOf("\"",i+5);
+			int j = raw.indexOf("\"",i+4);
 			String docid = raw.substring(i+4,j);
 			VALUEPAIR.set(docid, "");
 
 			i = raw.indexOf("title=\"",j+1);
-			j = raw.indexOf("\">",i+5);
-			String title = raw.substring(i+6,j);
+			j = raw.indexOf("\">",i+7);
+			String title = raw.substring(i+7,j);
 			KEYPAIR.set(title, 0);
 			context.write(KEYPAIR, VALUEPAIR);
-			String fc = title.substring(0, 1);
+			/*String fc = title.substring(0, 1);
 			if (fc.matches("[A-Z]")) {
 				title = title.replaceFirst(fc, fc.toLowerCase());
 
@@ -61,7 +61,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 				KEYPAIR.set(link.getTarget(), 1);
 				VALUEPAIR.set(docid, link.getContext());
 				context.write(KEYPAIR, VALUEPAIR);
-			}
+			}*/
 		}
 
 		private List<ContextedLink> extractContextedLink(String page) {
@@ -233,15 +233,17 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 	@Override
 	public int run(String[] args) throws Exception {
 		Job job = setup(WikiExtractorInputFormat.class,TextOutputFormat.class,
-				//PairOfStringInt.class, PairOfStrings.class,
-				LongWritable.class, Text.class,
+				PairOfStringInt.class, PairOfStrings.class,
+				//LongWritable.class, Text.class,
 				//IntWritable.class,PairOfIntString.class,
 				LongWritable.class, Text.class,
-				//MyMapper.class,MyReducer1.class,
-				Mapper.class, Reducer.class,
+				MyMapper.class,
+				// MyReducer1.class,
+				// Mapper.class, 
+				Reducer.class,
 				args);
 
-		// job.setPartitionerClass(MyPartitioner1.class);
+		job.setPartitionerClass(MyPartitioner1.class);
 		job.getConfiguration().set("mapreduce.map.memory.mb", "6144");
 		job.getConfiguration().set("mapreduce.reduce.memory.mb", "6144");
 		job.getConfiguration().set("mapreduce.map.java.opts", "-Xmx6144m");
