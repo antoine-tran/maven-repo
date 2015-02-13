@@ -18,7 +18,6 @@ import org.apache.hadoop.util.ToolRunner;
 import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage.ContextedLink;
-import edu.umd.cloud9.io.pair.PairOfIntString;
 import edu.umd.cloud9.io.pair.PairOfStringInt;
 import edu.umd.cloud9.io.pair.PairOfStrings;
 
@@ -49,7 +48,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 			String title = raw.substring(i+7,j);
 			KEYPAIR.set(title, 0);
 			context.write(KEYPAIR, VALUEPAIR);
-			/*String fc = title.substring(0, 1);
+			String fc = title.substring(0, 1);
 			if (fc.matches("[A-Z]")) {
 				title = title.replaceFirst(fc, fc.toLowerCase());
 
@@ -57,11 +56,11 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 				context.write(KEYPAIR, VALUEPAIR);
 			}
 
-			for (ContextedLink link : extractContextedLink(raw.substring(j+2,raw.length()-6))) {
+			for (ContextedLink link : extractContextedLink(raw.substring(j+2,raw.length()-13))) {
 				KEYPAIR.set(link.getTarget(), 1);
 				VALUEPAIR.set(docid, link.getContext());
 				context.write(KEYPAIR, VALUEPAIR);
-			}*/
+			}
 		}
 
 		private List<ContextedLink> extractContextedLink(String page) {
@@ -129,9 +128,9 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 				ContextedLink cl = new ContextedLink(anchor, text);
 
 				int tokenBegin = -1, tokenEnd = -1;
-				for (int i = start-1; i > prefOffset; i--) {
+				for (int i = start-1; i > prefOffset && tokens.size() < 50; i--) {
 					int c = page.codePointAt(i);
-					int afterC = page.codePointAt(i);
+					int afterC = page.codePointAt(i+1);
 					if (Character.isSpaceChar(c)) {
 
 						if (tokenBegin > 0 && tokenEnd > 0) {
@@ -153,7 +152,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 				tokens = Lists.reverse(tokens);
 
 				tokenBegin = tokenEnd = -1;
-				for (int i = end+1; i < postOffset; i++) {
+				for (int i = end+1; i < postOffset && tokens.size() < 100; i++) {
 					int c = page.codePointAt(i);
 					int beforeC = page.codePointAt(i-1);
 					if (Character.isSpaceChar(c)) {
