@@ -75,6 +75,10 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 				}
 
 				int startText = page.indexOf('>', start);
+				
+				if (startText < 0) {
+					break;
+				}
 
 				int end = page.indexOf("</a>", startText);
 
