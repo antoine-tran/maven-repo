@@ -40,6 +40,11 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 
 			String raw = value.toString();
 
+			// because we heavily rely on white spaces to detect context, we
+			// must make sure there are spaces between the anchors
+			raw = raw.replace("<a href", " <a href");
+			raw = raw.replace("</a>", "</a> ");
+
 			int i = raw.indexOf("id=\"");
 			int j = raw.indexOf("\"",i+4);
 			String docid = raw.substring(i+4,j);
@@ -48,7 +53,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			j = raw.indexOf("\">",i+7);
 			String title = raw.substring(i+7,j);
 
-			i = j;
+			i = j+1;
 			j = raw.indexOf("</doc></page>", raw.length() - 20);
 
 			// Every presence of an anchor triggering one emit
@@ -72,7 +77,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 
 			// We use a thread that pings back to the cluster every 5 minutes
 			// to avoid getting killed for slow read
-			TaskHeartbeatThread heartbeat = new TaskHeartbeatThread(context, 60 * 5000) {
+			/*TaskHeartbeatThread heartbeat = new TaskHeartbeatThread(context, 60 * 5000) {
 				@Override
 				protected void progress() {
 					LOG.info("Processing the spaces. Progress: " + context.getProgress()
@@ -81,84 +86,91 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			};
 
 			try {
-				heartbeat.start();
+				heartbeat.start();*/
 
-				// First scan: Get the offsets of the anchors, including starting
-				// word offset and ending word offset of the anchors
-				Matcher anchorFinder = ANCHOR.matcher(raw);
-				Matcher spaceFinder = WHITE_SPACE.matcher(raw);
-				while (anchorFinder.find()) {
-					start = anchorFinder.start();
-					String target = anchorFinder.group(1);
-					String anchor = anchorFinder.group(2);
-					int anchorCnt = anchor.split("\\s+").length;
+			// First scan: Get the offsets of the anchors, including starting
+			// word offset and ending word offset of the anchors
+			Matcher anchorFinder = ANCHOR.matcher(raw);
+			Matcher spaceFinder = WHITE_SPACE.matcher(raw);
+			while (anchorFinder.find()) {
+				start = anchorFinder.start();
+				String target = anchorFinder.group(1);
+				String anchor = anchorFinder.group(2);
+				int anchorCnt = anchor.split("\\s+").length;
 
 
-					// no. of spaces of the text before the two consecutive anchors
-					int tmpCnt = 0;
-					if (end < start) {
-						while (spaceFinder.find(end)) {
-							if (spaceFinder.end() != start) {
-								break;
-							}
-							if (spaceFinder.start() != end) {
-								tmpCnt++;
-							}
+				// no. of spaces of the text before the two consecutive anchors. The
+				// no. of words = tmoCnt+1
+				int tmpCnt = 0;
+				if (end < start) {
+					int tmpEnd = end;
+					while (spaceFinder.find(tmpEnd)) {
+						if (spaceFinder.end() == start) {
+							break;
 						}
-					}
-					Anchor ip = new Anchor(wordCnt + tmpCnt, anchorCnt, target);
-					anchorOffsets.add(ip);
-					end = anchorFinder.end();
-					wordCnt = wordCnt + tmpCnt + anchorCnt;
-				}
-
-				// Second scan: Grab the context from the plain text
-				if (anchorOffsets.size() == 0) {
-					return;
-				}
-
-				int wordPos = -1;
-
-				for (int k = 0; k < anchorOffsets.size(); k++) {
-					pre.add(new ArrayList<String>());
-					pos.add(new ArrayList<String>());
-					anchors.add(new ArrayList<String>());
-				}
-
-				LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() + ". Anchor size: " + anchorOffsets.size());
-
-				raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
-				spaceFinder = WHITE_SPACE.matcher(raw);
-				int spaceBegin = 0, spaceEnd = 0;
-				while (spaceFinder.find()) {
-					if (spaceFinder.end() == j) {
-						break;
-					}
-					spaceBegin = spaceFinder.start();
-					if (spaceBegin != 0) {
-						wordPos++;
-						String word = raw.substring(spaceEnd, spaceBegin);
-
-						for (int k = 0; k < anchorOffsets.size(); k++) {
-							IntPair a = anchorOffsets.get(k);
-							int dist = wordPos - a.getLeft() - a.getRight();
-							if (dist >= 0 && dist < 50) {
-								pos.get(k).add(word);
-							}
-							dist = a.getLeft() - wordPos;
-							if (dist >= 0 && dist < 50) {
-								pre.get(k).add(word);
-							}
-							if (a.getLeft() <= wordPos && a.getLeft() + a.getRight() > wordPos) {
-								anchors.get(k).add(word);
-							}
-						}		
+						if (spaceFinder.start() != end) {
+							tmpCnt++;
+						}
+						tmpEnd = end;
 					}
 				}
-
-			} finally {
-				heartbeat.stop();
+				Anchor ip = new Anchor(wordCnt + tmpCnt + 1, anchorCnt, target);
+				anchorOffsets.add(ip);
+				end = anchorFinder.end();
+				wordCnt = wordCnt + tmpCnt + 1 + anchorCnt;
 			}
+
+			// Second scan: Grab the context from the plain text
+			if (anchorOffsets.size() == 0) {
+				return;
+			}
+
+			int wordPos = -1;
+
+			for (int k = 0; k < anchorOffsets.size(); k++) {
+				pre.add(new ArrayList<String>());
+				pos.add(new ArrayList<String>());
+				anchors.add(new ArrayList<String>());
+			}
+
+			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() 
+					+ ". Anchor size: " + anchorOffsets.size());
+
+			raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
+			spaceFinder = WHITE_SPACE.matcher(raw);
+			int spaceBegin = i+1, spaceEnd = i+1;
+			while (spaceFinder.find(spaceEnd)) {
+				if (spaceFinder.end() == j) {
+					break;
+				}
+				spaceBegin = spaceFinder.start();
+				if (spaceBegin != 0) {
+					wordPos++;
+					String word = raw.substring(spaceEnd, spaceBegin);
+
+					for (int k = 0; k < anchorOffsets.size(); k++) {
+						IntPair a = anchorOffsets.get(k);
+						int dist = wordPos - a.getLeft() - a.getRight();
+						if (dist >= 0 && dist < 50) {
+							pos.get(k).add(word);
+						}
+						dist = a.getLeft() - wordPos;
+						if (dist >= 0 && dist < 50) {
+							pre.get(k).add(word);
+						}
+						if (a.getLeft() <= wordPos && a.getLeft() 
+								+
+								a.getRight() > wordPos) {
+							anchors.get(k).add(word);
+						}
+					}		
+				}
+				spaceEnd = spaceFinder.end();
+			}
+
+			/*} finally {
+				heartbeat.stop();
+			}*/
 
 			// Finally emit the contexts
 			for (int k = 0; k < anchorOffsets.size(); k++) {
@@ -171,10 +183,12 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 				sb.append("\t");
 				for (String w : pre.get(k)) {
 					sb.append(w);
+					sb.append(' ');
 				}
 				sb.append("\t");
 				for (String w : pos.get(k)) {
 					sb.append(w);
+					sb.append(' ');
 				}
 				VALUE.set(sb.toString());
 				context.write(key, VALUE);
