@@ -92,6 +92,10 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			}
 
 			// Second scan: Grab the context from the plain text
+			if (anchorOffsets.size() == 0) {
+				return;
+			}
+			
 			int wordPos = -1;
 
 			// We use a list of text buffers to cache the contexts
