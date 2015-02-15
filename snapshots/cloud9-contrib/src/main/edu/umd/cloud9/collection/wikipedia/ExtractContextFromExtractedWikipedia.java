@@ -107,9 +107,10 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 				pre.add(new ArrayList<String>());
 				pos.add(new ArrayList<String>());
 				anchors.add(new ArrayList<String>());
+				LOG.info("incr Pre size: " + pre.size() + ". incr Pos size: " + pos.size());
 			}
 			
-			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size());
+			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() + ". Anchor size: " + anchorOffsets.size());
 
 			raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
 			spaceFinder = WHITE_SPACE.matcher(raw);
