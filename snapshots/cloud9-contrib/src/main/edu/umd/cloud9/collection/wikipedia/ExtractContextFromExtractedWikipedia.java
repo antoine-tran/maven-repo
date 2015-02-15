@@ -3,241 +3,170 @@ package edu.umd.cloud9.collection.wikipedia;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import com.google.common.collect.Lists;
-
-import edu.umd.cloud9.collection.wikipedia.WikipediaPage.ContextedLink;
-import edu.umd.cloud9.io.pair.PairOfStringInt;
-import edu.umd.cloud9.io.pair.PairOfStrings;
-
 import tuan.hadoop.conf.JobConfig;
+import tuan.hadoop.io.IntPair;
 
-public class ExtractContextFromExtractedWikipedia extends JobConfig implements
-		Tool {
-	
+public class ExtractContextFromExtractedWikipedia extends JobConfig implements Tool {
+
+	private static final Pattern ANCHOR = Pattern.compile("<a href=\"(.*?)\".*?>(.*?)</a>");
+	private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
+
 	private static final class MyMapper extends Mapper<LongWritable, Text, 
-	PairOfStringInt, PairOfStrings> {
+	LongWritable, Text> {
 
-		private static final PairOfStringInt KEYPAIR = new PairOfStringInt();
-		private static final PairOfStrings VALUEPAIR = new PairOfStrings();
+		// Output: srcId TAB srcTitle TAB targets TAB anchor TAB preContext TAB posContext
+		private Text VALUE = new Text();
 
-		// Basic algorithm:
-		// Emit: key = (link target article name, 0), value = (link target docid, "");
-		// Emit: key = (link target article name, 1), value = (src docid, anchor text with context, offset and length)
-		public void map(LongWritable key, Text p, Context context) throws IOException, InterruptedException {
-
-			String raw = p.toString();
+		@Override
+		protected void map(LongWritable key, Text value, Context context)
+				throws IOException, InterruptedException {
+			
+			String raw = value.toString();
+			
 			int i = raw.indexOf("id=\"");
 			int j = raw.indexOf("\"",i+4);
 			String docid = raw.substring(i+4,j);
-			VALUEPAIR.set(docid, "");
 
 			i = raw.indexOf("title=\"",j+1);
 			j = raw.indexOf("\">",i+7);
 			String title = raw.substring(i+7,j);
-			KEYPAIR.set(title, 0);
-			context.write(KEYPAIR, VALUEPAIR);
-			String fc = title.substring(0, 1);
-			if (fc.matches("[A-Z]")) {
-				title = title.replaceFirst(fc, fc.toLowerCase());
+			
+			i = j;
+			j = raw.indexOf("</doc></page>", raw.length() - 20);
 
-				KEYPAIR.set(title, 0);
-				context.write(KEYPAIR, VALUEPAIR);
-			}
+			// Every presence of an anchor triggering one emit
+			List<Anchor> anchorOffsets = new ArrayList<>();
 
-			for (ContextedLink link : extractContextedLink(raw.substring(j+2,raw.length()-13))) {
-				KEYPAIR.set(link.getTarget(), 1);
-				VALUEPAIR.set(docid, link.getContext());
-				context.write(KEYPAIR, VALUEPAIR);
-			}
-		}
+			// the number of words read so far. It is also the
+			// position of the next anchor if there are no words
+			// in between it and the previous anchor
+			int wordCnt = 0;
 
-		private List<ContextedLink> extractContextedLink(String page) {
-			int start = 0;
-			List<ContextedLink> links = Lists.newArrayList();
+			// We tokenize between the links, so "end" also
+			// points to the beginning offset of the next chunk
+			// of text
+			int start = i+1, end = start;
 
-			while (true) {
-				start = page.indexOf("<a href=\"", start);
-
-				if (start < 0) {
-					break;
-				}
-
-				int startText = page.indexOf('>', start);
+			// First scan: Get the offsets of the anchors, including starting
+			// word offset and ending word offset of the anchors
+			Matcher anchorFinder = ANCHOR.matcher(raw);
+			Matcher spaceFinder = WHITE_SPACE.matcher(raw);
+			while (anchorFinder.find()) {
+				start = anchorFinder.start();
+				String target = anchorFinder.group(1);
+				String anchor = anchorFinder.group(2);
+				int anchorCnt = anchor.split("\\s+").length;
 				
-				if (startText < 0) {
-					break;
-				}
 
-				int end = page.indexOf("</a>", startText);
-
-				if (end < 0) {
-					break;
-				}
-
-				String anchor = page.substring(startText + 1, end);
-				String text  = page.substring(start + 9, startText - 1);
-
-				int prefOffset = ((start > 500) ? start-500 : 0);
-				int postOffset = (end + 500 > page.length() ? page.length() : end + 500);
-
-				// skip empty links
-				if (text.length() == 0) {
-					start = end + 1;
-					continue;
-				}
-
-				// skip special links
-				if (text.indexOf(":") != -1) {
-					start = end + 1;
-					continue;
-				}
-
-				// if there is anchor text, get only article title
-				int a;
-				if ((a = text.indexOf("|")) != -1) {
-					anchor = text.substring(a + 1, text.length());
-					text = text.substring(0, a);
-				}
-
-				if ((a = text.indexOf("#")) != -1) {
-					text = text.substring(0, a);
-				}
-
-				// ignore article-internal links, e.g., [[#section|here]]
-				if (text.length() == 0) {
-					start = end + 1;
-					continue;
-				}
-
-				if (anchor == null) {
-					anchor = text;
-				}
-
-
-				// Build the contexts around the anchor
-				List<int[]> tokens = new ArrayList<>();
-
-				ContextedLink cl = new ContextedLink(anchor, text);
-
-				int tokenBegin = -1, tokenEnd = -1;
-				for (int i = start-1; i > prefOffset && tokens.size() < 50; i--) {
-					int c = page.codePointAt(i);
-					int afterC = page.codePointAt(i+1);
-					if (Character.isSpaceChar(c)) {
-
-						if (tokenBegin > 0 && tokenEnd > 0) {
-							tokens.add(new int[]{tokenBegin, tokenEnd});
-							tokenBegin = tokenEnd = -1;
+				// no. of spaces of the text before the two consecutive anchors
+				int tmpCnt = 0;
+				if (end < start) {
+					while (spaceFinder.find(end)) {
+						if (spaceFinder.end() != start) {
+							break;
 						}
-
-						if (tokenEnd < 0) {
-							tokenEnd = i;
-						} else if (tokenBegin < 0 && Character.isSpaceChar(afterC)) {
-							tokenEnd = i;
-						} else if (tokenBegin < 0) {
-							tokenBegin = i;
-						} 
+						if (spaceFinder.start() != end) {
+							tmpCnt++;
+						}
 					}
 				}
+				Anchor ip = new Anchor(wordCnt + tmpCnt, anchorCnt, target);
+				anchorOffsets.add(ip);
+				end = anchorFinder.end();
+				wordCnt = wordCnt + tmpCnt + anchorCnt;
+			}
 
-				// Reverse the order
-				tokens = Lists.reverse(tokens);
+			// Second scan: Grab the context from the plain text
+			int wordPos = -1;
 
-				tokenBegin = tokenEnd = -1;
-				for (int i = end+1; i < postOffset && tokens.size() < 100; i++) {
-					int c = page.codePointAt(i);
-					int beforeC = page.codePointAt(i-1);
-					if (Character.isSpaceChar(c)) {
+			// We use a list of text buffers to cache the contexts
+			List<ArrayList<String>> pre = new ArrayList<>();
+			List<ArrayList<String>> pos = new ArrayList<>();
+			List<ArrayList<String>> anchors = new ArrayList<>();
 
-						if (tokenBegin > 0 && tokenEnd > 0) {
-							tokens.add(new int[]{tokenBegin, tokenEnd});
-							tokenBegin = tokenEnd = -1;
-						}
+			for (@SuppressWarnings("unused")int k = 0; i < anchorOffsets.size(); k++) {
+				pre.add(new ArrayList<String>());
+				pos.add(new ArrayList<String>());
+				anchors.add(new ArrayList<String>());
+			}
 
-						if (tokenBegin < 0) {
-							tokenBegin = i;
-						} else if (tokenEnd < 0 && Character.isSpaceChar(beforeC)) {
-							tokenBegin = i;
-						} else if (tokenEnd < 0) {
-							tokenEnd = i;
-						} 
-					}
+			raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
+			spaceFinder = WHITE_SPACE.matcher(raw);
+			int spaceBegin = 0, spaceEnd = 0;
+			while (spaceFinder.find()) {
+				if (spaceFinder.end() == j) {
+					break;
 				}
+				spaceBegin = spaceFinder.start();
+				if (spaceBegin != 0) {
+					wordPos++;
+					String word = raw.substring(spaceEnd, spaceBegin);
 
+					for (int k = 0; k < anchorOffsets.size(); k++) {
+						IntPair a = anchorOffsets.get(k);
+						int dist = wordPos - a.getLeft() - a.getRight();
+						if (dist >= 0 && dist < 50) {
+							pos.get(k).add(word);
+						}
+						dist = a.getLeft() - wordPos;
+						if (dist >= 0 && dist < 50) {
+							pre.get(k).add(word);
+						}
+						if (a.getLeft() <= wordPos && a.getLeft() + a.getRight() > wordPos) {
+							anchors.get(k).add(word);
+						}
+					}		
+				}
+			}
+			
+			// Finally emit the contexts
+			for (int k = 0; k < anchorOffsets.size(); k++) {
 				StringBuilder sb = new StringBuilder();
-				for (int[] bound : tokens) {
-					sb.append(page, bound[0]+1, bound[1]);
-					sb.append(" ");
+				sb.append(docid);
+				sb.append("\t");
+				sb.append(title);
+				sb.append("\t");
+				sb.append(anchorOffsets.get(k).text);
+				sb.append("\t");
+				for (String w : pre.get(k)) {
+					sb.append(w);
 				}
-				cl.setContext(sb.toString().replace('\t', ' '));
-				cl.setStart(start);
-				cl.setEnd(end);
-				links.add(cl);
-
-				start = end + 1;
+				sb.append("\t");
+				for (String w : pos.get(k)) {
+					sb.append(w);
+				}
+				VALUE.set(sb.toString());
+				context.write(key, VALUE);
 			}
-
-			return links;
-		}
-
-	}
-
-	private static class MyPartitioner1 extends Partitioner<PairOfStringInt, PairOfStrings> {
-		public int getPartition(PairOfStringInt key, PairOfStrings value, int numReduceTasks) {
-			return (key.getLeftElement().hashCode() & Integer.MAX_VALUE) % numReduceTasks;
 		}
 	}
-
-	private static class MyReducer1 extends Reducer<PairOfStringInt, 
-	PairOfStrings, IntWritable, Text> {
-		private static final IntWritable SRCID = new IntWritable();
-		private static final Text TARGET_ANCHOR_PAIR 
-		= new Text();
-
-		private String targetTitle;
-		private int targetDocid;
-
-		public void reduce(PairOfStringInt key, Iterable<PairOfStrings> values,
-				Context context) throws IOException, InterruptedException {
-
-			if (key.getRightElement() == 0) {
-				targetTitle = key.getLeftElement();
-				for (PairOfStrings pair : values) {
-					targetDocid = Integer.parseInt(pair.getLeftElement());
-					break;
-				}
-			} else {
-				if (!key.getLeftElement().equals(targetTitle)) {
-					return;
-				}
-
-				for (PairOfStrings pair : values) {
-					SRCID.set(Integer.parseInt(pair.getLeftElement()));
-					TARGET_ANCHOR_PAIR.set(targetDocid + "\t" + pair.getRightElement());
-
-					context.write(SRCID, TARGET_ANCHOR_PAIR);
-				}
-			}
+	
+	private static final class Anchor extends IntPair {
+		String text;
+		
+		public Anchor(int l, int r, String t) {
+			super(l,r);
+			text = t;
 		}
 	}
 
 	@Override
 	public int run(String[] args) throws Exception {
 		Job job = setup(WikiExtractorInputFormat.class,TextOutputFormat.class,
-				PairOfStringInt.class, PairOfStrings.class,
-				//LongWritable.class, Text.class,
+				// PairOfStringInt.class, PairOfStrings.class,
+				LongWritable.class, Text.class,
 				//IntWritable.class,PairOfIntString.class,
 				LongWritable.class, Text.class,
 				MyMapper.class,
@@ -246,7 +175,6 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 				Reducer.class,
 				args);
 
-		job.setPartitionerClass(MyPartitioner1.class);
 		job.getConfiguration().set("mapreduce.map.memory.mb", "6144");
 		job.getConfiguration().set("mapreduce.reduce.memory.mb", "6144");
 		job.getConfiguration().set("mapreduce.map.java.opts", "-Xmx6144m");
@@ -257,9 +185,6 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements
 		return 0;
 	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		try {
 			ToolRunner.run(new ExtractContextFromExtractedWikipedia(), args);
