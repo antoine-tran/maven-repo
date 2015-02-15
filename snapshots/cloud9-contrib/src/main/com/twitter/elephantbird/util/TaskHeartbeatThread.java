@@ -51,7 +51,7 @@ public class TaskHeartbeatThread {
    * but with a default period of 1 minute
    */
   public TaskHeartbeatThread(TaskAttemptContext context) {
-    this(context, 60 * 1000 * 5);
+    this(context, 60 * 1000);
   }
 
   /**

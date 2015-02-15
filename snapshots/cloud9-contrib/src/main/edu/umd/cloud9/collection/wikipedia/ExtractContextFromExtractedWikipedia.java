@@ -64,54 +64,11 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			// of text
 			int start = i+1, end = start;
 
-			// First scan: Get the offsets of the anchors, including starting
-			// word offset and ending word offset of the anchors
-			Matcher anchorFinder = ANCHOR.matcher(raw);
-			Matcher spaceFinder = WHITE_SPACE.matcher(raw);
-			while (anchorFinder.find()) {
-				start = anchorFinder.start();
-				String target = anchorFinder.group(1);
-				String anchor = anchorFinder.group(2);
-				int anchorCnt = anchor.split("\\s+").length;
-
-
-				// no. of spaces of the text before the two consecutive anchors
-				int tmpCnt = 0;
-				if (end < start) {
-					while (spaceFinder.find(end)) {
-						if (spaceFinder.end() != start) {
-							break;
-						}
-						if (spaceFinder.start() != end) {
-							tmpCnt++;
-						}
-					}
-				}
-				Anchor ip = new Anchor(wordCnt + tmpCnt, anchorCnt, target);
-				anchorOffsets.add(ip);
-				end = anchorFinder.end();
-				wordCnt = wordCnt + tmpCnt + anchorCnt;
-			}
-
-			// Second scan: Grab the context from the plain text
-			if (anchorOffsets.size() == 0) {
-				return;
-			}
-
-			int wordPos = -1;
-
 			// We use a list of text buffers to cache the contexts
 			List<ArrayList<String>> pre = new ArrayList<>();
 			List<ArrayList<String>> pos = new ArrayList<>();
 			List<ArrayList<String>> anchors = new ArrayList<>();
 
-			for (int k = 0; k < anchorOffsets.size(); k++) {
-				pre.add(new ArrayList<String>());
-				pos.add(new ArrayList<String>());
-				anchors.add(new ArrayList<String>());
-			}
-
-			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() + ". Anchor size: " + anchorOffsets.size());
 
 			// We use a thread that pings back to the cluster every 5 minutes
 			// to avoid getting killed for slow read
@@ -125,6 +82,50 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 
 			try {
 				heartbeat.start();
+
+				// First scan: Get the offsets of the anchors, including starting
+				// word offset and ending word offset of the anchors
+				Matcher anchorFinder = ANCHOR.matcher(raw);
+				Matcher spaceFinder = WHITE_SPACE.matcher(raw);
+				while (anchorFinder.find()) {
+					start = anchorFinder.start();
+					String target = anchorFinder.group(1);
+					String anchor = anchorFinder.group(2);
+					int anchorCnt = anchor.split("\\s+").length;
+
+
+					// no. of spaces of the text before the two consecutive anchors
+					int tmpCnt = 0;
+					if (end < start) {
+						while (spaceFinder.find(end)) {
+							if (spaceFinder.end() != start) {
+								break;
+							}
+							if (spaceFinder.start() != end) {
+								tmpCnt++;
+							}
+						}
+					}
+					Anchor ip = new Anchor(wordCnt + tmpCnt, anchorCnt, target);
+					anchorOffsets.add(ip);
+					end = anchorFinder.end();
+					wordCnt = wordCnt + tmpCnt + anchorCnt;
+				}
+
+				// Second scan: Grab the context from the plain text
+				if (anchorOffsets.size() == 0) {
+					return;
+				}
+
+				int wordPos = -1;
+
+				for (int k = 0; k < anchorOffsets.size(); k++) {
+					pre.add(new ArrayList<String>());
+					pos.add(new ArrayList<String>());
+					anchors.add(new ArrayList<String>());
+				}
+
+				LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() + ". Anchor size: " + anchorOffsets.size());
 
 				raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
 				spaceFinder = WHITE_SPACE.matcher(raw);
