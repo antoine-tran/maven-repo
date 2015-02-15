@@ -14,12 +14,15 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 import tuan.hadoop.conf.JobConfig;
 import tuan.hadoop.io.IntPair;
 
 public class ExtractContextFromExtractedWikipedia extends JobConfig implements Tool {
 
+	private static final Logger LOG = Logger.getLogger(ExtractContextFromExtractedWikipedia.class);
+	
 	private static final Pattern ANCHOR = Pattern.compile("<a href=\"(.*?)\".*?>(.*?)</a>");
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
 
@@ -96,11 +99,13 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			List<ArrayList<String>> pos = new ArrayList<>();
 			List<ArrayList<String>> anchors = new ArrayList<>();
 
-			for (@SuppressWarnings("unused")int k = 0; i < anchorOffsets.size(); k++) {
+			for (int k = 0; i < anchorOffsets.size(); k++) {
 				pre.add(new ArrayList<String>());
 				pos.add(new ArrayList<String>());
 				anchors.add(new ArrayList<String>());
 			}
+			
+			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size());
 
 			raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
 			spaceFinder = WHITE_SPACE.matcher(raw);
