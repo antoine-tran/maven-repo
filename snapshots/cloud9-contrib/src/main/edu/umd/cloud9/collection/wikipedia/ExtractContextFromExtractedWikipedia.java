@@ -16,13 +16,15 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import com.twitter.elephantbird.util.TaskHeartbeatThread;
+
 import tuan.hadoop.conf.JobConfig;
 import tuan.hadoop.io.IntPair;
 
 public class ExtractContextFromExtractedWikipedia extends JobConfig implements Tool {
 
 	private static final Logger LOG = Logger.getLogger(ExtractContextFromExtractedWikipedia.class);
-	
+
 	private static final Pattern ANCHOR = Pattern.compile("<a href=\"(.*?)\".*?>(.*?)</a>");
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
 
@@ -33,11 +35,11 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 		private Text VALUE = new Text();
 
 		@Override
-		protected void map(LongWritable key, Text value, Context context)
+		protected void map(LongWritable key, Text value, final Context context)
 				throws IOException, InterruptedException {
-			
+
 			String raw = value.toString();
-			
+
 			int i = raw.indexOf("id=\"");
 			int j = raw.indexOf("\"",i+4);
 			String docid = raw.substring(i+4,j);
@@ -45,7 +47,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			i = raw.indexOf("title=\"",j+1);
 			j = raw.indexOf("\">",i+7);
 			String title = raw.substring(i+7,j);
-			
+
 			i = j;
 			j = raw.indexOf("</doc></page>", raw.length() - 20);
 
@@ -71,7 +73,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 				String target = anchorFinder.group(1);
 				String anchor = anchorFinder.group(2);
 				int anchorCnt = anchor.split("\\s+").length;
-				
+
 
 				// no. of spaces of the text before the two consecutive anchors
 				int tmpCnt = 0;
@@ -95,7 +97,7 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			if (anchorOffsets.size() == 0) {
 				return;
 			}
-			
+
 			int wordPos = -1;
 
 			// We use a list of text buffers to cache the contexts
@@ -108,38 +110,55 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 				pos.add(new ArrayList<String>());
 				anchors.add(new ArrayList<String>());
 			}
-			
+
 			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() + ". Anchor size: " + anchorOffsets.size());
 
-			raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
-			spaceFinder = WHITE_SPACE.matcher(raw);
-			int spaceBegin = 0, spaceEnd = 0;
-			while (spaceFinder.find()) {
-				if (spaceFinder.end() == j) {
-					break;
+			// We use a thread that pings back to the cluster every 5 minutes
+			// to avoid getting killed for slow read
+			TaskHeartbeatThread heartbeat = new TaskHeartbeatThread(context, 60 * 5000) {
+				@Override
+				protected void progress() {
+					LOG.info("Processing the spaces. Progress: " + context.getProgress()
+							+ " pings back...");
 				}
-				spaceBegin = spaceFinder.start();
-				if (spaceBegin != 0) {
-					wordPos++;
-					String word = raw.substring(spaceEnd, spaceBegin);
+			};
 
-					for (int k = 0; k < anchorOffsets.size(); k++) {
-						IntPair a = anchorOffsets.get(k);
-						int dist = wordPos - a.getLeft() - a.getRight();
-						if (dist >= 0 && dist < 50) {
-							pos.get(k).add(word);
-						}
-						dist = a.getLeft() - wordPos;
-						if (dist >= 0 && dist < 50) {
-							pre.get(k).add(word);
-						}
-						if (a.getLeft() <= wordPos && a.getLeft() + a.getRight() > wordPos) {
-							anchors.get(k).add(word);
-						}
-					}		
+			try {
+				heartbeat.start();
+
+				raw = raw.replaceAll("<a href=\"(.*?)\".*?>|</a>", "");
+				spaceFinder = WHITE_SPACE.matcher(raw);
+				int spaceBegin = 0, spaceEnd = 0;
+				while (spaceFinder.find()) {
+					if (spaceFinder.end() == j) {
+						break;
+					}
+					spaceBegin = spaceFinder.start();
+					if (spaceBegin != 0) {
+						wordPos++;
+						String word = raw.substring(spaceEnd, spaceBegin);
+
+						for (int k = 0; k < anchorOffsets.size(); k++) {
+							IntPair a = anchorOffsets.get(k);
+							int dist = wordPos - a.getLeft() - a.getRight();
+							if (dist >= 0 && dist < 50) {
+								pos.get(k).add(word);
+							}
+							dist = a.getLeft() - wordPos;
+							if (dist >= 0 && dist < 50) {
+								pre.get(k).add(word);
+							}
+							if (a.getLeft() <= wordPos && a.getLeft() + a.getRight() > wordPos) {
+								anchors.get(k).add(word);
+							}
+						}		
+					}
 				}
+
+			} finally {
+				heartbeat.stop();
 			}
-			
+
 			// Finally emit the contexts
 			for (int k = 0; k < anchorOffsets.size(); k++) {
 				StringBuilder sb = new StringBuilder();
@@ -161,10 +180,10 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			}
 		}
 	}
-	
+
 	private static final class Anchor extends IntPair {
 		String text;
-		
+
 		public Anchor(int l, int r, String t) {
 			super(l,r);
 			text = t;
