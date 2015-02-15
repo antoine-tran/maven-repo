@@ -103,11 +103,10 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 			List<ArrayList<String>> pos = new ArrayList<>();
 			List<ArrayList<String>> anchors = new ArrayList<>();
 
-			for (int k = 0; i < anchorOffsets.size(); k++) {
+			for (int k = 0; k < anchorOffsets.size(); k++) {
 				pre.add(new ArrayList<String>());
 				pos.add(new ArrayList<String>());
 				anchors.add(new ArrayList<String>());
-				LOG.info("incr Pre size: " + pre.size() + ". incr Pos size: " + pos.size());
 			}
 			
 			LOG.info("Pre size: " + pre.size() + ". Pos size: " + pos.size() + ". Anchor size: " + anchorOffsets.size());
