@@ -38,10 +38,10 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 
 			String raw = value.toString();
 
-			// because we heavily rely on white spaces to detect context, we
+			// OBSOLETE: because we heavily rely on white spaces to detect context, we
 			// must make sure there are spaces between the anchors
-			raw = raw.replace("<a href", " <a href");
-			raw = raw.replace("</a>", "</a> ");
+			// raw = raw.replace("<a href", " <a href");
+			// raw = raw.replace("</a>", "</a> ");
 
 			int i = raw.indexOf("id=\"");
 			int j = raw.indexOf("\"",i+4);

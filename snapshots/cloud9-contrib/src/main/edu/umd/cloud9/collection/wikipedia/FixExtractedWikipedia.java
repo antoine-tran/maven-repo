@@ -49,10 +49,11 @@ public class FixExtractedWikipedia extends JobConfig implements Tool {
 			String title = raw.substring(i+7,j);
 			
 			if (title.contains("Ascorbate ferrireductase (transmembrane)")) {
-				raw = raw.replace("\n<page>", "");
+				context.write(NullWritable.get(), value);
+				// raw = raw.replace("\n<page>", "");
 			}
-			VALUE.set(raw);
-			context.write(NullWritable.get(), VALUE);
+			// VALUE.set(raw);
+			// context.write(NullWritable.get(), VALUE);
 		}
 	}
 
