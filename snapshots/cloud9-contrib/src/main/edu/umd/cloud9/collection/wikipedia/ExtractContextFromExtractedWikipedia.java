@@ -16,8 +16,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import com.twitter.elephantbird.util.TaskHeartbeatThread;
-
 import tuan.hadoop.conf.JobConfig;
 import tuan.hadoop.io.IntPair;
 
