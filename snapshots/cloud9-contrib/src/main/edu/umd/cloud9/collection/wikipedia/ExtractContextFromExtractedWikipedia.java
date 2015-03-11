@@ -166,9 +166,9 @@ public class ExtractContextFromExtractedWikipedia extends JobConfig implements T
 				spaceEnd = spaceFinder.end();
 			}
 
-			/*} finally {
+			/* } finally {
 				heartbeat.stop();
-			}*/
+			} */
 
 			// Finally emit the contexts
 			for (int k = 0; k < anchorOffsets.size(); k++) {
