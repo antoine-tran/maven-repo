@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
 
 import tuan.hadoop.conf.JobConfig;
 
-public class TestExtractedWikipedia extends JobConfig implements Tool {
+public class FixExtractedWikipedia extends JobConfig implements Tool {
 
 	private static final Logger LOG = Logger.getLogger(ExtractContextFromExtractedWikipedia.class);
 
@@ -24,8 +25,10 @@ public class TestExtractedWikipedia extends JobConfig implements Tool {
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
 
 	private static final class MyMapper extends Mapper<LongWritable, Text, 
-	LongWritable, Text> {
+	NullWritable, Text> {
 
+		private Text VALUE = new Text();
+		
 		@Override
 		protected void map(LongWritable key, Text value, final Context context)
 				throws IOException, InterruptedException {
@@ -45,9 +48,11 @@ public class TestExtractedWikipedia extends JobConfig implements Tool {
 			j = raw.indexOf("\">",i+7);
 			String title = raw.substring(i+7,j);
 			
-			if (title.contains("Ascorbate ferrireductase (transmembrane)")) {				
-				context.write(key, value);
+			if (title.contains("Ascorbate ferrireductase (transmembrane)")) {
+				raw = raw.replace("\n<page>", "");
 			}
+			VALUE.set(raw);
+			context.write(NullWritable.get(), VALUE);
 		}
 	}
 
@@ -55,9 +60,9 @@ public class TestExtractedWikipedia extends JobConfig implements Tool {
 	public int run(String[] args) throws Exception {
 		Job job = setup(WikiExtractorInputFormat.class,TextOutputFormat.class,
 				// PairOfStringInt.class, PairOfStrings.class,
-				LongWritable.class, Text.class,
+				NullWritable.class, Text.class,
 				//IntWritable.class,PairOfIntString.class,
-				LongWritable.class, Text.class,
+				NullWritable.class, Text.class,
 				MyMapper.class,
 				// MyReducer1.class,
 				// Mapper.class, 
@@ -76,7 +81,7 @@ public class TestExtractedWikipedia extends JobConfig implements Tool {
 
 	public static void main(String[] args) {
 		try {
-			ToolRunner.run(new TestExtractedWikipedia(), args);
+			ToolRunner.run(new FixExtractedWikipedia(), args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
