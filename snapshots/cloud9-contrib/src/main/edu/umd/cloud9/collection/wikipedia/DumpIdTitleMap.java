@@ -43,6 +43,7 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 	private static final String REDUCE_NO = "reduce";
 	private static final String NORMALIZE_OPT = "norm";
 	private static final String OUTPUT_FORMAT_OPT = "outformat";
+	private static final String INPUT_FORMAT_OPT = "informat";
 	
 	private static final String NORMALIZE = "wikipedia.output.normalized";
 	
@@ -51,13 +52,13 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 	/** Preprocess: Extract capitalized wiki page titles / id mappings & output
 	 * to a csv file, format: [capitalized title] TAB [id] */
 	private static final class MyMapper extends 
-	Mapper<IntWritable, WikipediaPage, Text, IntWritable> {
+	Mapper<LongWritable, WikipediaPage, Text, LongWritable> {
 
 		private Text outKey = new Text();
-		private IntWritable outVal = new IntWritable();
+		private LongWritable outVal = new LongWritable();
 
 		@Override
-		protected void map(IntWritable key, WikipediaPage p, Context context) 
+		protected void map(LongWritable key, WikipediaPage p, Context context) 
 				throws IOException, InterruptedException {
 
 			// only articles are emitted
@@ -79,13 +80,13 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 	}
 	
 	// Only emit one of them
-	private static final class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+	private static final class MyReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
 		
-		private IntWritable outval = new IntWritable();
+		private LongWritable outval = new LongWritable();
 		@Override
-		protected void reduce(Text k, Iterable<IntWritable> vs, Context c)
+		protected void reduce(Text k, Iterable<LongWritable> vs, Context c)
 				throws IOException, InterruptedException {
-			for (IntWritable v : vs) outval.set(v.get());
+			for (LongWritable v : vs) outval.set(v.get());
 			c.write(k,outval);
 		}
 	}
@@ -115,6 +116,9 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 		
 		Option outputFormatOpt = OptionBuilder.withArgName("output format").hasArg()
 				.withDescription("Output format: Text of sequential").create(OUTPUT_FORMAT_OPT);
+		
+		Option inputFormatOpt = OptionBuilder.withArgName("input format").hasArg()
+				.withDescription("Output format: Text of sequential").create(INPUT_FORMAT_OPT);
 
 		opts.addOption(langOpt);
 		opts.addOption(inputOpt);
@@ -122,6 +126,7 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 		opts.addOption(outputOpt);
 		opts.addOption(normalizeOpt);
 		opts.addOption(outputFormatOpt);
+		opts.addOption(inputFormatOpt);
  
 		CommandLine cl;
 		CommandLineParser parser = new GnuParser();
@@ -164,10 +169,16 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 			outputFormat = cl.getOptionValue(OUTPUT_FORMAT_OPT);
 		}
 		
+		String inputFormat = "binary";
+		if (cl.hasOption(INPUT_FORMAT_OPT)) {
+			inputFormat = cl.getOptionValue(INPUT_FORMAT_OPT);
+		}
+		
 		Job job = setup("Build Wikipedia Id-Title Mapping Graph",
 				DumpIdTitleMap.class, 
 				input, outputPath, 
-				SequenceFileInputFormat.class, 
+				inputFormat.equals("binary") ? SequenceFileInputFormat.class :
+				WikipediaPageInputFormat.class,
 				
 				// Uncomment this if want output to be a text file
 				outputFormat.equals("text") ? TextOutputFormat.class :
@@ -175,8 +186,8 @@ public class DumpIdTitleMap extends JobConfig implements Tool {
 				// Uncomment this if want output to be a binary file
 				SequenceFileOutputFormat.class,
 				
-				Text.class, IntWritable.class, 
-				Text.class, IntWritable.class, 
+				Text.class, LongWritable.class, 
+				Text.class, LongWritable.class, 
 				MyMapper.class,	Reducer.class, Reducer.class, 
 				reduceNo);
 
