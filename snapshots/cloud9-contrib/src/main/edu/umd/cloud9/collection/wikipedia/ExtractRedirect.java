@@ -170,7 +170,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		
 		Job job = null;
 		job = setup("Build Wikipedia Redirect Mapping Graph - processing",
-				ExtractAnchor.class, 
+				ExtractRedirect.class, 
 				wikiFile, tmp, 
 				WikipediaPageInputFormat.class, 
 				SequenceFileOutputFormat.class, 
@@ -187,7 +187,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		log.info("Phase 2..");
 		if ("text".equals(format)) {
 			job = setup("Build Wikipedia Redirect Mapping Graph - sorting",
-					ExtractAnchor.class, 
+					ExtractRedirect.class, 
 					tmp, output, 
 					SequenceFileInputFormat.class, 
 					TextOutputFormat.class, 
@@ -196,7 +196,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 					Mapper.class, Reducer.class, 1);
 		} else if ("map".equals(format)) {
 			job = setup("Build Wikipedia Redirect Mapping Graph - sorting",
-					ExtractAnchor.class, 
+					ExtractRedirect.class, 
 					tmp, output, 
 					SequenceFileInputFormat.class, 
 					MapFileOutputFormat.class, 
