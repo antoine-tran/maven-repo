@@ -83,7 +83,10 @@ public class ExtractRedirect extends JobConfig implements Tool {
 				outKey.set(title);
 				outVal.set(docId, -1);
 				context.write(outKey, outVal);
-			} else {
+				
+			//} else {	
+			} else if (p.isDisambiguation()) {
+			// } else if (p.isRedirect()) {
 				String actualTitle = null;
 				for (String t : p.extractLinkTargets()) {
 					if (t.isEmpty()) {
@@ -94,7 +97,6 @@ public class ExtractRedirect extends JobConfig implements Tool {
 				if (actualTitle != null) {
 					outKey.set(actualTitle);
 					outVal.set(docId, 1);
-					log.debug("Found redirect: " + title + " --> " + actualTitle);
 					context.write(outKey, outVal);
 				}
 			}
