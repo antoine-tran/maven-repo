@@ -11,6 +11,7 @@ import it.cnr.isti.hpc.dexter.entity.EntityRanker;
 import it.cnr.isti.hpc.dexter.spot.Spot;
 import it.cnr.isti.hpc.dexter.spot.SpotMatch;
 import it.cnr.isti.hpc.dexter.spot.SpotMatchList;
+import it.cnr.isti.hpc.dexter.spot.clean.SpotManager;
 import it.cnr.isti.hpc.dexter.spot.repo.SpotRepository;
 import it.cnr.isti.hpc.dexter.spot.repo.SpotRepositoryFactory;
 import it.cnr.isti.hpc.dexter.util.DexterLocalParams;
@@ -62,7 +63,7 @@ public class ManualSpotter extends AbstractSpotter {
 			throw new IllegalArgumentException("The required parameter" +
 					" manual.spotter.groundtruth not found");
 		}
-		String groundTruthDir = params.getExtraParamValue("");
+		String groundTruthDir = params.getExtraParamValue("manual.spotter.groundtruth");
 		
 		Spot s;
 		
@@ -72,7 +73,7 @@ public class ManualSpotter extends AbstractSpotter {
 				+ document.getDocname())) {
 			int i = line.indexOf('\t');
 			int j = line.lastIndexOf('\t');
-			String text = line.substring(0,i);
+			String text = SpotManager.cleanText(line.substring(0,i));
 			if (cache.containsKey(text)) {
 				// hit in cache
 				s = cache.get(text);
