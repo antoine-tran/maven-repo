@@ -126,6 +126,12 @@
 		</dependency> -->
 
 		<dependency>
+			<groupId>it.cnr.isti.hpc</groupId>
+			<artifactId>hpc-utils</artifactId>
+			<version>0.0.6</version>
+		</dependency>
+
+		<dependency>
 			<artifactId>dexter-core</artifactId>
 			<groupId>it.cnr.isti.hpc</groupId>
 			<version>2.1.0.1</version>
