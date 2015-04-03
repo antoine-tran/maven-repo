@@ -63,7 +63,7 @@ public class MergeRevisions extends JobConfig implements Tool {
 	public int run(String[] args) throws Exception {
 		Job job = setup(
 				TextInputFormat.class, TextOutputFormat.class,
-				NullWritable.class, Text.class,
+				LongWritable.class, Text.class,
 				NullWritable.class, Text.class,
 				MyMapper.class, MyReducer.class, args);
 		
