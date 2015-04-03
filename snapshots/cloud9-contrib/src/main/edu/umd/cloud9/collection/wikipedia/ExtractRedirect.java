@@ -84,9 +84,9 @@ public class ExtractRedirect extends JobConfig implements Tool {
 				outVal.set(docId, -1);
 				context.write(outKey, outVal);
 				
-			//} else {	
-			} else if (p.isDisambiguation()) {
-			// } else if (p.isRedirect()) {
+			// } else {	
+			//} else if (p.isDisambiguation()) {
+			} else if (p.isRedirect()) {
 				String actualTitle = null;
 				for (String t : p.extractLinkTargets()) {
 					if (t.isEmpty()) {

@@ -82,13 +82,13 @@ public class ManualSpotter extends AbstractSpotter {
 				}
 			} else {
 				s = spotRepo.getSpot(text);
-				cache.put(text, s);
-			}
-
-			if (s == null) {
-				continue;
+				cache.put(text, s);				
 			}
 			
+			if (s == null) {				
+				continue;
+			}
+						
 			SpotMatch match = new SpotMatch(s, field);
 			EntityMatchList entities = er.rank(match);
 			match.setEntities(entities);

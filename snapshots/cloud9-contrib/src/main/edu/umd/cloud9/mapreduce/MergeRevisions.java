@@ -8,6 +8,8 @@ import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.BZip2Codec;
+import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -65,6 +67,16 @@ public class MergeRevisions extends JobConfig implements Tool {
 				NullWritable.class, Text.class,
 				MyMapper.class, MyReducer.class, args);
 		
+		job.getConfiguration().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+		job.getConfiguration().setClass("mapred.output.compression.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+
+		job.getConfiguration().setClass("mapred.map.output.compression.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+		job.getConfiguration().setClass("mapreduce.map.output.compress.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+		
 		job.waitForCompletion(true);
 		return 0;
 		
@@ -72,7 +84,7 @@ public class MergeRevisions extends JobConfig implements Tool {
 
 	public static void main(String[] args) {
 		try {
-			ToolRunner.run(new MergeText(), args);
+			ToolRunner.run(new MergeRevisions(), args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

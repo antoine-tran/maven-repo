@@ -319,7 +319,7 @@ public class JobConfig extends Configured {
 		Path op = new Path(outpath);
 
 		if (removeOutputDirectory) {
-			FileSystem fs = FileSystem.get(getConf());
+			FileSystem fs = FileSystem.get(job.getConfiguration());
 			fs.delete(op, true);
 		}
 
@@ -384,58 +384,58 @@ public class JobConfig extends Configured {
 			job.getConfiguration().setBoolean("mapreduce.map.output.compress", true);
 
 			if ("bz2".equals(compressType)) {
-				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.output.fileoutputformat.compress.codec", 
 						BZip2Codec.class, CompressionCodec.class);
-				getConf().setClass("mapred.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.output.compression.codec", 
 						BZip2Codec.class, CompressionCodec.class);
 
-				getConf().setClass("mapred.map.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.map.output.compression.codec", 
 						BZip2Codec.class, CompressionCodec.class);
-				getConf().setClass("mapreduce.map.output.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.map.output.compress.codec", 
 						BZip2Codec.class, CompressionCodec.class);
 			}			
 			else if ("gz".equals(compressType)) {
-				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.output.fileoutputformat.compress.codec", 
 						GzipCodec.class, CompressionCodec.class);
-				getConf().setClass("mapred.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.output.compression.codec", 
 						GzipCodec.class, CompressionCodec.class);
 
-				getConf().setClass("mapred.map.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.map.output.compression.codec", 
 						GzipCodec.class, CompressionCodec.class);
-				getConf().setClass("mapreduce.map.output.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.map.output.compress.codec", 
 						GzipCodec.class, CompressionCodec.class);
 			}
 			else if ("lz4".equals(compressType)) {
-				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.output.fileoutputformat.compress.codec", 
 						Lz4Codec.class, CompressionCodec.class);
-				getConf().setClass("mapred.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.output.compression.codec", 
 						Lz4Codec.class, CompressionCodec.class);
 
-				getConf().setClass("mapred.map.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.map.output.compression.codec", 
 						Lz4Codec.class, CompressionCodec.class);
-				getConf().setClass("mapreduce.map.output.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.map.output.compress.codec", 
 						Lz4Codec.class, CompressionCodec.class);
 			}
 			else if ("snappy".equals(compressType)) {
-				getConf().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.output.fileoutputformat.compress.codec", 
 						SnappyCodec.class, CompressionCodec.class);
-				getConf().setClass("mapred.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.output.compression.codec", 
 						SnappyCodec.class, CompressionCodec.class);
 
-				getConf().setClass("mapred.map.output.compression.codec", 
+				job.getConfiguration().setClass("mapred.map.output.compression.codec", 
 						SnappyCodec.class, CompressionCodec.class);
-				getConf().setClass("mapreduce.map.output.compress.codec", 
+				job.getConfiguration().setClass("mapreduce.map.output.compress.codec", 
 						SnappyCodec.class, CompressionCodec.class);
 			}
 			else if ("lzo".equals(compressType)) {
-				getConf().set("mapreduce.output.fileoutputformat.compress.codec", 
+				job.getConfiguration().set("mapreduce.output.fileoutputformat.compress.codec", 
 						"com.hadoop.compression.lzo.LzoCodec");
-				getConf().set("mapred.output.compression.codec", 
+				job.getConfiguration().set("mapred.output.compression.codec", 
 						"com.hadoop.compression.lzo.LzoCodec");
 
-				getConf().set("mapred.map.output.compression.codec", 
+				job.getConfiguration().set("mapred.map.output.compression.codec", 
 						"com.hadoop.compression.lzo.LzoCodec");
-				getConf().set("mapreduce.map.output.compress.codec", 
+				job.getConfiguration().set("mapreduce.map.output.compress.codec", 
 						"com.hadoop.compression.lzo.LzoCodec");
 			}
 			else throw new RuntimeException("Unknown compress codec: " + compressType);

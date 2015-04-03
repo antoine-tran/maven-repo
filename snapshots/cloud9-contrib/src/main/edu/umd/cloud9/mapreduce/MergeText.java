@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.BZip2Codec;
+import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -33,6 +35,16 @@ public class MergeText extends JobConfig implements Tool {
 				NullWritable.class, Text.class,
 				NullWritable.class, Text.class,
 				MyMapper.class, Reducer.class, args);
+		
+		job.getConfiguration().setClass("mapreduce.output.fileoutputformat.compress.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+		job.getConfiguration().setClass("mapred.output.compression.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+
+		job.getConfiguration().setClass("mapred.map.output.compression.codec", 
+				BZip2Codec.class, CompressionCodec.class);
+		job.getConfiguration().setClass("mapreduce.map.output.compress.codec", 
+				BZip2Codec.class, CompressionCodec.class);
 		
 		job.waitForCompletion(true);
 		return 0;
