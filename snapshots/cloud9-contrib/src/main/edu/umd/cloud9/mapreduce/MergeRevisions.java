@@ -42,7 +42,7 @@ public class MergeRevisions extends JobConfig implements Tool {
 			JsonObject obj =
 					(JsonObject) parser.parse(value.toString());
 			
-			KEY.set(obj.get("pageid").getAsLong());
+			KEY.set(obj.get("page_id").getAsLong());
 			
 			context.write(KEY, value);
 		}		
