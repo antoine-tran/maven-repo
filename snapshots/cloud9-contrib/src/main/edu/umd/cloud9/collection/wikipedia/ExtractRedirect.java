@@ -70,29 +70,41 @@ public class ExtractRedirect extends JobConfig implements Tool {
 			} else if (!p.isArticle())
 				return;
 			String title = p.getTitle().trim();
+
+			String fc = title.substring(0, 1);
+			if (fc.matches("[A-Z]")) {
+				title = title.replaceFirst(fc, fc.toUpperCase());
+			}
+
 			int docId = Integer.parseInt(p.getDocid());
 
 			// to make the title case-sensitive, we will change all lower-cased
 			// first characters to upper-case.
 			if (title.isEmpty())
 				return;
-			title = WordUtils.capitalize(title);
+			// title = WordUtils.capitalize(title);
 
 			// do not pass the id message of a redirect article
 			if (!redirected) {
 				outKey.set(title);
 				outVal.set(docId, -1);
 				context.write(outKey, outVal);
-				
-			// } else {	
-			//} else if (p.isDisambiguation()) {
+
+				// } else {	
+				//} else if (p.isDisambiguation()) {
 			} else if (p.isRedirect()) {
 				String actualTitle = null;
 				for (String t : p.extractLinkTargets()) {
 					if (t.isEmpty()) {
 						continue;
 					}
-					actualTitle = WordUtils.capitalize(t);
+					fc = t.substring(0, 1);
+					if (fc.matches("[A-Z]")) {
+						actualTitle = title.replaceFirst(fc, fc.toUpperCase());
+					}
+					else {
+						actualTitle = title;
+					}
 				}	
 				if (actualTitle != null) {
 					outKey.set(actualTitle);
@@ -167,7 +179,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 
 		// String outputPath = TMP_HDFS_DIR + output;
 		String tmp = TMP_HDFS_DIR + output;
-		
+
 		Job job = null;
 		job = setup("Build Wikipedia Redirect Mapping Graph - processing",
 				ExtractRedirect.class, 
@@ -183,7 +195,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 		String ramUsedForEachMapper = job.getConfiguration().get("mapred.map.child.java.opts");		
 		log.info("Memory used per Map task: " + ramUsedForEachMapper);
 		job.waitForCompletion(true);	
-		
+
 		log.info("Phase 2..");
 		if ("text".equals(format)) {
 			job = setup("Build Wikipedia Redirect Mapping Graph - sorting",
@@ -205,7 +217,7 @@ public class ExtractRedirect extends JobConfig implements Tool {
 					Mapper.class, Reducer.class, 1);
 		} else throw new RuntimeException("unknown output format: " + format);
 		job.waitForCompletion(true);
-	
+
 		// remove intermediate file
 		FileSystem.get(job.getConfiguration()).delete(new Path(tmp), true);
 	}
