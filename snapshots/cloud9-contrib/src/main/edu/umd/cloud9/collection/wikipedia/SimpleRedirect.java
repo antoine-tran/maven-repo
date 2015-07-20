@@ -10,7 +10,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -22,7 +21,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cloud9.io.pair.PairOfInts;
 import tuan.hadoop.conf.JobConfig;
 
 public class SimpleRedirect extends JobConfig implements Tool {
@@ -183,8 +181,8 @@ public class SimpleRedirect extends JobConfig implements Tool {
 				wikiFile, tmp, 
 				WikipediaPageInputFormat.class, 
 				TextOutputFormat.class, 
-				Text.class, PairOfInts.class, 
-				IntWritable.class, IntWritable.class, 
+				LongWritable.class, Text.class, 
+				LongWritable.class, Text.class, 
 				MyMapper.class, 
 				Reducer.class, 
 				reduceNo);
