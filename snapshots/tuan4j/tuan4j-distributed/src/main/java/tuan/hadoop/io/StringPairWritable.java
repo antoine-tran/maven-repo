@@ -179,6 +179,7 @@ public class StringPairWritable implements WritableComparable<StringPairWritable
     /**
      * Optimization hook.
      */
+	@Override
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
       try {
         int firstVIntL1 = WritableUtils.decodeVIntSize(b1[s1]);
