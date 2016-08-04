@@ -16,16 +16,12 @@
 
 package edu.umd.cloud9.collection.wikipedia;
 
-import java.io.IOException;
-import java.util.Random;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import edu.umd.cloud9.collection.wikipedia.WikipediaPage.ContextedLink;
+import edu.umd.cloud9.io.map.HMapSIW;
+import edu.umd.cloud9.io.pair.PairOfIntString;
+import edu.umd.cloud9.io.pair.PairOfStringInt;
+import edu.umd.cloud9.io.pair.PairOfStrings;
+import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -38,21 +34,15 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
-import edu.umd.cloud9.collection.wikipedia.WikipediaPage.ContextedLink;
-import edu.umd.cloud9.collection.wikipedia.WikipediaPage.Link;
-import edu.umd.cloud9.io.map.HMapSIW;
-import edu.umd.cloud9.io.pair.PairOfIntString;
-import edu.umd.cloud9.io.pair.PairOfStringInt;
-import edu.umd.cloud9.io.pair.PairOfStrings;
+import java.io.IOException;
+import java.util.Random;
 
 /**
  * Tool for extracting anchor text out of Wikipedia.
